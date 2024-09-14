@@ -1,5 +1,8 @@
 import numpy as np
 
+def formatFloat(x):
+    return f'{x:.3f}'
+
 
 def formatFloatArray (array) :
     def formatFloat(x):

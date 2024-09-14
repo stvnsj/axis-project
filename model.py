@@ -1,11 +1,33 @@
 import numpy as np
 import section as sec
-import cadstack as cad
 
 
+class ModelIterator :
+
+    def __init__ (self, model, start=0 , end=0):
+        self._model = model
+        self._index = start
+        self._end   = end
+
+    def __iter__ (self) :
+        return self
+
+    def __next__ (self) :
+        if self._index >= self._model.size or self._index > self._end:
+            raise StopIteration
+        section = self._model.sections[self._model.sectionIndex[self._index]]
+        self._index += 1
+        return section
+        
+
+
+"""
+
+"""
 class Model :
     
     def __init__ (self, heights, matrix = None, labels= None):
+        
         self.heights = dict(heights)
         self.kms = []
         self.sections = []
@@ -14,17 +36,15 @@ class Model :
         self.build(matrix,labels)
         self.sections.sort()
         self.deduplicate()
-        self.cadStack = cad.CADStack()
-
-
+        self.currSection = 0;
+        self.size = len(self.sectionIndex)
+        
+        
+        
     def getSection(self,index):
         i = self.sectionIndex[index]
         return self.sections[i]
         
-
-    def printCad (self):
-        for i in self.sectionIndex:
-            print(self.sections[i].cadFormat(self.cadStack))
         
     def printMop (self):
         for i in self.sectionIndex:
@@ -33,16 +53,6 @@ class Model :
     def printWidth (self):
         for i in self.sectionIndex:
             print(self.sections[i].widthFormat())
-
-    def writeCad (self,filename="cad.SCR") :
-        self.sections.sort()
-        self.deduplicate()
-        with open(filename, "w") as f:
-            f.write("-LAYER N LINEA_TIERRA C 4 LINEA_TIERRA S LINEA_TIERRA L CONTINUOUS\n\n")
-            for i in self.sectionIndex:
-                f.write("\n\nPLINE\n")
-                np.savetxt(f, self.sections[i].cadFormat(self.cadStack), delimiter=',' ,fmt='%s')
-            f.write("\n\nZOOM E")
         
     def writeWidth (self,filename) :
         self.sections.sort()
@@ -139,6 +149,19 @@ class Model :
                 start = i
                 end = i
                 i = i + 1
+
+    def __iter__ (self):
+        return self
+
+    def __next__ (self):
+        if self.currSection >= self.size:
+            raise StopIteration
+        else:
+            i = self.currSection
+            self.currSection += 1
+            return self.sections[self.sectionIndex[i]]
+        
+        
 
 
 
