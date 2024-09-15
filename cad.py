@@ -17,18 +17,18 @@ import model as mdl
 class StackElement:
     
     def __init__(self,section,f,x=900,y=900):
-
+        
         self.f = f
-
+        
         # Left border of the box
         self.x0 = x;
-
+        
         # Bottom border of the box
         self.y0 = y;
-
+        
         # Cross section to be drawn
         self.section = section
-
+        
         # Lowest and greastet relative distances.
         self.minDist = np.min(section.distance);
         self.maxDist = np.max(section.distance);
@@ -36,10 +36,10 @@ class StackElement:
         # Distance between left and right extremes of the
         # cross section.
         self.distRange = self.maxDist - self.minDist;
-
+        
         # horizontal excess
         self.excess = 2.0
-
+        
         # Length of horizontal structural lines.
         self.structLineLength = self.distRange + 2 * self.excess;
         
@@ -47,7 +47,7 @@ class StackElement:
         self.minHeight = np.min(section.adjustedHeight);
         self.heightDelta = 10;
         self.h0 = self.minHeight - self.heightDelta;
-
+        
         
         # This list indexes the distance array, so that
         # the order goes from negative to positive, e.g.:
@@ -59,7 +59,7 @@ class StackElement:
         ##############
         # BOX LAYOUT #
         ##############
-
+        
         # Y Coordinates
         self.y_km = 0.5 + self.y0;
         self.y_distUnderline = 2.0 + self.y_km;
@@ -68,7 +68,7 @@ class StackElement:
         self.y_heightNum = 0.5 + self.y_heightUnderline;
         self.y_figure = 3.6 + self.y_heightNum;
         self.y_refline = 0.2 * self.heightDelta + self.y_figure;
-
+        
         # X Coordinates
         self.x_refline    = 0.5 + self.x0;
         self.x_structLine = 8.0 + self.x_refline;
@@ -76,10 +76,10 @@ class StackElement:
         self.x_num        = self.x_figure
         self.x_km         = 0.5 * self.structLineLength + self.x_structLine;
         self.x_labelText  = 7.0 + self.x0;
-
-        self.x1 = self.x_structLine + self.structLineLength + 10
-
         
+        self.x1 = self.x_structLine + self.structLineLength + 10
+    
+    
     def groundLine (self, f):
         distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         height   = utils.formatFloatArray(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));
@@ -97,7 +97,7 @@ class StackElement:
         np.savetxt(self.f, content ,fmt='%s')
     
     def structLine (self,f):
-
+        
         x1 = utils.formatFloatArray( np.array([
             self.x_structLine,
             self.x_structLine,
@@ -111,7 +111,7 @@ class StackElement:
             self.x_structLine + self.structLineLength,
             self.x_figure + np.absolute(self.minDist),
         ]))
-
+        
         y1 = utils.formatFloatArray(np.array([
             self.y_distUnderline,
             self.y_heightUnderline,
@@ -128,7 +128,7 @@ class StackElement:
         
         content = ("LINE " + x1 + "," +  y1 + " " + x2 + "," + y2 + "\n")[:,None]
         np.savetxt(self.f, content ,fmt='%s')
-
+    
     
     def distNum (self,f):
         distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
@@ -245,9 +245,9 @@ class CadScript:
         y0 = 0.0
         
         with open(filename, "w") as f:
-
+            
             while True:
-
+                
                 if  i + self.stackSize - 1 < j :
                     stack = Stack(self.model, y0)
                     y0 = stack.write(f, i, i + self.stackSize - 1)
@@ -256,4 +256,4 @@ class CadScript:
                     stack = Stack(self.model, y0)
                     stack.write(f, i, j)
                     break
-                    
+

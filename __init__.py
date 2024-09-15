@@ -1,10 +1,11 @@
 
 
-from .section  import Section
-from .model    import Model
-from .model    import ModelIterator
-from .cadstack import CADStack
-from .reader   import Reader
+from .section     import Section
+from .model       import Model
+from .model       import ModelIterator
+from .cadstack    import CADStack
+from .reader      import Reader
+from .spreadsheet import Spreadsheet
 
 
 from .utils import formatFloatArray

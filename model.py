@@ -7,7 +7,7 @@ class ModelIterator :
     def __init__ (self, model, start=0 , end=0):
         self._model = model
         self._index = start
-        self._end   = end
+        self._end   = model.size if end==0 else end
 
     def __iter__ (self) :
         return self
@@ -22,7 +22,7 @@ class ModelIterator :
 
 
 """
-
+Model represents a full set of cross sections, i.e. the full path.
 """
 class Model :
     
@@ -39,12 +39,9 @@ class Model :
         self.currSection = 0;
         self.size = len(self.sectionIndex)
         
-        
-        
     def getSection(self,index):
         i = self.sectionIndex[index]
         return self.sections[i]
-        
         
     def printMop (self):
         for i in self.sectionIndex:
@@ -53,14 +50,16 @@ class Model :
     def printWidth (self):
         for i in self.sectionIndex:
             print(self.sections[i].widthFormat())
-        
+    
+    
     def writeWidth (self,filename) :
         self.sections.sort()
         self.deduplicate()
         with open(filename, "w") as f:
             for i in self.sectionIndex:
                 np.savetxt(f, self.sections[i].widthFormat(), delimiter=',' ,fmt='%s')  
-        
+    
+    
     def writeMop (self,filename) :
         self.sections.sort()
         self.deduplicate()
@@ -85,10 +84,10 @@ class Model :
                 i = j
                 j = j + 1
                 self.sectionIndex.append(i)
-        
-        
-        
-        
+    
+    
+    
+    
     def findHeight (self,km):
         try:
             height = self.heights[km]
