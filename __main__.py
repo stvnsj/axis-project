@@ -14,12 +14,13 @@ def main():
     matrix, labels, heights = reader.getData()
     model = md.Model(heights,matrix,labels)
     
-    # cadScript = cad.CadScript(model)
-    # cadScript.write(7,11)
-
-    spreadsheet = ss.Spreadsheet(model)
+    #print(model.getkmRange("200.00000","1001.0001"))
     
-    spreadsheet.writeMOP()
+    cadScript = cad.CadScript(model)
+    cadScript.writeKm("4785","5004")
+    
+    #spreadsheet = ss.Spreadsheet(model)
+    #spreadsheet.writeKmMOP("testkmmop.csv" , "79.999","89.111")
 
 
 if __name__ == "__main__":

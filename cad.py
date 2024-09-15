@@ -246,6 +246,8 @@ class CadScript:
         
         with open(filename, "w") as f:
             
+            f.write(f'-LAYER N REFERENCIAS C 7 REFERENCIAS S REFERENCIAS L CONTINUOUS\n\n\n')
+            
             while True:
                 
                 if  i + self.stackSize - 1 < j :
@@ -256,4 +258,9 @@ class CadScript:
                     stack = Stack(self.model, y0)
                     stack.write(f, i, j)
                     break
+    
+    def writeKm (self,km0="0",km1="0",fn="testcadkm.SCR"):
+        i,j = self.model.getKmRange(km0,km1)
+        self.write(i,j,fn)
+        
 

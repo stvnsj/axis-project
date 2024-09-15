@@ -8,17 +8,16 @@ class ModelIterator :
         self._model = model
         self._index = start
         self._end   = model.size if end==0 else end
-
+        
     def __iter__ (self) :
         return self
-
+    
     def __next__ (self) :
         if self._index >= self._model.size or self._index > self._end:
             raise StopIteration
         section = self._model.sections[self._model.sectionIndex[self._index]]
         self._index += 1
         return section
-        
 
 
 """
@@ -32,24 +31,67 @@ class Model :
         self.kms = []
         self.sections = []
         self.sectionIndex = [] # Index of non-duplicate sections in self.sections
+        self.__kmIdDict = {}
         self.errNum = 0
         self.build(matrix,labels)
         self.sections.sort()
         self.deduplicate()
         self.currSection = 0;
         self.size = len(self.sectionIndex)
-        
+    
+    
     def getSection(self,index):
         i = self.sectionIndex[index]
         return self.sections[i]
+    
+    
+    
+    
+    
+    def getKmRange(self,km0,km1):
         
+        i0 = 0
+        i1 = self.size - 1
+        i = 0
+        
+        if np.float64(km0) > np.float64(km1) :
+            
+            return (i0, i1)
+        
+        
+        itr = ModelIterator(self)
+        
+        for section in itr:
+            
+            if np.float64(section.km) >= np.float64(km0):
+                
+                i0 = i
+                break
+            
+            else:
+                
+                i += 1
+        
+        itr2 = ModelIterator(self, i0)
+        
+        for section in itr2:
+            
+            if np.float64(section.km) <= np.float64(km1):
+                
+                i += 1
+            
+            else:
+                
+                i1 = i-1
+                break
+        
+        return (i0,i1)
+    
+    
+    
     def printMop (self):
         for i in self.sectionIndex:
             print(self.sections[i].mopFormat())
-    
-    def printWidth (self):
-        for i in self.sectionIndex:
-            print(self.sections[i].widthFormat())
     
     
     def writeWidth (self,filename) :
@@ -59,13 +101,6 @@ class Model :
             for i in self.sectionIndex:
                 np.savetxt(f, self.sections[i].widthFormat(), delimiter=',' ,fmt='%s')  
     
-    
-    def writeMop (self,filename) :
-        self.sections.sort()
-        self.deduplicate()
-        with open(filename, "w") as f:
-            for i in self.sectionIndex:
-                np.savetxt(f, self.sections[i].mopFormat(), delimiter=',' ,fmt='%s') 
     
     
     # Given the sorted section list `sections`, this functions merges
@@ -102,8 +137,8 @@ class Model :
             print(f'> Error {self.errNum}: Altura de {km} no encontrada')
             self.errNum = self.errNum + 1
             return np.float64(0)
-        
-        
+    
+    
     def build (self,matrix,labels):
         
         start = 0 # start index of matrix chunk copied
@@ -118,10 +153,11 @@ class Model :
             if np.isnan(matrix[i][0]):
                 end = end + 1;
                 i   = i + 1
+                
                 if(i == length):
                     
                     height = self.findHeight(labels[start])
-                        
+                    
                     section = sec.Section(
                         labels[start],
                         matrix[start:end],
@@ -130,8 +166,8 @@ class Model :
                     
                     self.sections.append(section)
                     self.kms.append(matrix[start][0])
-                    
-                 
+            
+            
             elif (not np.isnan(matrix[i][0])):
                 end = end + 1;
                 
@@ -148,10 +184,10 @@ class Model :
                 start = i
                 end = i
                 i = i + 1
-
+    
     def __iter__ (self):
         return self
-
+    
     def __next__ (self):
         if self.currSection >= self.size:
             raise StopIteration
@@ -159,8 +195,6 @@ class Model :
             i = self.currSection
             self.currSection += 1
             return self.sections[self.sectionIndex[i]]
-        
-        
 
 
 

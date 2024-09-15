@@ -10,11 +10,6 @@ class Spreadsheet :
         self.__model = model
     
     
-    def writeWidth (self) :
-        pass
-    
-    
-    
     def writeSectionMOP (self,section,f) :
         
         # [i:] array from index i
@@ -30,7 +25,6 @@ class Spreadsheet :
         
         # reversed ordered on negative part of distance
         section.distance[1:neg+1] = section.distance[1:][descendingIndex]
-        
         
         section.adjustedHeight[1:] = section.adjustedHeight[1:][ascendingIndex]
         section.adjustedHeight[1:neg+1] = section.adjustedHeight[1:][descendingIndex]
@@ -52,16 +46,54 @@ class Spreadsheet :
             section.labels[:,None],
             section.side))
         
-        np.savetxt(f, content ,fmt='%s')
+        np.savetxt(f,content,delimiter=',',fmt='%s')
+    
+    
+    def writeSectionWidth (self, section, f) :
+        
+        minIndex = np.argmin(section.distance)
+        maxIndex = np.argmax(section.distance)
+        
+        minDistance = section.distance[minIndex]
+        maxDistance = section.distance[maxIndex]        
+        
+        leftLabel = 'T' if minDistance < -20.0 else ''
+        rightLabel = 'T' if maxDistance > 20.0 else ''
+        
+        content = np.array([[
+            section.km,
+            utils.formatFloatArray(minDistance),
+            utils.formatFloatArray(maxDistance),
+            leftLabel,
+            rightLabel ]])
+        
+        np.savetxt(f, content, delimiter=',', fmt='%s')
     
     
     
-    
-    def writeMOP (self,filename="testmop.csv") :
-        sections = mdl.ModelIterator(self.__model,23,28)
+    def writeMOP (self,filename="testmop.csv",i=0,j=0) :
+        
+        sections = mdl.ModelIterator(self.__model,i,j)
         
         with open(filename, "w") as f:
             for section in sections :
                 self.writeSectionMOP(section,f)
-                print(section.getId())
+    
+    
+    def writeWidth (self, filename="testwidth.csv",i=0,j=0) :
+        
+        sections = mdl.ModelIterator(self.__model,i,j)
+        
+        with open(filename, "w") as f:
+            for section in sections :
+                self.writeSectionWidth(section,f)
+    
+    def writeKmMOP (self,fn="testmoprange.csv",km0="0",km1="0"):
+        i,j = self.__model.getKmRange(km0,km1)
+        self.writeMOP(fn,i,j)
+    
+    def writeKmWidth (self, fn="testwidthrange.csv", km0="0" , km1="0"):
+        i,j = self.__model.getKmRange(km0,km1)
+        self.writeWidth(fn,i,j)
+
 
