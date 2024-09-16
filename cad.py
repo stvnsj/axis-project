@@ -3,6 +3,7 @@ import utils
 import model as mdl
 
 
+
 #############################################################
 # I must have a box structure to enclose a stack element.   #
 # What are the elements of a box ??                         #
@@ -81,22 +82,28 @@ class StackElement:
     
     
     def groundLine (self, f):
+        
+        """Generates the surface points of the cross-section"""
         distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         height   = utils.formatFloatArray(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));
         content = (distance + "," +height[:,0])[:,None]
-        f.write("\n")
-        f.write("PLINE")
-        f.write("\n")
+        f.write("PLINE\n")
         np.savetxt(f, content ,fmt='%s')
-        self.f.write("\n\n")
+        f.write("\n")
+    
+    
     
     def heightLine (self, f):
+        
+        """Generates the set of lines from the X-axis to the surface"""
         distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         height   = utils.formatFloatArray(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));        
         content = ("LINE " + distance + "," + f'{self.y_figure} ' + distance + "," + height[:,0] + "\n")[:,None]
         np.savetxt(self.f, content ,fmt='%s')
+        
     
-    def structLine (self,f):
+    def axisLines (self,f):
+        """Generates the X and Y axis lines and the height-reference line"""
         
         x1 = utils.formatFloatArray( np.array([
             self.x_structLine,
@@ -131,65 +138,78 @@ class StackElement:
     
     
     def distNum (self,f):
+        
+        """Generates the distance numbers on the X-axis"""
         distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         labels   = utils.formatFloatArray(self.section.distance[self.indexList])
-        content = "-TEXT M " + distance + "," + utils.formatFloat(self.y_distNum) + " 0.50 90 " + "\"" + labels + "\""
+        content = "-TEXT M " + distance + "," + utils.formatFloat(self.y_distNum) + " 0.50 90 " + "" + labels
         np.savetxt(self.f, content ,fmt='%s')
         
     
     def heightNum (self,f):
+        
+        """Generates the height numbers on the X-axis"""
         distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         labels   = utils.formatFloatArray(self.section.adjustedHeight[self.indexList])[:,0]
-        content  = ("-TEXT M " + distance + "," + utils.formatFloat(self.y_heightNum) + " 0.50 90 " + "\"" + labels + "\"")
+        content  = "-TEXT M " + distance + "," + utils.formatFloat(self.y_heightNum) + " 0.50 90 " + "" + labels
         np.savetxt(self.f, content ,fmt='%s')
+        
     
     def heightRef (self,f):
+        
+        """Generates the """
         x = utils.formatFloat(self.x_refline)
         y = utils.formatFloat(self.y_refline)
         d = utils.formatFloat(self.h0)
-        self.f.write(f'-TEXT M {x},{y} 0.45 0 \"Ref: {d}\"')
+        self.f.write(f'-TEXT M {x},{y} 0.45 0 Ref: {d}\n')
+        
+    
     
     def kmLabel (self,f):
+        
         x = utils.formatFloat(self.x_km)
         y = utils.formatFloat(self.y_km)
-        self.f.write(f'-TEXT M {x},{y} 0.85 0 \"DM: {self.section.id}\"')
+        self.f.write(f'-TEXT M {x},{y} 0.85 0 DM: {self.section.id}\n')
         
+    
     def distLabel (self,f) :
+        
         x = utils.formatFloat(self.x_labelText)
         y = utils.formatFloat(self.y_distNum)
-        self.f.write(f'-TEXT M {x},{y} 0.70 90 \"DIST.\"')
+        self.f.write(f'-TEXT M {x},{y} 0.70 90 DIST.\n')
         
+    
+    
     def heightLabel (self, f) :
+        
         x = utils.formatFloat(self.x_labelText)
         y = utils.formatFloat(self.y_heightNum)
-        self.f.write(f'-TEXT M {x},{y} 0.70 90 \"COTA\"')
+        self.f.write(f'-TEXT M {x},{y} 0.70 90 COTA\n')
         
-        
+    
+    
     def write (self):
-        
+
+        self.f.write("-LAYER N LINEA_TIERRA C 4 LINEA_TIERRA S LINEA_TIERRA L CONTINUOUS\n\n\n")
         self.groundLine(self.f)
-        self.f.write("\n\n")
         
+        self.f.write("-LAYER N L_VERTICAL_PTO C 8 L_VERTICAL_PTO S L_VERTICAL_PTO L CONTINUOUS\n\n\n")
         self.heightLine(self.f)
-        self.f.write("\n\n")
         
-        self.structLine(self.f)
-        self.f.write("\n\n")
+        self.f.write("-LAYER N CAJA C 1 CAJA S CAJA L CONTINUOUS\n\n\n")
+        self.axisLines(self.f)
         
+        self.f.write("-LAYER N DISTANCIAS C 1 DISTANCIAS S DISTANCIAS L CONTINUOUS\n\n\n")
         self.distNum(self.f)
-        self.f.write("\n\n")
-        
+
+        self.f.write("-LAYER N COTAS C 3 COTAS S COTAS L CONTINUOUS\n\n\n")
         self.heightNum(self.f)
-        self.f.write("\n\n")
-        
+
+        self.f.write("-LAYER N REFERENCIAS C 7 REFERENCIAS S REFERENCIAS L CONTINUOUS\n\n\n")
         self.heightRef(self.f)
-        self.f.write("\n")
         self.kmLabel(self.f)
-        self.f.write("\n")
         self.distLabel(self.f)
-        self.f.write("\n")
         self.heightLabel(self.f)
-        self.f.write("\n\n")
         
         return self.x1
 
@@ -205,26 +225,34 @@ class Stack:
         self.km0 = ""
         self.km1 = ""
         self.model = model
-        
+    
+    
     def write (self, f, i , j):
         
         if i >= self.model.size:
+            
             return ""
+         
+        
+        
         
         self.km0 = self.model.getSection(i).id;
         
         iterator = mdl.ModelIterator(self.model,i,j)
-            
+        
         self.currX += 10;
         
         for section in iterator:
+            
             stackElement = StackElement(section, f, x=self.currX, y=self.y0)
             print(section.id)
             self.km1 = section.id
             self.currX = stackElement.write()
+            
         
-        f.write(f'-TEXT ML {self.x0},{self.y0+4} 2.50 0 \"PT Desde M: {self.km0}\"\n')
-        f.write(f'-TEXT ML {self.x0},{self.y0} 2.50 0 \"   Hasta M: {self.km1}\"\n\n')
+        f.write("-LAYER N ENCABEZADO C 7 ENCABEZADO S ENCABEZADO L CONTINUOUS\n\n\n")
+        f.write(f'-TEXT ML {self.x0},{self.y0+4} 2.50 0 PT Desde M: {self.km0}\n')
+        f.write(f'-TEXT ML {self.x0},{self.y0} 2.50 0    Hasta M: {self.km1}\n')
         
         self.y0 -= 120;
         
@@ -236,6 +264,7 @@ class Stack:
 class CadScript:
     
     def __init__ (self, model):
+        
         self.model = model;
         self.stackSize = 2;
         
@@ -246,20 +275,25 @@ class CadScript:
         
         with open(filename, "w") as f:
             
-            f.write(f'-LAYER N REFERENCIAS C 7 REFERENCIAS S REFERENCIAS L CONTINUOUS\n\n\n')
+            #f.write(f'-LAYER N REFERENCIAS C 7 REFERENCIAS S REFERENCIAS L CONTINUOUS\n\n\n')
             
             while True:
                 
                 if  i + self.stackSize - 1 < j :
+                    
                     stack = Stack(self.model, y0)
                     y0 = stack.write(f, i, i + self.stackSize - 1)
                     i += self.stackSize;
+                    
                 else:
+                    
                     stack = Stack(self.model, y0)
                     stack.write(f, i, j)
                     break
     
+    
     def writeKm (self,km0="0",km1="0",fn="testcadkm.SCR"):
+        
         i,j = self.model.getKmRange(km0,km1)
         self.write(i,j,fn)
         
