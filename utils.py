@@ -1,18 +1,8 @@
 import numpy as np
 
-def formatFloat(x):
-    return f'{x:.3f}'
+formatFloat = lambda x : f'{np.round(x,3)}'
+formatFloatArray = lambda array : np.vectorize(formatFloat)(array)
 
-
-def formatFloatArray (array) :
-    def formatFloat(x):
-        return f'{x:.3f}'
-    return np.vectorize(formatFloat)(array)
-
-def formatCadFloatArray (array) :
-    def formatFloat(x):
-        return f'{x:.3f}'.replace('.',',')
-    return np.vectorize(formatFloat)(array)
 
 def parseLabel(label):
     if label.endswith("i"):

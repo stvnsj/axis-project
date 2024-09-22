@@ -1,5 +1,6 @@
 import numpy as np
 import section as sec
+import difflib
 
 
 class ModelIterator :
@@ -52,11 +53,10 @@ class Model :
         
         i0 = 0
         i1 = self.size - 1
+        
         i = 0
         
-        if np.float64(km0) > np.float64(km1) :
-            
-            return (i0, i1)
+
         
         
         itr = ModelIterator(self)
@@ -71,6 +71,10 @@ class Model :
             else:
                 
                 i += 1
+                
+        
+        if np.float64(km0) >= np.float64(km1) :
+            return (i0, i1)
         
         itr2 = ModelIterator(self, i0)
         
@@ -124,7 +128,9 @@ class Model :
     
     
     def findHeight (self,km):
+        
         try:
+            
             height = self.heights[km]
             try:
                 floatHeight = np.float64(height)
@@ -133,10 +139,23 @@ class Model :
                 print(f'> Error {self.errNum}: Altura erronea para el km {km}')
                 self.errNum = self.errNum + 1 
                 return np.float64(0)
+        
         except KeyError:
-            print(f'> Error {self.errNum}: Altura de {km} no encontrada')
-            self.errNum = self.errNum + 1
-            return np.float64(0)
+            
+            try:
+                floatKm = np.float64(km)
+                for i in range(0,10):
+                    newKm = "{:.2f}".format(np.trunc(floatKm * 100) / 100) + str(i)
+                    if newKm in self.heights:
+                        print(f'> Advertencia {self.errNum}: Cota de {newKm} usada para {km}')
+                        self.errNum += 1
+                        return  np.float64(self.heights[newKm])
+                raise ValueError("Not in dict")
+                
+            except:
+                print(f'> Error {self.errNum}: Altura de {km} no encontrada')
+                self.errNum = self.errNum + 1
+                return np.float64(0)
     
     
     def build (self,matrix,labels):

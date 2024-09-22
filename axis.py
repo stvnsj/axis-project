@@ -3,7 +3,9 @@ from tkinter import filedialog
 import numpy as np
 import reader as rd
 import cad
+import spreadsheet
 import model as md
+
 
 from tkinter import ttk
 from tkinter import messagebox
@@ -37,7 +39,7 @@ def generateCAD():
     m0 = e1.get()
     m1 = e2.get()
     stackLength = e3.get()
-
+    
     try:
         assert int(stackLength) > 0
         float(m0)
@@ -50,7 +52,7 @@ def generateCAD():
         title="Select or Enter File Name",
         filetypes=(("Text files", "*.scr"), ("All files", "*.*"))
     )
-
+    
     
     reader = rd.Reader (fileA.get(),fileB.get())
     matrix, labels, heights = reader.getData()
@@ -66,12 +68,47 @@ def generateCAD():
     )
 
 
+
+
 def generateMOP ():
-    pass
+
+    
+    file_path = filedialog.asksaveasfilename(
+        title="Select or Enter File Name",
+        filetypes=(("Text files", "*.csv"), ("All files", "*.*"))
+    )
+    
+    
+    reader = rd.Reader (fileA.get(),fileB.get())
+    matrix, labels, heights = reader.getData()
+    model = md.Model(heights,matrix,labels)
+    
+    
+    ss = spreadsheet.Spreadsheet(model)
+    ss.writeKmMOP(
+        fn=file_path)
+
 
 def generateAnchos() :
-    pass
 
+    
+    file_path = filedialog.asksaveasfilename(
+        title="Select or Enter File Name",
+        filetypes=(("Text files", "*.csv"), ("All files", "*.*"))
+    )
+    
+    
+    reader = rd.Reader (fileA.get(),fileB.get())
+    matrix, labels, heights = reader.getData()
+    model = md.Model(heights,matrix,labels)
+    
+    
+    ss = spreadsheet.Spreadsheet(model)
+    ss.writeKmWidth(
+        fn=file_path)
+
+
+    
 # Create main window
 root = tk.Tk()
 root.title("Proyecto AXIS")
@@ -177,23 +214,16 @@ e3.grid(row=2, column=0)
 # CAD FRAME #
 #############
 
-frame_cad = tk.Frame(root, pady=20, bd=3, relief="groove")
+frame_cad = tk.Frame(root, bd=3, relief="groove")
 frame_cad.pack()
 
-frame_cad_title = tk.Frame(frame_cad,pady=10)
-frame_cad_title.pack()
-
-label_cad_title = tk.Label(frame_cad_title, text="CAD")
-label_cad_title.pack()
+label_cad_title = tk.Label(frame_cad, text="CAD",width=15, anchor="w")
+label_cad_title.pack(side="left")
 
 
-# FRAME: meter Grid
-frame_cad_grid = tk.Frame(frame_cad)
-frame_cad_grid.pack()
 
-
-button_generate_cad = tk.Button(frame_cad_grid, text="GENERAR", command=generateCAD)
-button_generate_cad.grid(row=1, column=1)
+button_generate_cad = tk.Button(frame_cad, text="GENERAR", command=generateCAD)
+button_generate_cad.pack(side="right")
 
 
 
@@ -234,69 +264,27 @@ label_spreadsheet_title.pack()
 #######
 # MOP #
 #######
-# frame_mop = tk.Label(frame_spreadsheet, bd=5, relief="groove")
-# frame_mop.pack()
+frame_mop = tk.Label(frame_spreadsheet, bd=5, relief="groove")
+frame_mop.pack()
 
-# label_mop = tk.Label(frame_mop, text="MOP")
-# label_mop.pack(side="top")
+label_mop = tk.Label(frame_mop, text="MOP",width=15, anchor="w" )
+label_mop.pack(side="left")
 
-# frame_spreadsheet_grid1 = tk.Frame(frame_mop)
-# frame_spreadsheet_grid1.pack(side="top")
+button_generate_spreadsheet1 = tk.Button(frame_mop, text="GENERAR", command=generateMOP)
+button_generate_spreadsheet1.pack(side="right")
 
-# # Input Boxes
-# label_spreadsheet_input1 = tk.Label(frame_spreadsheet_grid1, text="Nombre del Archivo")
-# e51 = tk.Entry(frame_spreadsheet_grid1)
-# button_generate_spreadsheet1 = tk.Button(frame_spreadsheet_grid1, text="GENERAR", command=generateMOP)
-
-# label_spreadsheet_input1.grid(row=0,column=0)
-# e51.grid(row=1, column=0)
-# button_generate_spreadsheet1.grid(row=1, column=1)
 
 #########
 # WIDTH #
 #########
-# frame_ancho = tk.Label(frame_spreadsheet, bd=5, relief="groove")
-# frame_ancho.pack()
+frame_ancho = tk.Label(frame_spreadsheet, bd=5, relief="groove")
+frame_ancho.pack()
 
-# label_ancho = tk.Label(frame_ancho, text="Anchos")
-# label_ancho.pack(side="top")
+label_ancho = tk.Label(frame_ancho, text="Anchos",width=15, anchor="w")
+label_ancho.pack(side="left")
 
-# frame_spreadsheet_grid2 = tk.Frame(frame_ancho)
-# frame_spreadsheet_grid2.pack(side="top")
-
-# # Input Boxes
-# label_spreadsheet_input2 = tk.Label(frame_spreadsheet_grid2, text="Nombre del Archivo")
-# e52 = tk.Entry(frame_spreadsheet_grid2)
-# button_generate_spreadsheet2 = tk.Button(frame_spreadsheet_grid2, text="GENERAR", command=generateMOP)
-
-# label_spreadsheet_input2.grid(row=0,column=0)
-# e52.grid(row=1, column=0)
-# button_generate_spreadsheet2.grid(row=1, column=1)
-
-
-
-# ###############
-# # SAVE BUTTON #
-# ###############
-
-
-# root = Tk() 
-# root.geometry('200x150') 
-  
-# # function to call when user press 
-# # the save button, a filedialog will 
-# # open and ask to save file 
-# def save(): 
-#     files = [('All Files', '*.*'),  
-#              ('Python Files', '*.py'), 
-#              ('Text Document', '*.txt')] 
-#     file = asksaveasfile(filetypes = files, defaultextension = files) 
-  
-# btn = ttk.Button(root, text = 'Save', command = lambda : save()) 
-# btn.pack(side = TOP, pady = 20)
-
-
-
+button_generate_spreadsheet2 = tk.Button(frame_ancho, text="GENERAR", command=generateAnchos)
+button_generate_spreadsheet2.pack(side="right")
 
 
 # Main loop

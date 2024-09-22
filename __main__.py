@@ -17,7 +17,7 @@ def main():
     #print(model.getkmRange("200.00000","1001.0001"))
     
     cadScript = cad.CadScript(model)
-    cadScript.writeKm("4975","5004")
+    cadScript.writeKm(km0="4975",km1="5504",stackSize=5)
     
     #spreadsheet = ss.Spreadsheet(model)
     #spreadsheet.writeKmMOP("testkmmop.csv" , "79.999","89.111")

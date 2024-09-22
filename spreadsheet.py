@@ -72,8 +72,9 @@ class Spreadsheet :
     
     
     def writeMOP (self,filename="testmop.csv",i=0,j=0) :
+        END = self.__model.size + 1
         
-        sections = mdl.ModelIterator(self.__model,i,j)
+        sections = mdl.ModelIterator(self.__model,0,END+1)
         
         with open(filename, "w") as f:
             for section in sections :
@@ -81,8 +82,9 @@ class Spreadsheet :
     
     
     def writeWidth (self, filename="testwidth.csv",i=0,j=0) :
+       	END = self.__model.size + 1
         
-        sections = mdl.ModelIterator(self.__model,i,j)
+        sections = mdl.ModelIterator(self.__model,0,END+1)
         
         with open(filename, "w") as f:
             for section in sections :
