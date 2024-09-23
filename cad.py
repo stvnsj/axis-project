@@ -1,7 +1,7 @@
 import numpy as np
 import utils
 import model as mdl
-
+import os
 
 
 
@@ -13,12 +13,6 @@ import model as mdl
 #############
 
 DEFAULT_STACK_LENGTH = 5
-
-
-
-
-
-
 
 
 #############################################################
@@ -130,7 +124,7 @@ class StackElement:
         
         distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         height   = utils.formatFloatArray(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));        
-        content = ("LINE " + distance + "," + f'{self.y_figure} ' + distance + "," + height[:,0] + "\n")[:,None]
+        content = ("LINE " + distance + "," + f'{utils.formatFloat(self.y_figure)} ' + distance + "," + height[:,0] + "\n")[:,None]
         np.savetxt(self.f, content ,fmt='%s')
         
  
@@ -349,4 +343,31 @@ class CadScript:
         i,j = self.model.getKmRange(km0,km1)
         self.write(i,j, stackSize, fn)
         
+    
+    def writeFull (self, path, project_name, fileSize = 100, stackSize = 5):
+        
+        N = self.model.size
+
+        # Create the directory if it doesn't exist
+
+        directory = os.path.join(path,project_name)
+        os.makedirs(directory, exist_ok=True)
+        
+        print("Generando Scripts de CAD")
+        for k in range(0,N,fileSize):
+            
+            if k < N:
+                km = self.model.getSection(k).km
+                
+                file_path = os.path.join(directory, f"{project_name}-{km}.scr")
+                print("Archivo: ", file_path)
+                self.write(
+                    k,
+                    k+fileSize-1,
+                    stackSize=stackSize,
+                    filename = file_path
+                )
+            
+            else:
+                break
 

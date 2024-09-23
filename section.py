@@ -33,26 +33,39 @@ class Section :
     # matrix: numpy array with rows `km, x, y, z, label`
     # labels: These are the labels from row 4 of matrix
     # height: this is the precise measurement of the profile height.
-    def __init__(self, km, matrix, labels, height):
+    def __init__(self, km, matrix, labels, height, axis0=np.array([0,0]), axis1=np.array([0,0]), oriented=True):
         
-        self.km = km
         
-        self.matrix = matrix
-        
+        self.oriented = oriented
         self.labels = labels
-        
-        self.signs  = utils.parseLabelArray(labels)
-        
-        self.height = height
-        
-        self.distance = self.distance() * self.signs
-        
-        self.adjustedHeight = self.adjustHeight(self.height)
-        
-        self.side = utils.parseLabelLetterArray(self.labels)[:,None]
-        
-        self.id = km
+        # Coordinates of this section's axis
+        self.axis0 = axis0;
+        self.axis1 = axis1;
+        self.km = km;
+        self.matrix = matrix;
+        self.labels = labels;
+        self.height = height;
+        self.distance = self.distance()
+        self.adjustedHeight = self.adjustHeight(self.height);
+        self.side = utils.parseLabelLetterArray(self.labels)[:,None];
+        self.id = km;
 
+    def compute_descriptor_sign (self):
+        signs  = utils.parseLabelArray(self.labels);
+        self.distance = self.distance * signs
+ 
+    def compute_oriented_sign (self):
+        signs = utils.compute_sign_array((self.matrix[:,1:3] - self.axis0),  (self.axis1))
+        self.distance = self.distance * signs
+
+    
+    def compute_sign (self):
+        if self.oriented:
+            self.compute_oriented_sign()
+        else:
+            self.compute_descriptor_sign()
+        
+    
     def getId(self) :
         """Returns section id."""
         return self.id

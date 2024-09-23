@@ -26,7 +26,7 @@ Model represents a full set of cross sections, i.e. the full path.
 """
 class Model :
     
-    def __init__ (self, heights, matrix = None, labels= None):
+    def __init__ (self, heights, matrix = None, labels= None , orientedMatrix = None, orientedLabels = None):
         
         self.heights = dict(heights)
         self.kms = []
@@ -34,31 +34,46 @@ class Model :
         self.sectionIndex = [] # Index of non-duplicate sections in self.sections
         self.__kmIdDict = {}
         self.errNum = 0
-        self.build(matrix,labels)
+
+        
+        self.build_oriented(orientedMatrix,orientedLabels)
         self.sections.sort()
+        self.reference_vector()
+        self.build_descriptor(matrix,labels)
+        self.distance_sign()
+        self.sections.sort()        
         self.deduplicate()
         self.currSection = 0;
         self.size = len(self.sectionIndex)
-    
+        
+    def distance_sign (self):
+        for sec in self.sections:
+            sec.compute_sign()
     
     def getSection(self,index):
         i = self.sectionIndex[index]
         return self.sections[i]
-    
-    
-    
-    
+
+    def reference_vector(self):
+        
+        N = len(self.sections)
+        
+        for i in range(0,N):
+            for d in range (1,N):
+                if i + d < N :
+                    if self.sections[i+d].km != self.sections[i].km:
+                        self.sections[i].axis1 = self.sections[i+d].axis0 - self.sections[i].axis0
+                        break
+                if i - d >= 0:
+                    if self.sections[i-d].km != self.sections[i].km:
+                        self.sections[i].axis1 = self.sections[i].axis0 -  self.sections[i-d].axis0
+                        break
     
     def getKmRange(self,km0,km1):
         
         i0 = 0
         i1 = self.size - 1
-        
         i = 0
-        
-
-        
-        
         itr = ModelIterator(self)
         
         for section in itr:
@@ -92,21 +107,7 @@ class Model :
         return (i0,i1)
     
     
-    
-    def printMop (self):
-        for i in self.sectionIndex:
-            print(self.sections[i].mopFormat())
-    
-    
-    def writeWidth (self,filename) :
-        self.sections.sort()
-        self.deduplicate()
-        with open(filename, "w") as f:
-            for i in self.sectionIndex:
-                np.savetxt(f, self.sections[i].widthFormat(), delimiter=',' ,fmt='%s')  
-    
-    
-    
+
     # Given the sorted section list `sections`, this functions merges
     # in one section all the duplicate sections.  It places in list
     # `section index` the indices of non-duplicate `sections`
@@ -158,7 +159,7 @@ class Model :
                 return np.float64(0)
     
     
-    def build (self,matrix,labels):
+    def build_descriptor (self,matrix,labels):
         
         start = 0 # start index of matrix chunk copied
         end = 0 # end index of matrix chunk copied
@@ -181,7 +182,11 @@ class Model :
                         labels[start],
                         matrix[start:end],
                         labels[start:end],
-                        height)
+                        height,
+                        axis0 = matrix[start,1:3], # Axis Coordinates
+                        axis1 = matrix[start,1:3],
+                        oriented = False
+                    )
                     
                     self.sections.append(section)
                     self.kms.append(matrix[start][0])
@@ -191,12 +196,16 @@ class Model :
                 end = end + 1;
                 
                 height = self.findHeight(labels[start])
-                               
+                
                 section = sec.Section(
                     labels[start],
                     matrix[start:end],
                     labels[start:end],
-                    height)
+                    height,
+                    axis0 = matrix[start, 1:3], # Axis Coordinates
+                    axis1 = matrix[start, 1:3],
+                    oriented = False
+                )
                 
                 self.sections.append(section)
                 self.kms.append(matrix[start][0])
@@ -204,9 +213,71 @@ class Model :
                 end = i
                 i = i + 1
     
+    
+    
+    
+    
+    
+    def build_oriented (self,matrix,labels):
+        
+        start = 0 # start index of matrix chunk copied
+        end = 0 # end index of matrix chunk copied
+        i = 1 # pointer to traverse the matrix 
+        length = matrix.shape[0] # vertical size of matrix
+        
+        while i < length :
+            
+            # If the value of km is nan, then keep stacking more
+            # points to the current section
+            if np.isnan(matrix[i][0]):
+                end = end + 1;
+                i   = i + 1
+                
+                if(i == length):
+                    
+                    height = self.findHeight(labels[start])
+                    
+                    section = sec.Section(
+                        labels[start],
+                        matrix[start:end],
+                        labels[start:end],
+                        height,
+                        axis0 = matrix[start,1:3], # Axis Coordinates
+                        axis1 = matrix[start,1:3],
+                        oriented = True
+                    )
+
+                    self.sections.append(section)
+                    self.kms.append(matrix[start][0])
+            
+            
+            elif (not np.isnan(matrix[i][0])):
+                end = end + 1;
+                
+                height = self.findHeight(labels[start])
+                
+                section = sec.Section(
+                    labels[start],
+                    matrix[start:end],
+                    labels[start:end],
+                    height,
+                    axis0 = matrix[start, 1:3], # Axis Coordinates
+                    axis1 = matrix[start, 1:3],
+                    oriented = True
+                )
+                
+                self.sections.append(section)
+                self.kms.append(matrix[start][0])
+                start = i
+                end = i
+                i = i + 1
+ 
+ 
+ 
     def __iter__ (self):
         return self
-    
+ 
+ 
     def __next__ (self):
         if self.currSection >= self.size:
             raise StopIteration
