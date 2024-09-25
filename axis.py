@@ -53,11 +53,24 @@ def generateCAD():
     
     try:
         assert int(stackLength) > 0
-        float(m0)
-        float(m0)
     except:
-        messagebox.showinfo("Alert", "Argumento Inválido")
+        messagebox.showinfo("Alert", "El número de perfiles por fila debe ser un número >= 1")
         return
+ 
+    
+    try:
+        assert float (m0) >= 0
+    except:
+        messagebox.showinfo("Alert", "Metros Inicio debe ser un número real >= 0")
+        return
+    
+    try:
+        assert float (m1) >= 0 and float (m0) < float(m1)
+    except:
+        messagebox.showinfo("Alert", "Metros Final debe ser un número real >=0 y > Metros Incio")
+        return
+    
+    
     
     file_path = filedialog.asksaveasfilename(
         title="Select or Enter File Name",
@@ -100,13 +113,13 @@ def generateMOP ():
 
 
 def generateAnchos() :
-
+ 
     
     file_path = filedialog.asksaveasfilename(
         title="Select or Enter File Name",
         filetypes=(("Text files", "*.csv"), ("All files", "*.*"))
     )
-
+ 
     
     
     
@@ -116,8 +129,7 @@ def generateAnchos() :
     
     
     ss = spreadsheet.Spreadsheet(model)
-    ss.writeKmWidth(
-        fn=file_path)
+    ss.writeKmWidth(fn=file_path)
 
 
 def generateFullCAD():
@@ -154,8 +166,11 @@ def generateFullCAD():
     
     cadScript = cad.CadScript(model)
     cadScript.writeFull (directory, input_3.get(), fileSize = int(input_2.get()), stackSize = int(input_1.get()))
-    
-    
+
+
+
+
+
 # Create main window
 root = tk.Tk()
 root.title("Proyecto AXIS")
@@ -206,7 +221,7 @@ button3.grid(row=2, column=0, padx=5, pady=15)
 # ============
 
 label1 = tk.Label(frame_load_grid, text="Estacado con Descriptor", font='Helvetica 10 italic',width=26, anchor="w")
-label2 = tk.Label(frame_load_grid, text="Estacado Coordenado", font='Helvetica 10 italic',width=26, anchor="w")
+label2 = tk.Label(frame_load_grid, text="Estacado con Coordenadas", font='Helvetica 10 italic',width=26, anchor="w")
 label3 = tk.Label(frame_load_grid, text="Datos de nivelación", font='Helvetica 10',width=26, anchor="w")
 
 label1.grid(row=0, column=1, pady=5)

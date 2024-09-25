@@ -24,23 +24,20 @@ import utils
     # - SIDE : Can be 'l' or 'r' depending on the side of the axis           #
     #   the point is on  ==DONE==                                            #
     ##########################################################################
-
-
-
-
+ 
 class Section :
     # km: This is a string representation of the km of the cross section.
     # matrix: numpy array with rows `km, x, y, z, label`
     # labels: These are the labels from row 4 of matrix
     # height: this is the precise measurement of the profile height.
-    def __init__(self, km, matrix, labels, height, axis0=np.array([0,0]), axis1=np.array([0,0]), oriented=True):
+    def __init__(self, km, matrix, labels, height, axis=np.array([0,0]), vector=np.array([0,0]), oriented=True):
         
         
         self.oriented = oriented
         self.labels = labels
         # Coordinates of this section's axis
-        self.axis0 = axis0;
-        self.axis1 = axis1;
+        self.axis = axis;
+        self.vector = vector;
         self.km = km;
         self.matrix = matrix;
         self.labels = labels;
@@ -49,13 +46,13 @@ class Section :
         self.adjustedHeight = self.adjustHeight(self.height);
         self.side = utils.parseLabelLetterArray(self.labels)[:,None];
         self.id = km;
-
+ 
     def compute_descriptor_sign (self):
         signs  = utils.parseLabelArray(self.labels);
         self.distance = self.distance * signs
  
     def compute_oriented_sign (self):
-        signs = utils.compute_sign_array((self.matrix[:,1:3] - self.axis0),  (self.axis1))
+        signs = utils.compute_sign_array((self.matrix[:,1:3] - self.axis),  (self.vector))
         self.distance = self.distance * signs
 
     

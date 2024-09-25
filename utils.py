@@ -24,15 +24,16 @@ compute_sign_array = np.vectorize(compute_sign,signature='(n),(n)->()')
 
 
 def parseLabel(label):
-    if label.endswith("i"):
+    if label.endswith("i") or label.endswith("I"):
         return -1
     else:
         return 1
 
+
 def parseLabelLetter(label):
-    if label.endswith("i"):
+    if label.endswith("i") or label.endswith("I"):
         return "l"
-    elif label.endswith("d"):
+    elif label.endswith("d") or label.endswith("D"):
         return "r"
     else:
         return "e"  

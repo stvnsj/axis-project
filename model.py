@@ -1,6 +1,5 @@
 import numpy as np
 import section as sec
-import difflib
 
 
 class ModelIterator :
@@ -21,30 +20,37 @@ class ModelIterator :
         return section
 
 
-"""
-Model represents a full set of cross sections, i.e. the full path.
-"""
+
+
 class Model :
+    """Represents an order set of cross sections."""
     
     def __init__ (self, heights, matrix = None, labels= None , orientedMatrix = None, orientedLabels = None):
         
-        self.heights = dict(heights)
+        self.heights = dict(heights) if heights is not None else {}
         self.kms = []
         self.sections = []
         self.sectionIndex = [] # Index of non-duplicate sections in self.sections
-        self.__kmIdDict = {}
         self.errNum = 0
-
         
-        self.build_oriented(orientedMatrix,orientedLabels)
-        self.sections.sort()
-        self.reference_vector()
-        self.build_descriptor(matrix,labels)
+        if orientedMatrix is not None:
+            self.build_oriented(orientedMatrix,orientedLabels)
+            self.sections.sort()
+            self.reference_vector()
+            
+        if matrix is not None :
+            self.build_descriptor(matrix,labels)
+            
         self.distance_sign()
+        
         self.sections.sort()        
         self.deduplicate()
+        
         self.currSection = 0;
         self.size = len(self.sectionIndex)
+
+    def get_size(self):
+        return len(self.sectionIndex)
         
     def distance_sign (self):
         for sec in self.sections:
@@ -62,11 +68,11 @@ class Model :
             for d in range (1,N):
                 if i + d < N :
                     if self.sections[i+d].km != self.sections[i].km:
-                        self.sections[i].axis1 = self.sections[i+d].axis0 - self.sections[i].axis0
+                        self.sections[i].vector = self.sections[i+d].axis - self.sections[i].axis
                         break
                 if i - d >= 0:
                     if self.sections[i-d].km != self.sections[i].km:
-                        self.sections[i].axis1 = self.sections[i].axis0 -  self.sections[i-d].axis0
+                        self.sections[i].vector = self.sections[i].axis -  self.sections[i-d].axis
                         break
     
     def getKmRange(self,km0,km1):
@@ -142,7 +148,6 @@ class Model :
                 return np.float64(0)
         
         except KeyError:
-            
             try:
                 floatKm = np.float64(km)
                 for i in range(0,10):
@@ -179,12 +184,8 @@ class Model :
                     height = self.findHeight(labels[start])
                     
                     section = sec.Section(
-                        labels[start],
-                        matrix[start:end],
-                        labels[start:end],
-                        height,
-                        axis0 = matrix[start,1:3], # Axis Coordinates
-                        axis1 = matrix[start,1:3],
+                        labels[start], matrix[start:end], labels[start:end],
+                        height, axis = matrix[start,1:3], vector = matrix[start,1:3],
                         oriented = False
                     )
                     
@@ -198,12 +199,8 @@ class Model :
                 height = self.findHeight(labels[start])
                 
                 section = sec.Section(
-                    labels[start],
-                    matrix[start:end],
-                    labels[start:end],
-                    height,
-                    axis0 = matrix[start, 1:3], # Axis Coordinates
-                    axis1 = matrix[start, 1:3],
+                    labels[start], matrix[start:end], labels[start:end],
+                    height, axis = matrix[start, 1:3], vector = matrix[start, 1:3],
                     oriented = False
                 )
                 
@@ -231,22 +228,18 @@ class Model :
             # points to the current section
             if np.isnan(matrix[i][0]):
                 end = end + 1;
-                i   = i + 1
+                i   = i + 1;
                 
                 if(i == length):
                     
                     height = self.findHeight(labels[start])
                     
                     section = sec.Section(
-                        labels[start],
-                        matrix[start:end],
-                        labels[start:end],
-                        height,
-                        axis0 = matrix[start,1:3], # Axis Coordinates
-                        axis1 = matrix[start,1:3],
+                        labels[start], matrix[start:end], labels[start:end],
+                        height, axis = matrix[start,1:3], vector = matrix[start,1:3],
                         oriented = True
                     )
-
+                    
                     self.sections.append(section)
                     self.kms.append(matrix[start][0])
             
@@ -257,12 +250,8 @@ class Model :
                 height = self.findHeight(labels[start])
                 
                 section = sec.Section(
-                    labels[start],
-                    matrix[start:end],
-                    labels[start:end],
-                    height,
-                    axis0 = matrix[start, 1:3], # Axis Coordinates
-                    axis1 = matrix[start, 1:3],
+                    labels[start], matrix[start:end], labels[start:end],
+                    height, axis = matrix[start, 1:3], vector = matrix[start, 1:3],
                     oriented = True
                 )
                 
@@ -285,7 +274,3 @@ class Model :
             i = self.currSection
             self.currSection += 1
             return self.sections[self.sectionIndex[i]]
-
-
-
-
