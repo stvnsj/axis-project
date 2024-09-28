@@ -32,10 +32,8 @@ class Section :
     # height: this is the precise measurement of the profile height.
     def __init__(self, km, matrix, labels, height, axis=np.array([0,0]), vector=np.array([0,0]), oriented=True):
         
-        
         self.oriented = oriented
         self.labels = labels
-        # Coordinates of this section's axis
         self.axis = axis;
         self.vector = vector;
         self.km = km;
@@ -86,29 +84,6 @@ class Section :
         self.labels         = np.concatenate((self.labels, section.labels[1:]))
         self.side           = np.concatenate((self.side, section.side[1:]))
         return
-    
- 
-    
-    # Returns this section's matrix in the MOP format
-    def widthFormat(self):
-        
-        minIndex = np.argmin(self.distance)
-        maxIndex = np.argmax(self.distance)
-        
-        minDistance = self.distance[minIndex]
-        maxDistance = self.distance[maxIndex]        
-        
-        leftLabel = 'T' if minDistance < -20.0 else ''
-        rightLabel = 'T' if maxDistance > 20.0 else ''
-        
-        return np.array([[
-            self.km,
-            formatFloatArray(minDistance),
-            formatFloatArray(maxDistance),
-            leftLabel,
-            rightLabel
-        ]])
-    
     
     
     def __lt__ (self,section):
