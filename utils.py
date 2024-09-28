@@ -41,12 +41,19 @@ def parseLabelLetter(label):
 parseLabelArray = np.vectorize(parseLabel)
 parseLabelLetterArray = np.vectorize(parseLabelLetter)
 
+def round_float (x):
+    """round float to three decimal places"""
+    return np.round(x,3)
+
+def format_float (x):
+    """float to string with three decimal places"""
+    return "{:.3f}".format(x)
 
 
+def format_float_array (arr):
+    """floats of array to string with three decimal places"""
+    return np.vectorize(format_float)(arr)
 
-round_float        = lambda x : np.round(x,3)
-format_float       = lambda x : "{:.3f}".format(x)
-format_float_array = lambda arr : np.vectorize(format_float)(arr)
 
 
 

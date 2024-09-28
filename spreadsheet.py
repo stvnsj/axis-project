@@ -41,8 +41,8 @@ class Spreadsheet :
         content = np.hstack((
             
             np.where(np.isnan(section.matrix[:,[0]]), '' , section.matrix[:,[0]].astype(str) ),
-            utils.formatFloatArray (section.distance[:,None]),
-            utils.formatFloatArray (section.adjustedHeight),
+            utils.format_float_array (section.distance[:,None]),
+            utils.format_float_array (section.adjustedHeight),
             section.labels[:,None],
             section.side))
         
@@ -62,8 +62,8 @@ class Spreadsheet :
         
         content = np.array([[
             section.km,
-            utils.formatFloatArray(minDistance),
-            utils.formatFloatArray(maxDistance),
+            utils.format_float_array(minDistance),
+            utils.format_float_array(maxDistance),
             leftLabel,
             rightLabel ]])
         
