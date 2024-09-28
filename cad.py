@@ -6,60 +6,35 @@ import os
 
 
 
-
-
-#############
-# CONSTANTS #
-#############
-
 DEFAULT_STACK_LENGTH = 5
 
 
-#############################################################
-# I must have a box structure to enclose a stack element.   #
-# What are the elements of a box ??                         #
-#                                                           #
-# y0 : bottom line                                          #
-# x0 : top line                                             #
-#                                                           #
-# elements of a stack element are introduced in a bottom-   #
-# top direction, subtrracting subtracting certain offset.   #
-#                                                           #
-#############################################################
+
 class StackElement:
     
     def __init__(self,section,f,x=900,y=900):
         
-        self.f = f
+        self.section = section # Cross section to be drawn
+        self.f = f # file
         
-        # Left border of the box
-        self.x0 = x;
+        self.x0 = utils.round_float(x) # Left border of the box
+        self.y0 = utils.round_float(y) # Bottom border of the box
         
-        # Bottom border of the box
-        self.y0 = y;
-        
-        # Cross section to be drawn
-        self.section = section
-        
-        # Lowest and greastet relative distances.
         self.minDist = np.min(section.distance);
         self.maxDist = np.max(section.distance);
         
-        # Distance between left and right extremes of the
-        # cross section.
-        self.distRange = self.maxDist - self.minDist;
+        self.dist_range = self.maxDist - self.minDist;
         
-        # horizontal excess
-        self.excess = 2.0
+        
+        self.excess = 2.0 # horizontal excess
         
         # Length of horizontal structural lines.
-        self.structLineLength = self.distRange + 2 * self.excess;
+        self.structLineLength = self.dist_range + 2 * self.excess;
         
-
+        
         self.maxHeight = np.max(section.adjustedHeight)
         self.minHeight = np.min(section.adjustedHeight);
         self.heightDelta = 10;
-        # self.h0 = self.minHeight - self.heightDelta;
         self.h0 = int(self.minHeight) - 1
         
         
@@ -74,45 +49,38 @@ class StackElement:
         # Element Layout #
         ##################
         
-        # Y Coordinates
-        self.y_km = 0.5 + self.y0;
-        self.y_distUnderline = 2.0 + self.y_km;
-        self.y_distNum = 2.1 + self.y_distUnderline; 
-        self.y_heightUnderline = 2.1 + self.y_distNum;
-        self.y_heightNum = 2.1 + self.y_heightUnderline;
-        self.y_figure = 2.1 + self.y_heightNum;
-        self.y_refnum = 0.5 + self.y_figure
+        self.y_km                  = 0.5 + self.y0  #DONE
+        self.y_distUnderline       = 2.0 + self.y_km #DONE
+        self.y_distNum             = 2.1 + self.y_distUnderline #DONE
+        self.y_heightUnderline     = 2.1 + self.y_distNum #DONE
+        self.y_heightNum           = 2.1 + self.y_heightUnderline #DONE
+        self.y_figure              = 2.1 + self.y_heightNum #DONE
+        self.y_refnum              = 0.5 + self.y_figure #DONE
         
-        # X Coordinates
-        self.x_refnum     = 0.5 + self.x0;
-        self.x_labelText  = 0.5 + self.x0;
-
-        
-        self.x_structLine = 1.5 + self.x_refnum;
-        self.x_figure     = self.excess + self.x_structLine;
-        self.x_num        = self.x_figure
-        # self.x_km         = 0.5 * self.structLineLength + self.x_structLine;
-        self.x_km         = self.x_figure + np.absolute(self.minDist)
+        self.x_refnum              = 0.5 + self.x0 #DONE
+        self.x_labelText           = 0.5 + self.x0 #DONE
+        self.x_structLine          = 1.5 + self.x_refnum #DONE
+        self.x_figure              = self.excess + self.x_structLine #DONE
+        self.x_num                 = self.x_figure #DONE
+        self.x_km                  = self.x_figure + np.absolute(self.minDist) #DONE
         
         
-        self.x0_labelBox = self.x_labelText - 1.5;
-        self.x1_labelBox = self.x_labelText + 1.5;
-        self.y0_labelBox = self.y_distUnderline;
-        self.y1_labelBox = self.y_heightUnderline;
-        self.y2_labelBox = self.y_figure;
-
-        self.x_boxRight  = self.x_structLine + self.structLineLength;
+        self.x0_labelBox           = self.x_labelText - 1.5
+        self.x1_labelBox           = self.x_labelText + 1.5
+        self.y0_labelBox           = self.y_distUnderline
+        self.y1_labelBox           = self.y_heightUnderline
+        self.y2_labelBox           = self.y_figure
+        self.x_boxRight            = self.x_structLine + self.structLineLength
         
-        
-
-        self.x1 = self.x_structLine + self.structLineLength + 15
+        self.x1                    = self.x_structLine + self.structLineLength + 15
     
     
     def groundLine (self, f):
         """Generates the surface points of the cross-section"""
         
-        distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
-        height   = utils.formatFloatArray(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));
+        
+        distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
+        height   = utils.format_float_array(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));
         content = (distance + "," + height[:,0])[:,None]
         f.write("PLINE\n")
         np.savetxt(f, content ,fmt='%s')
@@ -122,8 +90,8 @@ class StackElement:
     def heightLine (self, f):
         """Generates the set of lines from the base-line to the surface"""
         
-        distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
-        height   = utils.formatFloatArray(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));        
+        distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
+        height   = utils.format_float_array(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));        
         content = ("LINE " + distance + "," + f'{utils.formatFloat(self.y_figure)} ' + distance + "," + height[:,0] + "\n")[:,None]
         np.savetxt(self.f, content ,fmt='%s')
         
@@ -191,8 +159,8 @@ class StackElement:
     def distNum (self,f):
         """Generates the distance numbers on the X-axis"""
         
-        distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
-        labels   = utils.formatFloatArray(self.section.distance[self.indexList])
+        distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
+        labels   = utils.format_float_array(self.section.distance[self.indexList])
         content = "-TEXT M " + distance + "," + utils.formatFloat(self.y_distNum) + " 0.50 90 " + labels
         np.savetxt(self.f, content ,fmt='%s')
         
@@ -200,8 +168,8 @@ class StackElement:
     def heightNum (self,f):
         """Generates the height numbers on the X-axis"""
         
-        distance = utils.formatFloatArray(self.section.distance[self.indexList] - self.minDist + self.x_figure);
-        labels   = utils.formatFloatArray(self.section.adjustedHeight[self.indexList])[:,0]
+        distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
+        labels   = utils.format_float_array(self.section.adjustedHeight[self.indexList])[:,0]
         content  = "-TEXT M " + distance + "," + utils.formatFloat(self.y_heightNum) + " 0.50 90 " + labels
         np.savetxt(self.f, content ,fmt='%s')
         
