@@ -42,7 +42,7 @@ class Section :
         self.matrix = matrix;
         self.labels = labels;
         self.height = height;
-        self.distance = self.distance()
+        self.distance = self.compute_distance()
         self.adjustedHeight = self.adjustHeight(self.height);
         self.side = utils.parseLabelLetterArray(self.labels)[:,None];
         self.id = km;
@@ -67,15 +67,16 @@ class Section :
         """Returns section id."""
         return self.id
     
-    def distance (self):
+    def compute_distance (self):
         """Returns array with distances to point Zero."""
-        return  np.sqrt(
-            np.sum((self.matrix[:,[1,2]] - self.matrix[:,[1,2]][0]) ** 2, axis=1))
+        return  utils.round_float (
+            np.sqrt( np.sum(
+                (self.matrix[:,[1,2]] - self.matrix[:,[1,2]][0]) ** 2, axis=1)))
     
     def adjustHeight (self, realHeight) :
         """Returns array with precise heights of the section."""
         delta = realHeight - self.matrix[0][3];
-        return self.matrix[:,[3]] + delta
+        return utils.round_float (self.matrix[:,[3]] + delta)
     
     def merge (self, section):
         """Merges this section with the argument section."""
