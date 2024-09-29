@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-
+import utils
 
 
 
@@ -79,7 +79,7 @@ class Point :
     # PRINT #
     #########
     def __str__(self):
-        return f'DM = {self.dm}\nuncorrected point = {self.point_uncorrected}'
+        return f'BACK_DELTA = {self.back_delta}\nFRONT DELTA = {self.front_delta}\nUNCORR INSTR={self.instr_uncorrected}\nPOINT UNCORR={self.point_uncorrected}'
       
 
 
@@ -96,8 +96,8 @@ class Segment :
         
         self.diff = 0
      
-        self.first_height = 0
-        self.last_height  = 0
+        self.first_height = first_height
+        self.last_height  = last_height
         
         self.point_uncorrected = last_height
         
@@ -121,11 +121,17 @@ class Segment :
         
         self.diff = self.ref_height - point_uncorrected
         self.size = len(self.control_point_list) - 1
+
         
      
         for cp in self.control_point_list:
             cp.correct_instr(self.diff / self.size);
             cp.correct_point()
+
+ 
+
+        print("RE HEIGHT : " , self.last_height)
+        print("LAST MEASURE POINT " , point_uncorrected)
         
  
 
@@ -166,6 +172,8 @@ def parse_circuit (circuit_matrix, height_matrix):
          
             h0  = float(height_dict[pr0])
             h1  = float(height_dict[pr1])
+            #print("h0 : " , h0)
+            #print("h1 : " , h1)
            
             seg = parse_segment(circuit_matrix[start:end+1], pr0, pr1, h0, h1)
             segment_list.append(seg)
@@ -182,44 +190,30 @@ def parse_segment (string_matrix, pr0, pr1, h0, h1):
  
     point_list = []
     
-    for i, row in enumerate(string_matrix[1:]):
-      
-        if row[1] == "" and  string_matrix[i][1] == "":
-            END = i+1
-            
+    for i, row in enumerate(string_matrix):
+        
+        # NULL followed by NULL    or     final NULL
+        if (row[1] == "" and i == N - 1)   or   (row[1] == "" and string_matrix[i+1][1] == ""):
             first = True if POINT_NUM == 0 else False
-            point = parse_point(POINT_NUM, first, h0, string_matrix[START:END])
-            point_list.append(point)
+            point = parse_point(POINT_NUM,first,h0,string_matrix[i:i+1])
             POINT_NUM += 1
-            
-            START = i+1
-            
+            point_list.append(point)
             continue
         
-        if row[1] == "":
-            END = i+1
-            
-            first = True if POINT_NUM == 0 else False
-            point = parse_point(POINT_NUM, first, h0, string_matrix[START:END])
-            point_list.append(point)
-            POINT_NUM += 1
-            
-            START = i+1
+        # NULL followed by NON-NULL
+        if (row[1] == "" and  string_matrix[i+1][1] != ""):
+            START = i
             continue
         
-        if i == N-2:
-            END = i+1
+        # NON-NULL followed by NULL
+        if (row[1] != "" and string_matrix[i+1][1] == ""):
             first = True if POINT_NUM == 0 else False
-            point = parse_point(POINT_NUM, first, h0, string_matrix[START:END])
-            print("=================\n\n")
-            print(point)
-            print("=================\n\n")
+            point = parse_point(POINT_NUM,first,h0,string_matrix[START:i+1])
+            POINT_NUM += 1
             point_list.append(point)
-            continue
-
-    for point in point_list:
-        print(point)
+            continue 
  
+    
     return Segment(pr0, pr1, h0, h1, point_list)
 
 
@@ -256,8 +250,6 @@ if __name__ == "__main__":
     filename1 = sys.argv[1]
     filename2 = sys.argv[2]
  
-    print(filename1)
- 
     # string_matrix = np.genfromtxt(filename, delimiter=',', dtype=str, skip_header=0)[:,0]
     string_matrix = np.genfromtxt(filename1, delimiter=',', dtype=str, skip_header=0)
     height_matrix = np.genfromtxt(filename2, delimiter=',', dtype=str, skip_header=0)
@@ -265,5 +257,8 @@ if __name__ == "__main__":
     pro = parse_circuit(string_matrix, height_matrix)
 
     for seg in pro:
+        print("DIFF : " , seg.diff)
+        print("first height : " , seg.first_height)
+        print("last height : " , seg.last_height)
         for p in seg.control_point_list:
             print(p)
