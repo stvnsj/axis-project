@@ -61,7 +61,8 @@ class Point :
     def correct_point (self):
         self.point_corrected =  self.instr_corrected - self.intermediate;
     
-    
+    def get_table (self):
+        return np.column_stack((self.dm[:,None] , self.point_corrected[:,None]))
     
     
     
@@ -79,7 +80,7 @@ class Point :
     # PRINT #
     #########
     def __str__(self):
-        return f'BACK_DELTA = {self.back_delta}\nFRONT DELTA = {self.front_delta}\nUNCORR INSTR={self.instr_uncorrected}\nPOINT UNCORR={self.point_uncorrected}'
+        return f'\n\n>>>\ninstr corre = {self.instr_corrected}\ncorre point = {self.point_corrected}'
       
 
 
@@ -91,8 +92,12 @@ class Segment :
         
         self.pr0 = pr0 # string name of pr0
         self.pr1 = pr1 # string name of pr1
+
+        self.positive = utils.pr_number(pr0) < utils.pr_number(pr1)
+
+        self.pr = (utils.pr_number(pr0),self.positive)
         
-        self.control_point_list = cplst
+        self.points = cplst
         
         self.diff = 0
      
@@ -109,40 +114,47 @@ class Segment :
  
     def __build (self):
         
-        for i , cp in enumerate(self.control_point_list) :
+        for i , cp in enumerate(self.points) :
             
             if i == 0:
                 cp.build()
                 continue
             
-            cp.build(self.control_point_list[i-1])
+            cp.build(self.points[i-1])
         
-        point_uncorrected = self.control_point_list[-1].get_point_uncorrected()
+        point_uncorrected = self.points[-1].get_point_uncorrected()
         
         self.diff = self.ref_height - point_uncorrected
-        self.size = len(self.control_point_list) - 1
-
+        self.size = len(self.points) - 1
         
-     
-        for cp in self.control_point_list:
+        for cp in self.points:
+            
             cp.correct_instr(self.diff / self.size);
             cp.correct_point()
-
+            
  
-
-        print("RE HEIGHT : " , self.last_height)
-        print("LAST MEASURE POINT " , point_uncorrected)
+ 
+    def  get_table (self):
+        lst = [p.get_table() for p in self.points]
+        if self.positive:
+            return np.vstack(lst)
+        else:
+            return np.vstack(lst)[::-1]
+            
         
  
-
     def __str__ (self) :
-        return f'pr0 = {self.pr0}\npr1 = {self.pr1}\npoint corrected = {self.control_point_list}'
+        return f'pr0 = {self.pr0}\npr1 = {self.pr1}\npoint corrected = {self.points}'
 
 
 
 class Circuit :
-    def __init__ (self):
-        pass
+    def __init__ (self, pr0, positive, negative):
+        
+        self.pr0 = pr0
+        self.positive = positive
+        self.negative = negative
+        
     
 
 
@@ -172,8 +184,6 @@ def parse_circuit (circuit_matrix, height_matrix):
          
             h0  = float(height_dict[pr0])
             h1  = float(height_dict[pr1])
-            #print("h0 : " , h0)
-            #print("h1 : " , h1)
            
             seg = parse_segment(circuit_matrix[start:end+1], pr0, pr1, h0, h1)
             segment_list.append(seg)
@@ -257,8 +267,4 @@ if __name__ == "__main__":
     pro = parse_circuit(string_matrix, height_matrix)
 
     for seg in pro:
-        print("DIFF : " , seg.diff)
-        print("first height : " , seg.first_height)
-        print("last height : " , seg.last_height)
-        for p in seg.control_point_list:
-            print(p)
+        print(seg.get_table())
