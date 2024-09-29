@@ -56,4 +56,12 @@ def format_float_array (arr):
 
 
 
+# Function to extract the numeric part of PR points
+def pr_number(s):
+    # Use regular expression to find the number in the string
+    match = re.search(r'\d+', s)
+    if match:
+        return int(match.group())
+    return None
+
 
