@@ -1,4 +1,5 @@
 import numpy as np
+import re
 
 formatFloat = lambda x : f'{np.round(x,3)}'
 formatFloatArray = lambda array : np.vectorize(formatFloat)(array)
@@ -65,3 +66,17 @@ def pr_number(s):
     return None
 
 
+def normalize_fstring(s):
+    """Converts a string decimal"""
+    
+    try:
+        f = float(s)
+        r = np.round(f,3)
+        s0 = "{:.3f}".format(r)
+        return s0
+    
+    except:
+        return s
+
+def normalize_fstring_array(arr):
+    np.vectorize(normalize_fstring)(arr)
