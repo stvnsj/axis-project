@@ -18,6 +18,9 @@ from .utils import round_float
 from .utils import format_float
 from .utils import format_float_array
 from .utils import pr_number
+from .utils import normalize_fstring
+from .utils import normalize_fstring_array
+from .utils import round
 
 
 

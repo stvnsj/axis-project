@@ -68,15 +68,13 @@ def pr_number(s):
 
 def normalize_fstring(s):
     """Converts a string decimal"""
-    
     try:
-        f = float(s)
-        r = np.round(f,3)
-        s0 = "{:.3f}".format(r)
-        return s0
-    
+        return f"{float(s):.3f}"
     except:
         return s
 
 def normalize_fstring_array(arr):
     np.vectorize(normalize_fstring)(arr)
+
+def round (x) :
+    return np.round(x,3)
