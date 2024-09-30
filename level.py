@@ -65,11 +65,7 @@ class Point :
     def get_table (self):
         X = np.column_stack((self.dm[:,None] , self.point_corrected[:,None]))
         return X
-    
-    
-    
-    
-    
+ 
     ###########
     # GETTERS #
     ###########
@@ -156,7 +152,17 @@ class Circuit :
     def get_negative_table(self):
         lst = [s.get_table() for s in self.negative]
         return np.vstack(lst)
-
+    
+    def get_circuit_table(self):
+        positive_table  = self.get_positive_table()
+        negative_table  = self.get_negative_table()
+        intersection    = np.intersect1d(positive_table[:,0], negative_table[:,0])
+        union           = np.union1d(positive_table[:,0], negative_table[:,0])
+        complement      = np.setdiff1d(union,intersection)
+        positive_dict   = dict (positive_table)
+        negative_dict   = dict (negative_table)
+        
+    
 
 class Model :
     def __init__ (self):
@@ -229,16 +235,16 @@ def parse_segment (string_matrix, pr0, pr1, h0, h1):
 
 def parse_point (num, start, h0, string_matrix):
  
-    back_delta  = np.round(float(string_matrix[0][3]),3) if string_matrix[0][3] != "" else 0.0
-    front_delta = np.round(float(string_matrix[0][5]),3) if string_matrix[0][5] != "" else 0.0
-    point_uncorrected = np.round(float(h0),3) if start else 0.0
+    back_delta  = utils.round(float(string_matrix[0][3])) if string_matrix[0][3] != "" else 0.0
+    front_delta = utils.round(float(string_matrix[0][5])) if string_matrix[0][5] != "" else 0.0
+    point_uncorrected = utils.round(float(h0)) if start else 0.0
  
     dm = np.array([])
     im = np.array([])
  
     if len(string_matrix) > 1 :
         dm = np.array([utils.normalize_fstring(x) for x in string_matrix[1:,1]])
-        im = np.round(np.where(string_matrix[1:,4] == "", "0.0", string_matrix[1:,4]).astype(float),3)
+        im = utils.round(np.where(string_matrix[1:,4] == "", "0.0", string_matrix[1:,4]).astype(float))
     
     
     point = Point(
@@ -284,11 +290,12 @@ if __name__ == "__main__":
     complement   = np.setdiff1d(union,intersection)
     positive_dict = dict (positive_table)
     negative_dict = dict (negative_table)
+    print("DM\tIDA\tVUELTA\tDIF\tMEDIA")
     for dm in intersection:
         A = f'dm: {dm} '
-        B = f'ida: {np.round(float(positive_dict[dm]),3)} '
-        C = f'veulta: {np.round(float(negative_dict[dm]),3)} '
-        D = f'diff : '
-        print(A , B, C)
+        X = utils.round(float(positive_dict[dm]))
+        Y = utils.round(float(negative_dict[dm]))
+        F= f'{dm}\t{X}\t{Y}\t{utils.round(X-Y)}\t{utils.round(np.mean([X,Y]))}'
+        print(F)
 
 
