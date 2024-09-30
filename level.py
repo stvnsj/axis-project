@@ -15,7 +15,7 @@ class Point :
             point_uncorrected = 0.0,
             back_delta = 0.0,
             front_delta = 0.0,
-            dm = [],
+            dm = np.array([]),
             intermediate = []):
         
         self.num                     = num
@@ -32,6 +32,7 @@ class Point :
         
         self.point_corrected  = []
         self.instr_corrected  = 0.0
+        self.size = len(dm) + 1
         
         
  
@@ -44,7 +45,6 @@ class Point :
         
     
     def __init_point_uncorrected (self, prev):
-        
         instr = prev.instr_uncorrected
         self.point_uncorrected = instr - self.front_delta
         return
@@ -59,10 +59,12 @@ class Point :
  
  
     def correct_point (self):
-        self.point_corrected =  self.instr_corrected - self.intermediate;
+        self.point_corrected = self.instr_corrected - self.intermediate;
+ 
     
     def get_table (self):
-        return np.column_stack((self.dm[:,None] , self.point_corrected[:,None]))
+        X = np.column_stack((self.dm[:,None] , self.point_corrected[:,None]))
+        return X
     
     
     
@@ -75,14 +77,6 @@ class Point :
         return self.point_uncorrected
     def get_instr_uncorrected (self):
         return self.instr_uncorrected
-    
-    #########
-    # PRINT #
-    #########
-    def __str__(self):
-        return f'\n\n>>>\ninstr corre = {self.instr_corrected}\ncorre point = {self.point_corrected}'
-      
-
 
 
 
@@ -92,14 +86,16 @@ class Segment :
         
         self.pr0 = pr0 # string name of pr0
         self.pr1 = pr1 # string name of pr1
-
+        
         self.positive = utils.pr_number(pr0) < utils.pr_number(pr1)
-
+        
         self.pr = (utils.pr_number(pr0),self.positive)
         
         self.points = cplst
         
         self.diff = 0
+        
+        self.length = len(cplst)
      
         self.first_height = first_height
         self.last_height  = last_height
@@ -149,13 +145,17 @@ class Segment :
 
 
 class Circuit :
-    def __init__ (self, pr0, positive, negative):
-        
-        self.pr0 = pr0
+    def __init__ (self, positive, negative):
         self.positive = positive
         self.negative = negative
-        
+ 
+    def get_positive_table(self):
+        lst = [s.get_table() for s in self.positive]
+        return np.vstack(lst)
     
+    def get_negative_table(self):
+        lst = [s.get_table() for s in self.negative]
+        return np.vstack(lst)
 
 
 class Model :
@@ -187,7 +187,7 @@ def parse_circuit (circuit_matrix, height_matrix):
            
             seg = parse_segment(circuit_matrix[start:end+1], pr0, pr1, h0, h1)
             segment_list.append(seg)
-            
+    
     return segment_list
 
 
@@ -229,17 +229,16 @@ def parse_segment (string_matrix, pr0, pr1, h0, h1):
 
 def parse_point (num, start, h0, string_matrix):
  
-    back_delta  = float(string_matrix[0][3]) if string_matrix[0][3] != "" else 0.0
-    front_delta = float(string_matrix[0][5]) if string_matrix[0][5] != "" else 0.0
-    point_uncorrected = float(h0) if start else 0.0
+    back_delta  = np.round(float(string_matrix[0][3]),3) if string_matrix[0][3] != "" else 0.0
+    front_delta = np.round(float(string_matrix[0][5]),3) if string_matrix[0][5] != "" else 0.0
+    point_uncorrected = np.round(float(h0),3) if start else 0.0
  
-    dm = []
-    im = []
+    dm = np.array([])
+    im = np.array([])
  
-    if len(string_matrix) > 0 :
-        #dm = np.where(string_matrix[1:,1] == "", "0.0", string_matrix[1:,1]).astype(float)
-        dm = string_matrix[1:,1]
-        im = np.where(string_matrix[1:,4] == "", "0.0", string_matrix[1:,4]).astype(float)
+    if len(string_matrix) > 1 :
+        dm = np.array([utils.normalize_fstring(x) for x in string_matrix[1:,1]])
+        im = np.round(np.where(string_matrix[1:,4] == "", "0.0", string_matrix[1:,4]).astype(float),3)
     
     
     point = Point(
@@ -251,6 +250,7 @@ def parse_point (num, start, h0, string_matrix):
         dm = dm,
         intermediate = im
     )
+    
     return point
 
 
@@ -260,11 +260,35 @@ if __name__ == "__main__":
     filename1 = sys.argv[1]
     filename2 = sys.argv[2]
  
-    # string_matrix = np.genfromtxt(filename, delimiter=',', dtype=str, skip_header=0)[:,0]
     string_matrix = np.genfromtxt(filename1, delimiter=',', dtype=str, skip_header=0)
     height_matrix = np.genfromtxt(filename2, delimiter=',', dtype=str, skip_header=0)
  
     pro = parse_circuit(string_matrix, height_matrix)
-
+ 
+    positive_segments = []
+    negative_segments = []
+ 
     for seg in pro:
-        print(seg.get_table())
+        
+        if seg.positive:
+            positive_segments.append(seg)
+        
+        else: 
+            negative_segments.append(seg)
+ 
+    cir = Circuit(positive_segments, negative_segments)
+    positive_table  = cir.get_positive_table()
+    negative_table  = cir.get_negative_table()
+    intersection = np.intersect1d(positive_table[:,0], negative_table[:,0])
+    union        = np.union1d(positive_table[:,0], negative_table[:,0])
+    complement   = np.setdiff1d(union,intersection)
+    positive_dict = dict (positive_table)
+    negative_dict = dict (negative_table)
+    for dm in intersection:
+        A = f'dm: {dm} '
+        B = f'ida: {np.round(float(positive_dict[dm]),3)} '
+        C = f'veulta: {np.round(float(negative_dict[dm]),3)} '
+        D = f'diff : '
+        print(A , B, C)
+
+
