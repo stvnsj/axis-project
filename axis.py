@@ -1,3 +1,4 @@
+import level
 import tkinter as tk
 from tkinter import filedialog
 import numpy as np
@@ -45,6 +46,40 @@ def selectFileC() :
         print("No file selected")
 
 
+
+
+
+def select_height_pr() :
+    path = filedialog.askopenfilename(title="Seleccione archivo")
+    if path:
+        height_pr_file.set(path)
+        print(f"Selected File: {path}")
+    else:
+        print("No file selected")
+
+
+def select_circuit() :
+    
+    path = filedialog.askopenfilename(title="Seleccione archivo")
+    if path:
+        circuit_file.set(path)
+        print(f"Selected File: {path}")
+    else:
+        print("No file selected")
+
+def generate_report():
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Text files", "*.csv"), ("All files", "*.*"))
+    )
+    level.parser(circuit_file.get(),height_pr_file.get(),filename)
+    
+def generate_longitudinal():
+    pass
+
+
+
+
 def generateCAD():
     
     m0 = e1.get()
@@ -57,7 +92,6 @@ def generateCAD():
         messagebox.showinfo("Alert", "El número de perfiles por fila debe ser un número >= 1")
         return
  
-    
     try:
         assert float (m0) >= 0
     except:
@@ -133,9 +167,7 @@ def generateAnchos() :
 
 
 def generateFullCAD():
-
-
-
+    
     try:
         assert int(input_1.get()) >0
     except:
@@ -153,7 +185,7 @@ def generateFullCAD():
     except:
         messagebox.showinfo("Alert", "Debe ingresar un nombre de proyecto")
         return
-
+    
     print(int(input_1.get()))
     print(int(input_2.get()))
     print(input_3.get())
@@ -174,18 +206,125 @@ def generateFullCAD():
 # Create main window
 root = tk.Tk()
 root.title("Proyecto AXIS")
-root.geometry("700x900")
+root.geometry("800x900")
+
+
+
+
+# Create a Notebook widget (tabs container)
+notebook = ttk.Notebook(root)
+notebook.pack(expand=True, fill='both')
+
+# Create frames for each tab
+tab1 = ttk.Frame(notebook)
+tab2 = ttk.Frame(notebook)
+
+
+# Add tabs to the notebook (tabs container)
+notebook.add(tab1, text='CAD')
+notebook.add(tab2, text='Nivelación')
+
+
 
 
 fileA = tk.StringVar()
 fileB = tk.StringVar()
 fileC = tk.StringVar()
 
+height_pr_file = tk.StringVar()
+circuit_file   = tk.StringVar()
+
 meter0 = tk.StringVar()
 meter1 = tk.StringVar()
 
 
-# (e1.get(), e2.get()))
+
+##################
+# ############## #
+# # HEIGHT TAB # #
+# ############## #
+##################
+
+# frame_load
+height_tab = tk.Frame(tab2, bd=3, relief="groove", width = 500)
+height_tab.pack(padx=20,pady=20)  # Stack at the top
+
+frame_load = tk.Frame(height_tab)
+frame_load.pack()
+
+
+load_title = tk.Label(frame_load, text="Carga de Archivos",font='Helvetica 10 bold')
+load_title.pack()
+
+load_grid = tk.Frame(height_tab)
+load_grid.pack()
+
+btt1 = tk.Button(load_grid, text="Cargar", command=select_height_pr)
+btt2 = tk.Button(load_grid, text="Cargar", command=select_circuit)
+
+btt1.grid(row=0, column=0, padx=5, pady=3)
+btt2.grid(row=1, column=0, padx=5, pady=3)
+
+lab1 = tk.Label(load_grid, text="Cotas Topograficas", font='Helvetica 10 italic',width=19, anchor="w")
+lab2 = tk.Label(load_grid, text="Circuito", font='Helvetica 10 italic',width=19, anchor="w")
+
+lab1.grid(row=0, column=1, pady=5)
+lab2.grid(row=1, column=1, pady=5)
+
+pr_label   = tk.Label(load_grid, textvariable=height_pr_file)
+circ_label = tk.Label(load_grid, textvariable=circuit_file)
+
+pr_label.grid(row=0, column=2, pady=5)
+circ_label.grid(row=1, column=2, pady=5)
+
+
+
+######################
+# FRAME: spreadsheet #
+######################
+frame_generate = tk.Frame(tab2, pady=20, bd=3, relief="groove")
+frame_generate.pack(pady=20,padx=20)
+
+frame_generate_title = tk.Frame(frame_generate)
+frame_generate_title.pack()
+
+label_generate_title = tk.Label(frame_generate_title, text="Planillas", font='Helvetica 10 bold')
+label_generate_title.pack(pady=20)
+
+
+frame_13 = tk.Label(frame_generate)
+frame_13.pack()
+
+label_generate_report1 = tk.Label(frame_13, text="Longitudinal",width=15, anchor="w" )
+label_generate_report1.grid(row=0,column=0, padx=5, pady=5)
+
+button_generate_report1 = tk.Button(frame_13, text="GENERAR", command=generate_longitudinal)
+button_generate_report1.grid(row=0,column=1,padx=5,pady=5)
+
+#########
+# WIDTH #
+#########
+label_generate_report2 = tk.Label(frame_13, text="Reporte",width=15, anchor="w")
+label_generate_report2.grid(row=1,column=0,padx=5,pady=5)
+
+button_generate_report2 = tk.Button(frame_13, text="GENERAR", command=generate_report)
+button_generate_report2.grid(row=1,column=1,padx=5,pady=5)
+
+
+# frame_mop = tk.Label(frame_spreadsheet)
+# frame_mop.pack()
+
+# label_mop = tk.Label(frame_mop, text="MOP",width=15, anchor="w" )
+# label_mop.grid(row=0,column=0, padx=5, pady=5)
+
+# button_generate_spreadsheet1 = tk.Button(frame_mop, text="GENERAR", command=generateMOP)
+# button_generate_spreadsheet1.grid(row=0,column=1,padx=5,pady=5)
+
+# label_ancho = tk.Label(frame_mop, text="Anchos",width=15, anchor="w")
+# label_ancho.grid(row=1,column=0,padx=5,pady=5)
+
+# button_generate_spreadsheet2 = tk.Button(frame_mop, text="GENERAR", command=generateAnchos)
+# button_generate_spreadsheet2.grid(row=1,column=1,padx=5,pady=5)
 
 
 
@@ -194,7 +333,7 @@ meter1 = tk.StringVar()
 ################
 
 # Frame using pack() for stacking
-frame_load = tk.Frame(root, bd=3, relief="groove", width = 500)
+frame_load = tk.Frame(tab1, bd=3, relief="groove", width = 500)
 frame_load.pack(padx=20,pady=20)  # Stack at the top
 
 # FRAME: Load Title
@@ -242,8 +381,8 @@ labelC.grid(row=2, column=2, pady=10)
 #################
 # CAD por TRAMO #
 #################
-frame_meter = tk.Frame(root, pady=10, padx=10, bd=3, relief="groove")
-frame_meter.pack(pady = 20, padx=20)  # Stack at the top
+frame_meter = tk.Frame(tab1, pady=10, padx=10, bd=3, relief="groove")
+frame_meter.pack(pady = 10, padx=20)  # Stack at the top
 
 # FRAME: meter Title
 frame_meter_title = tk.Frame(frame_meter)
@@ -282,8 +421,8 @@ button_generate_cad.grid(row=3,column=0, pady=5)
 #################
 # FULL CAD      #
 #################
-frame_full_cad = tk.Frame(root, pady=10, padx=10, bd=3, relief="groove")
-frame_full_cad.pack(pady = 20, padx=20)  # Stack at the top
+frame_full_cad = tk.Frame(tab1, pady=10, padx=10, bd=3, relief="groove")
+frame_full_cad.pack(pady = 10, padx=20)  # Stack at the top
 
 # FRAME: meter Title
 frame_full_cad_title = tk.Frame(frame_full_cad)
@@ -330,9 +469,8 @@ button_generate_full_cad.grid(row=3,column=0, pady=5)
 ######################
 # FRAME: spreadsheet #
 ######################
-
-frame_spreadsheet = tk.Frame(root, pady=20, bd=3, relief="groove")
-frame_spreadsheet.pack(pady=20,padx=20)
+frame_spreadsheet = tk.Frame(tab1, pady=20, bd=3, relief="groove")
+frame_spreadsheet.pack(pady=10,padx=20)
 
 frame_spreadsheet_title = tk.Frame(frame_spreadsheet)
 frame_spreadsheet_title.pack()
@@ -340,11 +478,9 @@ frame_spreadsheet_title.pack()
 label_spreadsheet_title = tk.Label(frame_spreadsheet_title, text="Planillas", font='Helvetica 10 bold')
 label_spreadsheet_title.pack()
 
-
 #######
 # MOP #
 #######
-
 frame_mop = tk.Label(frame_spreadsheet)
 frame_mop.pack()
 
@@ -354,12 +490,9 @@ label_mop.grid(row=0,column=0, padx=5, pady=5)
 button_generate_spreadsheet1 = tk.Button(frame_mop, text="GENERAR", command=generateMOP)
 button_generate_spreadsheet1.grid(row=0,column=1,padx=5,pady=5)
 
-
 #########
 # WIDTH #
 #########
-
-
 label_ancho = tk.Label(frame_mop, text="Anchos",width=15, anchor="w")
 label_ancho.grid(row=1,column=0,padx=5,pady=5)
 
