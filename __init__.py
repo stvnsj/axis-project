@@ -23,6 +23,8 @@ from .utils import normalize_fstring_array
 from .utils import round
 
 
+from .level import parser
+
 
 
 from .cad   import StackElement

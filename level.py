@@ -16,7 +16,8 @@ class Point :
             back_delta = 0.0,
             front_delta = 0.0,
             dm = np.array([]),
-            intermediate = []):
+            intermediate = [],
+    ):
         
         self.num                     = num  # Ordinal number of this point in the segment
         self.start                   = start # Boolean. True if it is the first point in the segment
@@ -83,12 +84,30 @@ class Point :
 
 class Segment :
     
-    def __init__ (self, pr0, pr1, first_height, last_height, cplst=[]):
-        
+    def __init__ (self, pr0, pr1, first_height, last_height, cplst=[], start_points = [], end_points=[]):
+
         self.pr0 = pr0 # string name of pr0
         self.pr1 = pr1 # string name of pr1
         
-        self.positive = utils.pr_number(pr0) < utils.pr_number(pr1)
+        
+        if pr1 in start_points and pr0 in end_points:
+            self.positive = False
+            start_points.append(pr0)
+            end_points.append(pr1)
+            print(pr0, pr1, "NEGATIVE")
+            
+        elif pr0 in start_points and pr1 in end_points:
+            self.positive = False
+            end_points.append(pr0)
+            start_points.append(pr1)
+            print(pr0, pr1, "NEGATIVE")
+            
+        else:
+            self.positive = True
+            start_points.append(pr0)
+            end_points.append(pr1)
+            print(pr0,pr1, "POSITIVE")
+        
         
         self.pr = (utils.pr_number(pr0),self.positive)
         
@@ -165,25 +184,63 @@ class Circuit :
         complement      = np.setdiff1d(union,intersection)
         positive_dict   = dict (positive_table)
         negative_dict   = dict (negative_table)
-        full_table = np.array([["DM", "IDA","VUELTA","DIF","MEDIA"]])
+        full_table = np.array([["DM", "IDA","VUELTA","DIF","MEDIA",""]])
         
-        for dm in intersection:
+        for dm in union:
             
-            positive_h = positive_dict[dm]
-            negative_h = negative_dict[dm]
-            dif = np.absolute(float(positive_h) - float(negative_h))
-            mean = np.mean([float(positive_h),float(negative_h)])
-            #print(dm , " " , positive_h , " " , negative_h)
+            if np.isnan(dm):
+                continue
             
-            new_row = np.array([[
-                dm,
-                utils.normalize_fstring(positive_h),
-                utils.normalize_fstring(negative_h),
-                utils.format_float(dif),
-                utils.format_float(mean)
-            ]])
-            full_table = np.append(full_table, new_row, axis=0)
+            if dm in intersection:
+                
+                positive_h = positive_dict.get(dm)
+                negative_h = negative_dict.get(dm)
+                dif = np.round(np.absolute(float(positive_h) - float(negative_h)),3)
+                mean = np.mean([float(positive_h),float(negative_h)])
+                
+                new_row = np.array([[
+                    dm,
+                    utils.format_float(positive_h),
+                    utils.format_float(negative_h),
+                    utils.format_float(dif),
+                    utils.format_float(mean),
+                    "FC" if dif >= 0.01 else ""
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
             
+            if dm in positive_dict:
+                positive_h = positive_dict.get(dm)
+                negative_h = "SIN COTA"
+                dif        = 0.0
+                mean       = positive_h
+                new_row = np.array([[
+                    dm,
+                    utils.format_float(positive_h),
+                    negative_h,
+                    utils.format_float(dif),
+                    utils.format_float(mean),
+                    ""
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+                
+            if dm in negative_dict:
+                positive_h = "SIN COTA"
+                negative_h = negative_dict.get(dm)
+                dif        = 0.0
+                mean       = negative_h
+                new_row = np.array([[
+                    dm,
+                    positive_h,
+                    utils.format_float(negative_h),
+                    utils.format_float(dif),
+                    utils.format_float(mean),
+                    ""
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+        
         with open(filename, "w") as f:
             np.savetxt(f,full_table,delimiter=',',fmt='%s')
 
@@ -199,10 +256,11 @@ class Model :
 def parse_circuit (circuit_matrix, height_matrix, circuit_num_matrix = None, pr_num_matrix = None):
     start = 0
     end   = 1
+
+    start_points = []
+    end_points   = []
     
     height_dict = dict(zip (height_matrix[:,0], pr_num_matrix[:,1]))
-    
-    
     segment_list = []
     
     for i , row in enumerate(circuit_matrix):
@@ -220,13 +278,14 @@ def parse_circuit (circuit_matrix, height_matrix, circuit_num_matrix = None, pr_
             h0  = height_dict[pr0]
             h1  = height_dict[pr1]
            
-            seg = parse_segment(circuit_matrix[start:end+1], pr0, pr1, h0, h1, num_matrix=circuit_num_matrix[start:end+1])
+            seg = parse_segment(circuit_matrix[start:end+1], pr0, pr1, h0, h1, num_matrix=circuit_num_matrix[start:end+1],
+                                start_points = start_points, end_points=end_points)
             segment_list.append(seg)
     
     return segment_list
 
 
-def parse_segment (string_matrix, pr0, pr1, h0, h1, num_matrix=None):
+def parse_segment (string_matrix, pr0, pr1, h0, h1, num_matrix=None, start_points= [], end_points= [] ):
     POINT_NUM = 0
     START = 0
     END   = 0
@@ -258,7 +317,7 @@ def parse_segment (string_matrix, pr0, pr1, h0, h1, num_matrix=None):
             continue 
  
     
-    return Segment(pr0, pr1, h0, h1, point_list)
+    return Segment(pr0, pr1, h0, h1, point_list, start_points=start_points, end_points=end_points)
 
 
 def parse_point (num, start, h0, string_matrix, num_matrix = None):
