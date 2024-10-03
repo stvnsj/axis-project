@@ -1,4 +1,5 @@
 import level
+import component 
 import tkinter as tk
 from tkinter import filedialog
 import numpy as np
@@ -50,6 +51,7 @@ def selectFileC() :
 
 
 def select_height_pr() :
+    
     path = filedialog.askopenfilename(title="Seleccione archivo")
     if path:
         height_pr_file.set(path)
@@ -218,12 +220,22 @@ notebook.pack(expand=True, fill='both')
 # Create frames for each tab
 tab1 = ttk.Frame(notebook)
 tab2 = ttk.Frame(notebook)
+tab3 = ttk.Frame(notebook)
 
 
 # Add tabs to the notebook (tabs container)
 notebook.add(tab1, text='CAD')
 notebook.add(tab2, text='Nivelación')
+notebook.add(tab3, text='test')
 
+
+def greet(inputs):
+    print("First input :" , inputs[0].get())
+    print("Second Input :" , inputs[1].get())
+    print("Third Input :" , inputs[2].get())
+
+entry_params = [{"label":"uno"},{"label":"dos"},{"label":"tres"}]
+component.InputFrame(tab3,entry_params=entry_params, command=greet)
 
 
 
@@ -332,50 +344,12 @@ button_generate_report2.grid(row=1,column=1,padx=5,pady=5)
 # File-loading #
 ################
 
-# Frame using pack() for stacking
-frame_load = tk.Frame(tab1, bd=3, relief="groove", width = 500)
-frame_load.pack(padx=20,pady=20)  # Stack at the top
-
-# FRAME: Load Title
-frame_load_title = tk.Frame(frame_load)
-frame_load_title.pack()
-label_load_title = tk.Label(frame_load_title, text="Carga de Archivos",font='Helvetica 10 bold')
-label_load_title.pack()
-
-# FRAME: Load Grid
-frame_load_grid = tk.Frame(frame_load)
-frame_load_grid.pack()
-
-# Buttons 
-# =======
-button1 = tk.Button(frame_load_grid, text="Cargar", command=selectFileA)
-button2 = tk.Button(frame_load_grid, text="Cargar", command=selectFileB)
-button3 = tk.Button(frame_load_grid, text="Cargar", command=selectFileC)
-
-button1.grid(row=0, column=0, padx=5, pady=3)
-button2.grid(row=1, column=0, padx=5, pady=3)
-button3.grid(row=2, column=0, padx=5, pady=15)
-
-# Description 
-# ============
-
-label1 = tk.Label(frame_load_grid, text="Estacado con Descriptor", font='Helvetica 10 italic',width=26, anchor="w")
-label2 = tk.Label(frame_load_grid, text="Estacado con Coordenadas", font='Helvetica 10 italic',width=26, anchor="w")
-label3 = tk.Label(frame_load_grid, text="Datos de nivelación", font='Helvetica 10',width=26, anchor="w")
-
-label1.grid(row=0, column=1, pady=5)
-label2.grid(row=1, column=1, pady=5)
-label3.grid(row=2, column=1, pady=10)
-
-# Filenames
-# =========
-labelA = tk.Label(frame_load_grid, textvariable=fileA)
-labelB = tk.Label(frame_load_grid, textvariable=fileB)
-labelC = tk.Label(frame_load_grid, textvariable=fileC)
-
-labelA.grid(row=0, column=2, pady=5)
-labelB.grid(row=1, column=2, pady=5)
-labelC.grid(row=2, column=2, pady=10)
+button_params = [
+    {"label": "Estacado con Descriptor", "stringvar": fileA },
+    {"label": "Estacado con Coordenadas", "stringvar": fileB },
+    {"label": "Longitudinal", "stringvar": fileC}
+]
+component.LoadFileFrame(tab1, title="Carga de Archivos", button_params = button_params)
 
 
 #################
