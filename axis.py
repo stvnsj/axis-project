@@ -70,14 +70,25 @@ def select_circuit() :
         print("No file selected")
 
 def generate_report():
+    
     filename = filedialog.asksaveasfilename(
         title="Nombre de Archivo",
         filetypes=(("Text files", "*.csv"), ("All files", "*.*"))
     )
-    level.parser(circuit_file.get(),height_pr_file.get(),filename)
+    
+    cir = level.parser(circuit_file.get(),height_pr_file.get())
+    cir.write_circuit_table(filename)
     
 def generate_longitudinal():
-    pass
+    
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Text files", "*.csv"), ("All files", "*.*"))
+    )
+    
+    cir = level.parser(circuit_file.get(),height_pr_file.get())
+    cir.write_longitudinal(filename)
+
 
 
 
@@ -202,15 +213,10 @@ def generateFullCAD():
     cadScript.writeFull (directory, input_3.get(), fileSize = int(input_2.get()), stackSize = int(input_1.get()))
 
 
-
-
-
 # Create main window
 root = tk.Tk()
 root.title("Proyecto AXIS")
-root.geometry("800x900")
-
-
+root.geometry("1200x900")
 
 
 # Create a Notebook widget (tabs container)
@@ -257,87 +263,20 @@ meter1 = tk.StringVar()
 # ############## #
 ##################
 
-# frame_load
-height_tab = tk.Frame(tab2, bd=3, relief="groove", width = 500)
-height_tab.pack(padx=20,pady=20)  # Stack at the top
 
-frame_load = tk.Frame(height_tab)
-frame_load.pack()
-
-
-load_title = tk.Label(frame_load, text="Carga de Archivos",font='Helvetica 10 bold')
-load_title.pack()
-
-load_grid = tk.Frame(height_tab)
-load_grid.pack()
-
-btt1 = tk.Button(load_grid, text="Cargar", command=select_height_pr)
-btt2 = tk.Button(load_grid, text="Cargar", command=select_circuit)
-
-btt1.grid(row=0, column=0, padx=5, pady=3)
-btt2.grid(row=1, column=0, padx=5, pady=3)
-
-lab1 = tk.Label(load_grid, text="Cotas Topograficas", font='Helvetica 10 italic',width=19, anchor="w")
-lab2 = tk.Label(load_grid, text="Circuito", font='Helvetica 10 italic',width=19, anchor="w")
-
-lab1.grid(row=0, column=1, pady=5)
-lab2.grid(row=1, column=1, pady=5)
-
-pr_label   = tk.Label(load_grid, textvariable=height_pr_file)
-circ_label = tk.Label(load_grid, textvariable=circuit_file)
-
-pr_label.grid(row=0, column=2, pady=5)
-circ_label.grid(row=1, column=2, pady=5)
+button_params = [
+    {"label": "Cotas Topograficas", "stringvar": height_pr_file },
+    {"label": "Circuito Nivelación", "stringvar": circuit_file },
+]
+component.LoadFileFrame(tab2, title="Carga de Archivos", button_params = button_params)
 
 
+button_params = [
+    {"label": "Longitudinal", "command":generate_longitudinal} ,
+    {"label":"Reporte","command":generate_report}
+]
 
-######################
-# FRAME: spreadsheet #
-######################
-frame_generate = tk.Frame(tab2, pady=20, bd=3, relief="groove")
-frame_generate.pack(pady=20,padx=20)
-
-frame_generate_title = tk.Frame(frame_generate)
-frame_generate_title.pack()
-
-label_generate_title = tk.Label(frame_generate_title, text="Planillas", font='Helvetica 10 bold')
-label_generate_title.pack(pady=20)
-
-
-frame_13 = tk.Label(frame_generate)
-frame_13.pack()
-
-label_generate_report1 = tk.Label(frame_13, text="Longitudinal",width=15, anchor="w" )
-label_generate_report1.grid(row=0,column=0, padx=5, pady=5)
-
-button_generate_report1 = tk.Button(frame_13, text="GENERAR", command=generate_longitudinal)
-button_generate_report1.grid(row=0,column=1,padx=5,pady=5)
-
-#########
-# WIDTH #
-#########
-label_generate_report2 = tk.Label(frame_13, text="Reporte",width=15, anchor="w")
-label_generate_report2.grid(row=1,column=0,padx=5,pady=5)
-
-button_generate_report2 = tk.Button(frame_13, text="GENERAR", command=generate_report)
-button_generate_report2.grid(row=1,column=1,padx=5,pady=5)
-
-
-# frame_mop = tk.Label(frame_spreadsheet)
-# frame_mop.pack()
-
-# label_mop = tk.Label(frame_mop, text="MOP",width=15, anchor="w" )
-# label_mop.grid(row=0,column=0, padx=5, pady=5)
-
-# button_generate_spreadsheet1 = tk.Button(frame_mop, text="GENERAR", command=generateMOP)
-# button_generate_spreadsheet1.grid(row=0,column=1,padx=5,pady=5)
-
-# label_ancho = tk.Label(frame_mop, text="Anchos",width=15, anchor="w")
-# label_ancho.grid(row=1,column=0,padx=5,pady=5)
-
-# button_generate_spreadsheet2 = tk.Button(frame_mop, text="GENERAR", command=generateAnchos)
-# button_generate_spreadsheet2.grid(row=1,column=1,padx=5,pady=5)
-
+component.ButtonFrame(tab2, title="Planillas", button_params=button_params)
 
 
 ################
