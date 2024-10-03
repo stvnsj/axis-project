@@ -81,7 +81,7 @@ class StackElement:
         
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         height   = utils.format_float_array(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));
-        content = (distance + "," + height[:,0])[:,None]
+        content = np.array([d + "," + h for d, h in zip(distance, height[:, 0])])[:, None]
         f.write("PLINE\n")
         np.savetxt(f, content ,fmt='%s')
         f.write("\n")
@@ -92,7 +92,10 @@ class StackElement:
         
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         height   = utils.format_float_array(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));        
-        content = ("LINE " + distance + "," + f'{utils.formatFloat(self.y_figure)} ' + distance + "," + height[:,0] + "\n")[:,None]
+        # content = ("LINE " + distance + " , " + f'{utils.formatFloat(self.y_figure)} ' + distance + " , " + height[:,0] + "\n")[:,None]
+        content = np.array([
+            "LINE " + d + "," + f'{utils.formatFloat(self.y_figure)} ' + d + "," + h + "\n"
+            for d, h in zip(distance, height[:,0])])[:, None]
         np.savetxt(self.f, content ,fmt='%s')
         
  
@@ -152,7 +155,10 @@ class StackElement:
             self.y_figure,
         ]))
         
-        content = ("LINE " + x1 + "," +  y1 + " " + x2 + "," + y2 + "\n")[:,None]
+        #content = ("LINE " + x1 + " , " +  y1 + "  " + x2 + " , " + y2 + "\n")[:,None]
+        content = np.array([
+            "LINE " + a + "," +  b + "  " + c + "," + d + "\n"
+            for a, b, c, d in zip(x1, y1, x2, y2)])[:, None]
         np.savetxt(self.f, content ,fmt='%s')
     
     
@@ -161,7 +167,10 @@ class StackElement:
         
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         labels   = utils.format_float_array(self.section.distance[self.indexList])
-        content = "-TEXT M " + distance + "," + utils.formatFloat(self.y_distNum) + " 0.50 90 " + labels
+        #content = "-TEXT M " + distance + " , " + utils.formatFloat(self.y_distNum) + " 0.50 90 " + labels
+        content = np.array([
+            "-TEXT M " + d + "," + utils.formatFloat(self.y_distNum) + " 0.50 90 " + l
+            for d,l in zip(distance, labels)])
         np.savetxt(self.f, content ,fmt='%s')
         
     
@@ -170,7 +179,10 @@ class StackElement:
         
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         labels   = utils.format_float_array(self.section.adjustedHeight[self.indexList])[:,0]
-        content  = "-TEXT M " + distance + "," + utils.formatFloat(self.y_heightNum) + " 0.50 90 " + labels
+        #content  = "-TEXT M " + distance + " , " + utils.formatFloat(self.y_heightNum) + " 0.50 90 " + labels
+        content = np.array([
+            "-TEXT M " + d + "," + utils.formatFloat(self.y_heightNum) + " 0.50 90 " + l
+            for d,l in zip(distance, labels)])
         np.savetxt(self.f, content ,fmt='%s')
         
     
