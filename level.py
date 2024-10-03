@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import utils
+import matplotlib.pyplot as plt
 
 
 
@@ -243,6 +244,9 @@ class Circuit :
         
         with open(filename, "w") as f:
             np.savetxt(f,full_table,delimiter=',',fmt='%s')
+
+        #plt.plot(positive_table,label="cotas",color='blue')
+        #plt.show()
 
 
 
