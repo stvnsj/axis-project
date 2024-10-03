@@ -182,10 +182,10 @@ class Circuit :
         negative_table  = self.get_negative_table()
         intersection    = np.intersect1d(positive_table[:,0], negative_table[:,0])
         union           = np.union1d(positive_table[:,0], negative_table[:,0])
-        complement      = np.setdiff1d(union,intersection)
+        #complement      = np.setdiff1d(union,intersection)
         positive_dict   = dict (positive_table)
         negative_dict   = dict (negative_table)
-        full_table = np.array([["DM", "IDA","VUELTA","DIF","MEDIA",""]])
+        full_table      = np.array([["DM", "IDA","VUELTA","DIF","MEDIA",""]])
         
         for dm in union:
             
@@ -205,7 +205,7 @@ class Circuit :
                     utils.format_float(negative_h),
                     utils.format_float(dif),
                     utils.format_float(mean),
-                    "FC" if dif >= 0.01 else ""
+                    "FT" if dif >= 0.01 else ""
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
@@ -238,6 +238,62 @@ class Circuit :
                     utils.format_float(dif),
                     utils.format_float(mean),
                     ""
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+            
+        
+        with open(filename, "w") as f:
+            np.savetxt(f,full_table,delimiter=',',fmt='%s')
+ 
+    def write_longitudinal(self, filename):
+        positive_table  = self.get_positive_table()
+        negative_table  = self.get_negative_table()
+        intersection    = np.intersect1d(positive_table[:,0], negative_table[:,0])
+        union           = np.union1d(positive_table[:,0], negative_table[:,0])
+        #complement      = np.setdiff1d(union,intersection)
+        positive_dict   = dict (positive_table)
+        negative_dict   = dict (negative_table)
+        full_table = np.empty((0, 3))
+        
+        for dm in union:
+            
+            if np.isnan(dm):
+                continue
+            
+            if dm in intersection:
+                
+                positive_h = positive_dict.get(dm)
+                negative_h = negative_dict.get(dm)
+                dif = np.round(np.absolute(float(positive_h) - float(negative_h)),3)
+                mean = np.mean([float(positive_h),float(negative_h)])
+                
+                new_row = np.array([[
+                    dm,
+                    utils.format_float(mean),
+                    "FC" if dif >= 0.01 else ""
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+            
+            if dm in positive_dict:
+                positive_h = positive_dict.get(dm)
+                mean       = positive_h
+                new_row = np.array([[
+                    dm,
+                    utils.format_float(mean),
+                    "COTA UNICA"
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+                
+            if dm in negative_dict:
+                negative_h = negative_dict.get(dm)
+                mean       = negative_h
+                new_row = np.array([[
+                    dm,
+                    utils.format_float(mean),
+                    "COTA UNICA"
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
@@ -352,7 +408,7 @@ def parse_point (num, start, h0, string_matrix, num_matrix = None):
     return point
 
 
-def parser (filename1, filename2, filename3):
+def parser (filename1, filename2):
  
     libreta_string_matrix = np.genfromtxt(filename1, delimiter=',', dtype=str, skip_header=0)
     height_string_matrix = np.genfromtxt(filename2, delimiter=',', dtype=str, skip_header=0)
@@ -373,5 +429,6 @@ def parser (filename1, filename2, filename3):
         else: 
             negative_segments.append(seg)
  
-    cir = Circuit(positive_segments, negative_segments,)
-    cir.write_circuit_table(filename3)
+    return Circuit(positive_segments, negative_segments)
+    #cir = Circuit(positive_segments, negative_segments,)
+    #cir.write_circuit_table(filename3)
