@@ -12,9 +12,6 @@ class Spreadsheet :
     
     def writeSectionMOP (self,section,f) :
         
-        # [i:] array from index i
-        # [::-1] reverse numpy array
-        
         ascendingIndex = np.argsort(section.distance[1:])
         section.distance[1:] = section.distance[1:][ascendingIndex]
         

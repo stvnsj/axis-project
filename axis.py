@@ -8,7 +8,7 @@ import cad
 import spreadsheet
 import model as md
 import command as cmd
-
+import annex 
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
@@ -193,6 +193,22 @@ def generateAnchos() :
     ss = spreadsheet.Spreadsheet(model)
     ss.writeKmWidth(fn=file_path)
 
+def generate_anexo_trans() :
+    
+    file_path = filedialog.asksaveasfilename(
+        title="Select or Enter File Name",
+        filetypes=(("Excel", "*.xlsx"), ("All files", "*.*"))
+    )
+    
+    if file_path == "":
+        return 
+    
+    reader = rd.Reader (fileA.get(), fileB.get(), fileC.get())
+    matrix, labels, om, ol, heights = reader.getData()
+    model = md.Model(heights,matrix,labels, om, ol)
+    
+    annex.trans(model,file_path)
+
 
 def generateFullCAD(inputs):
     try:
@@ -245,6 +261,7 @@ tab3 = ttk.Frame(notebook)
 # Add tabs to the notebook (tabs container)
 notebook.add(tab1, text='CAD')
 notebook.add(tab2, text='NIVELACION')
+notebook.add(tab3, text='ANEXO')
 #notebook.add(tab3, text='test')
 
 
@@ -329,6 +346,26 @@ button_params = [
     {"label":"CAD" , "command":generate_height_cad}
 ]
 component.ButtonFrame(tab2, title="Planillas", button_params=button_params)
+
+
+
+####################
+# ################ #
+# # ANEXOS TAB 3 # #
+# ################ #
+####################
+button_params = [
+    {"label": "Estacado con Descriptor", "stringvar": fileA },
+    {"label": "Estacado con Coordenadas", "stringvar": fileB },
+    {"label": "Longitudinal", "stringvar": fileC}
+]
+component.LoadFileFrame(tab3, title="Carga de Archivos", button_params = button_params)
+
+
+button_params = [
+    {"label":"Perfiles Transversales", "command":generate_anexo_trans},
+]
+component.ButtonFrame(tab3, title="FORMULARIO N° 2.5.3", button_params=button_params)
 
 
 
