@@ -1,11 +1,7 @@
 import sys
 import numpy as np
 import utils
-import matplotlib.pyplot as plt
-
-
-
-
+import levelCad
 
 class Point :
     
@@ -18,6 +14,7 @@ class Point :
             front_delta = 0.0,
             dm = np.array([]),
             intermediate = [],
+            str_dm = np.array([])
     ):
         
         self.num                     = num  # Ordinal number of this point in the segment
@@ -35,6 +32,7 @@ class Point :
         self.point_corrected  = []
         self.instr_corrected  = 0.0
         self.size = len(dm) + 1
+        self.str_dm = str_dm
         
         
     def __str__ (self):
@@ -65,12 +63,15 @@ class Point :
         self.point_corrected = utils.round(self.instr_corrected - self.intermediate)
  
     def get_table (self):
-        X = np.column_stack((
-            np.round(self.dm[:,None],3),
-            np.round(self.point_corrected[:,None],3),
+        # X = np.column_stack((
+        #     np.round(self.dm[:,None],3),
+        #     np.round(self.point_corrected[:,None],3),
             
-        ))
-        return X
+        # ))
+        return (self.str_dm, np.round(self.point_corrected,3))
+    
+    
+    
     
  
     ###########
@@ -86,28 +87,25 @@ class Point :
 class Segment :
     
     def __init__ (self, pr0, pr1, first_height, last_height, cplst=[], start_points = [], end_points=[]):
-
         self.pr0 = pr0 # string name of pr0
         self.pr1 = pr1 # string name of pr1
-        
+        self.pr_dict = {}
         
         if pr1 in start_points and pr0 in end_points:
             self.positive = False
             start_points.append(pr0)
             end_points.append(pr1)
-            print(pr0, pr1, "NEGATIVE")
             
         elif pr0 in start_points and pr1 in end_points:
             self.positive = False
             end_points.append(pr0)
             start_points.append(pr1)
-            print(pr0, pr1, "NEGATIVE")
             
         else:
             self.positive = True
             start_points.append(pr0)
             end_points.append(pr1)
-            print(pr0,pr1, "POSITIVE")
+            
         
         
         self.pr = (utils.pr_number(pr0),self.positive)
@@ -142,54 +140,80 @@ class Segment :
         point_uncorrected = self.points[-1].get_point_uncorrected()
      
         self.diff = np.round (self.ref_height - point_uncorrected , 3)
+        
         self.size = len(self.points) - 2
-        # print("REF : " , self.ref_height)
-        # print("UNCOR : " , self.point_uncorrected)
-        # print("DIFF  : " , self.diff)
-        # print("")
+        
         for cp in self.points:
             
             cp.correct_instr(self.diff / self.size);
             cp.correct_point()
-            
- 
+        
+        if utils.pr_number(self.pr0) < utils.pr_number(self.pr1):
+            for p in self.points:
+                self.pr_dict.update({dm:(self.pr0,self.pr1) for dm in p.str_dm})
+        else :
+            for p in self.points:
+                self.pr_dict.update({dm:(self.pr1,self.pr0) for dm in p.str_dm})
+                
+                
+                
+    def get_pr_dict(self):
+        return self.pr_dict
  
     def  get_table (self):
-        lst = [p.get_table() for p in self.points]
-        if self.positive:
-            return np.vstack(lst)
-        else:
-            return np.vstack(lst)[::-1]
-            
         
+        lst = [p.get_table() for p in self.points]
+        
+        dm_list, pnt_list = list(zip(*lst))
+        
+        return (np.concatenate(dm_list),np.concatenate(pnt_list))
+
 
 class Circuit :
+    
     def __init__ (self, positive, negative):
+        
+        # self.positive and self.negative are lists
+        # of Segment instances.
         self.positive = positive
         self.negative = negative
+        
+        self.pr_dict  = {}
+        
+        for s in positive:
+            self.pr_dict.update(s.get_pr_dict())
+            
+        for s in negative:
+            self.pr_dict.update(s.get_pr_dict())
  
     def get_positive_table(self):
         lst = [s.get_table() for s in self.positive]
-        return np.vstack(lst)
+        
+        dm_list, pnt_list = list(zip(*lst))
+        return (np.concatenate(dm_list),np.concatenate(pnt_list))
     
     def get_negative_table(self):
         lst = [s.get_table() for s in self.negative]
-        return np.vstack(lst)
+        dm_list, pnt_list = list(zip(*lst))
+        return (np.concatenate(dm_list),np.concatenate(pnt_list))
     
     def write_circuit_table(self, filename):
         
-        positive_table  = self.get_positive_table()
-        negative_table  = self.get_negative_table()
-        intersection    = np.intersect1d(positive_table[:,0], negative_table[:,0])
-        union           = np.union1d(positive_table[:,0], negative_table[:,0])
-        #complement      = np.setdiff1d(union,intersection)
-        positive_dict   = dict (positive_table)
-        negative_dict   = dict (negative_table)
-        full_table      = np.array([["DM", "IDA","VUELTA","DIF","MEDIA",""]])
+        pos_dm, pos_pnt = self.get_positive_table()
+        neg_dm, neg_pnt = self.get_negative_table()
+        
+        intersection    = np.intersect1d(pos_dm, neg_dm)
+        union           = np.union1d(pos_dm, neg_dm)
+        
+        # complement      = np.setdiff1d(union,intersection)
+        positive_dict   = dict (zip(pos_dm,pos_pnt))
+        negative_dict   = dict (zip(neg_dm,neg_pnt))
+        
+        full_table = np.empty((0, 8))
         
         for dm in union:
             
-            if np.isnan(dm):
+            if dm == "":
                 continue
             
             if dm in intersection:
@@ -205,6 +229,8 @@ class Circuit :
                     utils.format_float(negative_h),
                     utils.format_float(dif),
                     utils.format_float(mean),
+                    self.pr_dict.get(dm)[0],
+                    self.pr_dict.get(dm)[1],
                     "FT" if dif >= 0.01 else ""
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
@@ -217,10 +243,12 @@ class Circuit :
                 mean       = positive_h
                 new_row = np.array([[
                     dm,
-                    utils.format_float(positive_h),
+                    utils.format_float(positive_h) if not np.isnan(positive_h) else "VACIO",
                     negative_h,
                     utils.format_float(dif),
                     utils.format_float(mean),
+                    self.pr_dict.get(dm)[0],
+                    self.pr_dict.get(dm)[1],
                     ""
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
@@ -234,31 +262,47 @@ class Circuit :
                 new_row = np.array([[
                     dm,
                     positive_h,
-                    utils.format_float(negative_h),
+                    utils.format_float(negative_h) if not np.isnan(negative_h) else "VACIO",
                     utils.format_float(dif),
                     utils.format_float(mean),
+                    self.pr_dict.get(dm)[0],
+                    self.pr_dict.get(dm)[1],
                     ""
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
             
+            
+            
+        
+        num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
+        str_index = np.where([not utils.is_float(x) for x in full_table[:,0]])
+        ordered_num_index = np.argsort(full_table[num_index][:,0].astype(float))
+        
+        output = np.vstack((
+            np.array([["DM", "IDA","VUELTA","DIF","MEDIA","PR-A","PR-B","TOLERANCIA"]]),
+            full_table[ordered_num_index] ,
+            full_table[str_index]
+        ))
+        
         
         with open(filename, "w") as f:
-            np.savetxt(f,full_table,delimiter=',',fmt='%s')
+            np.savetxt(f,output,delimiter=',',fmt='%s')
  
     def write_longitudinal(self, filename):
-        positive_table  = self.get_positive_table()
-        negative_table  = self.get_negative_table()
-        intersection    = np.intersect1d(positive_table[:,0], negative_table[:,0])
-        union           = np.union1d(positive_table[:,0], negative_table[:,0])
-        #complement      = np.setdiff1d(union,intersection)
-        positive_dict   = dict (positive_table)
-        negative_dict   = dict (negative_table)
+        
+        pos_dm, pos_pnt = self.get_positive_table()
+        neg_dm, neg_pnt = self.get_negative_table()
+        intersection    = np.intersect1d(pos_dm, neg_dm)
+        union           = np.union1d(pos_dm, neg_dm)
+        # complement      = np.setdiff1d(union,intersection)
+        positive_dict   = dict (zip(pos_dm,pos_pnt))
+        negative_dict   = dict (zip(neg_dm,neg_pnt))
         full_table = np.empty((0, 3))
         
         for dm in union:
             
-            if np.isnan(dm):
+            if dm == "" or not utils.is_float(dm):
                 continue
             
             if dm in intersection:
@@ -268,10 +312,13 @@ class Circuit :
                 dif = np.round(np.absolute(float(positive_h) - float(negative_h)),3)
                 mean = np.mean([float(positive_h),float(negative_h)])
                 
+                if np.isnan(positive_h) or np.isnan(negative_h):
+                    continue
+                
                 new_row = np.array([[
                     dm,
                     utils.format_float(mean),
-                    "FC" if dif >= 0.01 else ""
+                    "FT" if dif >= 0.01 else ""
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
@@ -279,6 +326,10 @@ class Circuit :
             if dm in positive_dict:
                 positive_h = positive_dict.get(dm)
                 mean       = positive_h
+                
+                if np.isnan(positive_h):
+                    continue
+                
                 new_row = np.array([[
                     dm,
                     utils.format_float(mean),
@@ -290,6 +341,8 @@ class Circuit :
             if dm in negative_dict:
                 negative_h = negative_dict.get(dm)
                 mean       = negative_h
+                if np.isnan(negative_h):
+                    continue
                 new_row = np.array([[
                     dm,
                     utils.format_float(mean),
@@ -298,17 +351,71 @@ class Circuit :
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
         
+        num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
+        ordered_num_index = np.argsort(full_table[num_index][:,0].astype(float))
+         
         with open(filename, "w") as f:
-            np.savetxt(f,full_table,delimiter=',',fmt='%s')
+            np.savetxt(f,full_table[ordered_num_index],delimiter=',',fmt='%s')
+    
+ 
+    
+    def plot(self, filename):
+        
+        pos_dm, pos_pnt = self.get_positive_table()
+        neg_dm, neg_pnt = self.get_negative_table()
+        
+        intersection    = np.intersect1d(pos_dm, neg_dm)
+        union           = np.union1d(pos_dm, neg_dm)
+        
+        positive_dict   = dict (zip(pos_dm,pos_pnt))
+        negative_dict   = dict (zip(neg_dm,neg_pnt))
+        
+        full_table = np.empty((0, 2))
+        
+        for dm in union:
+            
+            if (dm == "") or (not utils.is_float(dm)):
+                continue
+            
+            # DM's with two measurements 
+            if dm in intersection:
+                positive_h = positive_dict.get(dm)
+                negative_h = negative_dict.get(dm)
+                if np.isnan(positive_h) or np.isnan(negative_h):
+                    continue
+                mean = utils.round(np.mean([positive_h,negative_h]))
+                new_row = np.array([[ np.round(float(dm),3), mean]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+            
+            # DM's with positive direction only
+            if dm in positive_dict:
+                positive_h = positive_dict.get(dm)
+                if np.isnan(positive_h):
+                    continue
+                mean       = utils.round(positive_h)                
+                new_row = np.array([[ np.round(float(dm),3), utils.round(mean) ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+            
+            # DM's with negative direction only
+            if dm in negative_dict:
+                negative_h = negative_dict.get(dm)
+                if np.isnan(negative_h):
+                    continue
+                mean       = utils.round(negative_h)
+                new_row = np.array([[  np.round(float(dm),3), utils.round(mean) ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+        
+        num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
+        ordered_num_index = np.argsort(full_table[num_index][:,0].astype(float))
+        
+        with open(filename, "w") as f:
+            cad = levelCad.LevelCad(full_table[ordered_num_index])
+            cad.write(f)
 
-        #plt.plot(positive_table,label="cotas",color='blue')
-        #plt.show()
 
-
-
-class Model :
-    def __init__ (self):
-        pass
 
 
 
@@ -316,7 +423,7 @@ class Model :
 def parse_circuit (circuit_matrix, height_matrix, circuit_num_matrix = None, pr_num_matrix = None):
     start = 0
     end   = 1
-
+    
     start_points = []
     end_points   = []
     
@@ -402,19 +509,21 @@ def parse_point (num, start, h0, string_matrix, num_matrix = None):
         back_delta = back_delta,
         front_delta = front_delta,
         dm = dm,
-        intermediate = im
+        intermediate = im,
+        str_dm = string_matrix[1:,1]
     )
     
     return point
 
 
 def parser (filename1, filename2):
- 
+    
     libreta_string_matrix = np.genfromtxt(filename1, delimiter=',', dtype=str, skip_header=0)
     height_string_matrix = np.genfromtxt(filename2, delimiter=',', dtype=str, skip_header=0)
     
     libreta_num_matrix = np.round(np.genfromtxt(filename1, delimiter=',', skip_header=0),3)
     height_num_matrix =  np.round(np.genfromtxt(filename2, delimiter=',', skip_header=0),3)
+    
     
     pro = parse_circuit(libreta_string_matrix, height_string_matrix,
                   circuit_num_matrix=libreta_num_matrix,
@@ -430,5 +539,11 @@ def parser (filename1, filename2):
             negative_segments.append(seg)
  
     return Circuit(positive_segments, negative_segments)
-    #cir = Circuit(positive_segments, negative_segments,)
-    #cir.write_circuit_table(filename3)
+    
+
+if __name__ == "__main__":
+    f1 = sys.argv[0]
+    f2 = sys.argv[1]
+    cir = parser(f1,f2)
+    cir.write_circuit_table("REPORT.csv")
+

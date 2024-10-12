@@ -25,19 +25,37 @@ class ModelIterator :
 class Model :
     """Represents an order set of cross sections."""
     
-    def __init__ (self, heights, matrix = None, labels= None , orientedMatrix = None, orientedLabels = None):
+    def __init__ (self,
+                  heights, # String Matrix (dm,h) file "longitudinal"
+                  matrix = None, # Data with descriptors
+                  labels= None , # Label with descriptors
+                  orientedMatrix = None, # Data with Coordinates
+                  orientedLabels = None):  # Labels with coordinates
         
+        # String Matrix (dm,h) file "longitudinal"
         self.heights = dict(heights) if heights is not None else {}
+        
+        # Kilometers of this model. It is not clear to me if I
+        # have yet used this list. TODO: should be renamed to self.dms
         self.kms = []
+        
+        # List of cross sections of this model. Each section has a dm
+        # on its axis identifying it uniquely.
         self.sections = []
-        self.sectionIndex = [] # Index of non-duplicate sections in self.sections
+        
+        # This is the index list of the unique cross sections
+        # in the self.sections list. sectionIndex is built after
+        # duplicate sections are merged
+        self.sectionIndex = []
+        
+        
         self.errNum = 0
         
         if orientedMatrix is not None:
             self.build_oriented(orientedMatrix,orientedLabels)
             self.sections.sort()
             self.reference_vector()
-            
+        
         if matrix is not None :
             self.build_descriptor(matrix,labels)
             
@@ -48,18 +66,25 @@ class Model :
         
         self.currSection = 0;
         self.size = len(self.sectionIndex)
-
+    
+    
+    
     def get_size(self):
+        """Returns the number of non-duplicate cross sections in the model"""
         return len(self.sectionIndex)
-        
+ 
+ 
     def distance_sign (self):
         for sec in self.sections:
             sec.compute_sign()
-    
+ 
+ 
     def getSection(self,index):
         i = self.sectionIndex[index]
         return self.sections[i]
-
+ 
+ 
+ 
     def reference_vector(self):
         
         N = len(self.sections)

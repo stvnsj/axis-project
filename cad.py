@@ -92,7 +92,6 @@ class StackElement:
         
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         height   = utils.format_float_array(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));        
-        # content = ("LINE " + distance + " , " + f'{utils.formatFloat(self.y_figure)} ' + distance + " , " + height[:,0] + "\n")[:,None]
         content = np.array([
             "LINE " + d + "," + f'{utils.formatFloat(self.y_figure)} ' + d + "," + h + "\n"
             for d, h in zip(distance, height[:,0])])[:, None]
@@ -155,9 +154,8 @@ class StackElement:
             self.y_figure,
         ]))
         
-        #content = ("LINE " + x1 + " , " +  y1 + "  " + x2 + " , " + y2 + "\n")[:,None]
         content = np.array([
-            "LINE " + a + "," +  b + "  " + c + "," + d + "\n"
+            "LINE " + a + "," +  b + " " + c + "," + d + "\n"
             for a, b, c, d in zip(x1, y1, x2, y2)])[:, None]
         np.savetxt(self.f, content ,fmt='%s')
     
@@ -167,7 +165,6 @@ class StackElement:
         
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         labels   = utils.format_float_array(self.section.distance[self.indexList])
-        #content = "-TEXT M " + distance + " , " + utils.formatFloat(self.y_distNum) + " 0.50 90 " + labels
         content = np.array([
             "-TEXT M " + d + "," + utils.formatFloat(self.y_distNum) + " 0.50 90 " + l
             for d,l in zip(distance, labels)])
@@ -179,7 +176,6 @@ class StackElement:
         
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         labels   = utils.format_float_array(self.section.adjustedHeight[self.indexList])[:,0]
-        #content  = "-TEXT M " + distance + " , " + utils.formatFloat(self.y_heightNum) + " 0.50 90 " + labels
         content = np.array([
             "-TEXT M " + d + "," + utils.formatFloat(self.y_heightNum) + " 0.50 90 " + l
             for d,l in zip(distance, labels)])
@@ -274,7 +270,6 @@ class Stack:
         for section in iterator:
             
             stackElement = StackElement(section, f, x=self.currX, y=self.y0)
-            # print(section.id)
             self.km1 = section.id
             self.currX = stackElement.write()
             
@@ -327,9 +322,6 @@ class CadScript:
     def writeFull (self, path, project_name, fileSize = 100, stackSize = 5):
         
         N = self.model.size
-
-        # Create the directory if it doesn't exist
-
         directory = os.path.join(path,project_name)
         os.makedirs(directory, exist_ok=True)
         
@@ -350,4 +342,8 @@ class CadScript:
             
             else:
                 break
+    
+    def writeCompleteProject(self, filename, stackSize=5):
+        N = self.model.get_size()
+        self.write (0, N , stackSize=stackSize, filename=filename)
 

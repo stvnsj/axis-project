@@ -7,23 +7,21 @@ import reader as rd
 import cad
 import spreadsheet
 import model as md
-
-
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
-  
+
 # import only asksaveasfile from filedialog 
 # which is used to save file in any extension 
 from tkinter.filedialog import asksaveasfile
 
 class ButtonFrame(tk.Frame):
         
-    def __init__ (self, parent, title="Load File", button_params = []):
+    def __init__ (self, parent, title="Load File", button_params = [],side="top"):
         
-        super().__init__(parent,pady=10,padx=10,bd=3,relief="groove")
+        super().__init__(parent,pady=3,padx=3,bd=3,relief="groove")
         self.row = 0
-        self.pack()
+        self.pack(side=side,pady=5)
         self.insert_title(title)
         self.frame_grid = tk.Frame(self)
         self.frame_grid.pack()
@@ -32,8 +30,8 @@ class ButtonFrame(tk.Frame):
             self.row += 1
  
     def insert_title(self, title):
-        label_title = tk.Label(self, text = title,pady=10,font='Helvetica 10 bold')
-        label_title.pack()
+        label_title = tk.Label(self, text = title,font='Helvetica 10 bold', pady=4,padx=4,bd=3, relief="ridge")
+        label_title.pack(pady=3,padx=3)
  
     def insert_button (self, label, command=lambda:print("ButtonFrame button")):
         
@@ -53,9 +51,9 @@ class LoadFileFrame(tk.Frame):
     
     def __init__ (self, parent, title="Load File", button_params = []):
         
-        super().__init__(parent,pady=10,padx=10,bd=3,relief="groove")
+        super().__init__(parent,pady=3,padx=3,bd=3,relief="groove")
         self.row = 0
-        self.pack()
+        self.pack(pady=5)
         self.insert_title(title)
         self.frame_grid = tk.Frame(self)
         self.frame_grid.pack()
@@ -64,8 +62,8 @@ class LoadFileFrame(tk.Frame):
             self.row += 1
  
     def insert_title(self, title):
-        label_title = tk.Label(self, text = title,pady=10,font='Helvetica 10 bold')
-        label_title.pack()
+        label_title = tk.Label(self, text = title,font='Helvetica 10 bold', pady=4,padx=4,bd=3, relief="ridge")
+        label_title.pack(pady=3,padx=3)
  
     def insert_button (self, label, stringvar):
         button    = tk.Button(self.frame_grid, text="Cargar", command=lambda:self.load_file_command(stringvar))
@@ -77,18 +75,23 @@ class LoadFileFrame(tk.Frame):
         filelabel.grid(row=self.row,column=2)
     
     def load_file_command(self,stringvar) :
-        path = filedialog.askopenfilename(title="Seleccione archivo")
+        path = filedialog.askopenfilename(
+            title="Seleccione archivo",
+            filetypes=(("Text files", "*.csv *.txt *.CSV *.TXT"), ("All files", "*.*"))
+        )
         stringvar.set(path)
     
 
 class InputFrame(tk.Frame):
     
-    def __init__ (self, parent , entry_params = [], command=lambda x:print("HELLO WORLD")):
+    
+    
+    def __init__ (self, parent , title="Input Frame", entry_params = [], command=lambda x:print("HELLO WORLD"),side="top"):
         
-        super().__init__(parent,pady=10,padx=10,bd=3,relief="groove")
+        super().__init__(parent,pady=3,padx=3,bd=3,relief="groove")
         self.row = 0
-        self.pack(pady=10, padx=20)
-        self.insert_title()
+        self.pack(side=side,pady=5, padx=20)
+        self.insert_title(title)
         self.inputs = []
         self.frame_grid = tk.Frame(self)
         self.frame_grid.pack()
@@ -100,27 +103,27 @@ class InputFrame(tk.Frame):
         self.insert_button(command=command) 
  
     def insert_entry(self,label):
+        
         entry_box   = tk.Entry(self.frame_grid)
-        entry_label = tk.Label(self.frame_grid, text = label)
+        entry_label = tk.Label(self.frame_grid, text = label,width=15, anchor="w")
         
         entry_box.grid(row=self.row,column = 0)
         entry_label.grid(row=self.row,column=1)
         return entry_box
     
-    def insert_title(self):
-        label_title = tk.Label(self, text = "Frame Title",pady=10,font='Helvetica 10 bold')
-        label_title.pack()
+    def insert_title(self, title):
+        label_title = tk.Label(self, text = title, font='Helvetica 10 bold', pady=4,padx=4,bd=3, relief="ridge")
+        label_title.pack(pady=3,padx=3)
  
  
-    def insert_button(self,command,text="boton"):
+    def insert_button(self,command,text="Generar"):
         
-        button = tk.Button(self, text=text, command=lambda:command(self.inputs), pady=10)
+        button = tk.Button(self, text=text, command=lambda:command(self.inputs), pady=5)
         button.pack()
         
     
     def get_input(self,i):
         return self.inputs[i]
- 
 
 
 

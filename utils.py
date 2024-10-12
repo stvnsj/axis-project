@@ -65,6 +65,12 @@ def pr_number(s):
         return int(match.group())
     return None
 
+def label_num(s):
+    match = re.search(r'\d+', s)
+    if match:
+        return int(match.group())
+    return None
+
 
 def normalize_fstring(s):
     """Converts a string decimal"""
@@ -73,8 +79,20 @@ def normalize_fstring(s):
     except:
         return s
 
+
+def is_float(s):
+    """Checks whether input can be cast from string to float"""
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
 def normalize_fstring_array(arr):
-    np.vectorize(normalize_fstring)(arr)
+    return np.vectorize(normalize_fstring)(arr)
 
 def round (x) :
     return np.round(x,3)
+
+
