@@ -6,3 +6,5 @@
 *.rar
 *.org
 __pycache__
+
+!README.org #Except for foo.dll
