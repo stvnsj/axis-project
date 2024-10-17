@@ -82,3 +82,24 @@ class Formatter :
         for row in dic:
             size = dic[row]
             self.ws.set_row(row,size*INCH_ROW)
+
+def set_column (ws,widths):
+    for col , w in enumerate(widths):
+        ws.set_column(col,col,w*INCH_COL)
+
+def set_row (ws, heights) :
+    for row , h in enumerate(heights) :
+        ws.set_row(row,h*INCH_ROW)
+
+def is_g (s):
+    if s.startswith("G"):
+        return True
+    else:
+        False
+
+
+def is_t (s):
+    if s.startswith("T"):
+        return True
+    else:
+        return False

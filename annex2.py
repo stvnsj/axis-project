@@ -204,7 +204,7 @@ def generate () :
         writer.write(f"W{15 + i * OFFSET}","Fecha:",Format.SIZE(10))
         writer.merge(f"Y{15 + i * OFFSET}:Z{15 + i * OFFSET}", "",Format.BOTTOM,Format.CENTER,Format.SIZE(10))
         
-        writer.merge(f"B{17 + i * OFFSET}:Z{17 + i * OFFSET}","Coordenadas",Format.SIZE(11),Format.CENTER)
+        writer.merge(f"B{17 + i * OFFSET}:Z{17 + i * OFFSET}", "Coordenadas",Format.SIZE(11),Format.CENTER)
         writer.merge(f"B{18 + i * OFFSET}:F{18 + i * OFFSET}", "Geodésicas",Format.SIZE(11),Format.CENTER)
         writer.merge(f"B{19 + i * OFFSET}:F{19 + i * OFFSET}", "Ref. SIRGAS", Format.SIZE(11),Format.CENTER)
         

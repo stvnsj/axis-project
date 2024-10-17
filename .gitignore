@@ -4,7 +4,6 @@
 *.txt
 *~
 *.rar
-*.org
+# *.org
 __pycache__
 
-!README.org #Except for foo.dll
