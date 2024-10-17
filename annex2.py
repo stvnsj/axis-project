@@ -9,11 +9,10 @@ import re
 from annexUtils import Format 
 from annexUtils import Writer
 from annexUtils import Formatter
+import annexUtils
 from openpyxl import load_workbook
 
 
-INCH_COL = 10
-INCH_ROW = 72
 OFFSET   = 38
 PAGEBREAKS = []
 
@@ -22,6 +21,55 @@ def generate () :
     workbook = xlsxwriter.Workbook("test2.xlsx")
     worksheet = workbook.add_worksheet("PERFILES")
     writer = Writer(workbook,worksheet)
+    
+    COL_WIDTHS = [
+        0.10, #A 
+        0.30, #B
+        0.75, #C
+        0.25, #D
+        0.35, #E
+        0.18, #F
+        0.19, #G
+        0.19, #H
+        0.25, #I
+        0.22, #J
+        0.30, #K
+        0.25, #L
+        0.15, #M
+        0.35, #N
+        0.15, #O
+        0.20, #P
+        0.20, #Q
+        0.33, #R
+        0.25, #S
+        0.15, #T
+        0.25, #U
+        0.15, #V
+        0.33, #W
+        0.19, #X
+        0.46, #Y
+        0.25, #Z
+        0.10, #AA
+    ]
+    
+    ROW_DICT = {
+        0 :0.1,  
+        6 :0.1,  
+        7 :0.18, 
+        8 :0.18, 
+        9 :0.19, 
+        10:0.1,
+        12:0.12,
+        13:0.12
+        
+    }
+    
+    ROW_DICT[1 - 1]  = 0.1
+    ROW_DICT[7 - 1]  = 0.1
+    ROW_DICT[11 - 1] = 0.1 
+    
+    #worksheet.autofit()
+    annexUtils.set_column(worksheet,COL_WIDTHS)
     
     worksheet.hide_gridlines(2)
     worksheet.set_portrait()
@@ -105,9 +153,9 @@ def generate () :
         
         
         
-        writer.write(f"B{15 + i * OFFSET}","Identificación del Punto",Format.BOLD, Format.ITALIC, Format.SIZE(11))
-        writer.write(f"F{15 + i * OFFSET}", "Nombre:", Format.SIZE(11))
-        writer.write(f"N{15 + i * OFFSET}", "Dm. Ref.:",Format.SIZE(11))
+        writer.write(f"B{15 + i * OFFSET}","Identificación del Punto",Format.BOLD, Format.ITALIC, Format.SIZE(10))
+        writer.write(f"F{15 + i * OFFSET}", "Nombre:", Format.SIZE(10))
+        writer.write(f"N{15 + i * OFFSET}", "Dm. Ref.:",Format.SIZE(10))
         
         writer.merge(
             f"I{15 + i * OFFSET}:L{15 + i * OFFSET}",
@@ -276,42 +324,12 @@ def generate () :
         PAGEBREAKS.append(50 + i * OFFSET)
     
     worksheet.set_h_pagebreaks(PAGEBREAKS)
+    annexUtils.set_row_dict(worksheet,ROW_DICT)
     
     
     
     
-    formatter = Formatter(worksheet)
-    col_width = {
-        0:0.13,
-        1:0.3,
-        2:0.75,
-        3:0.25,
-        4:0.25,
-        5:0.33,
-        6:0.19,
-        7:0.19,
-        8:0.25,
-        9:0.25,
-        10:0.34,
-        11:0.25,
-        12:0.21,
-        13:0.41,
-        14:0.22,
-        15:0.25,
-        16:0.25,
-        17:0.33,
-        18:0.25,
-        19:0.20,
-        20:0.25,
-        21:0.22,
-        22:0.33,
-        23:0.19,
-        24:0.46,
-        25:0.25,
-        26:0.13
-    }
-    #worksheet.autofit()
-    formatter.set_cols(col_width)
+
     # formatter.set_rows({0:2,1:2,2:2, 4:2})
     workbook.close()
 

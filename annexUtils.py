@@ -91,6 +91,12 @@ def set_row (ws, heights) :
     for row , h in enumerate(heights) :
         ws.set_row(row,h*INCH_ROW)
 
+def set_row_dict (ws, heights={}) :
+    for h in heights:
+        ws.set_row(h, heights[h] * INCH_ROW)
+
+
+
 def is_g (s):
     if s.startswith("G"):
         return True

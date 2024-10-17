@@ -1,4 +1,6 @@
-
+*.xlsx
+*.pdf
+*.TXT
 *.csv
 *.scr
 *.txt

@@ -90,11 +90,24 @@ def generate () :
         0.13, #W
     ]
     
+    ROW_HEIGHTS = [
+        0.17, #1
+        0.17, #2
+        0.23, #3
+        0.17, #4
+        0.07, #5
+        0.19, #6
+        0.07, #7
+        0.17, 0.17, 0.17, # 8,9,10
+        0.07, #11
+    ]
+    
     for p in polygones:
         
         worksheet = workbook.add_worksheet(p.value)
         
         annexUtils.set_column(worksheet,COL_WIDTHS)
+        annexUtils.set_row(worksheet,ROW_HEIGHTS)
         
         worksheet.hide_gridlines(2)
         worksheet.set_portrait()
@@ -175,13 +188,13 @@ def generate () :
                 Format.BOLD,Format.CENTER,Format.VCENTER, Format.BORDER
             )
             
-            writer.merge(f'D{curr_row}:E{curr_row}', "NL:",)
-            writer.merge(f'D{curr_row+1}:E{curr_row+1}', "EL:",)
+            writer.merge(f'D{curr_row}:E{curr_row}', "NL:",Format.SIZE(10))
+            writer.merge(f'D{curr_row+1}:E{curr_row+1}', "EL:",Format.SIZE(10))
             writer.merge(f'D{curr_row+2}:F{curr_row+2}', "Cota (nivelada):",Format.SIZE(9))
             
-            writer.merge(f'F{curr_row}:H{curr_row}',NL,Format.RIGHT)
-            writer.merge(f'F{curr_row+1}:H{curr_row+1}',EL,Format.RIGHT)
-            writer.merge(f'G{curr_row+2}:H{curr_row+2}',COTA,Format.RIGHT)
+            writer.merge(f'F{curr_row}:H{curr_row}',NL,Format.RIGHT,Format.SIZE(10))
+            writer.merge(f'F{curr_row+1}:H{curr_row+1}',EL,Format.RIGHT,Format.SIZE(10))
+            writer.merge(f'G{curr_row+2}:H{curr_row+2}',COTA,Format.RIGHT,Format.SIZE(10))
             
             writer.write(f'I{curr_row}','m')
             writer.write(f'I{curr_row+1}','m')
@@ -192,13 +205,13 @@ def generate () :
             
             
             
-            writer.write(f'L{curr_row}',"N:",Format.LEFT)
-            writer.write(f'L{curr_row+1}',"E:",Format.LEFT)
+            writer.write(f'L{curr_row}',"N:",Format.LEFT,Format.SIZE(10))
+            writer.write(f'L{curr_row+1}',"E:",Format.LEFT,Format.SIZE(10))
             writer.merge(f'L{curr_row+2}:M{curr_row+2}',"H(model):",Format.LEFT,Format.SIZE(9))
             
-            writer.merge(f'M{curr_row}:O{curr_row}', N, Format.RIGHT)
-            writer.merge(f'M{curr_row+1}:O{curr_row+1}', E, Format.RIGHT)
-            writer.merge(f'N{curr_row+2}:O{curr_row+2}', H, Format.RIGHT)
+            writer.merge(f'M{curr_row}:O{curr_row}', N, Format.RIGHT,Format.SIZE(10))
+            writer.merge(f'M{curr_row+1}:O{curr_row+1}', E, Format.RIGHT,Format.SIZE(10))
+            writer.merge(f'N{curr_row+2}:O{curr_row+2}', H, Format.RIGHT,Format.SIZE(10))
             
             writer.merge(f'Q{curr_row}:Q{curr_row+2}', '', Format.BRIGHT)
             writer.merge(f'K{curr_row+3}:Q{curr_row+3}', '',Format.BBOTTOM,Format.BRIGHT)
