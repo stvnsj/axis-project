@@ -83,7 +83,7 @@ class Formatter :
             size = dic[row]
             self.ws.set_row(row,size*INCH_ROW)
 
-def set_column (ws,widths):
+def set_column (ws,widths,INCH_COL=10):
     for col , w in enumerate(widths):
         ws.set_column(col,col,w*INCH_COL)
 

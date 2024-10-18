@@ -301,35 +301,21 @@ def generate () :
         
         writer.merge(f"H{41 + i * OFFSET}:Z{41 + i * OFFSET}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
         
-        writer.write(
-            f'I{43 + i * OFFSET}', "Materialidad:",
-            Format.SIZE(9)
-        )
-        
-        writer.write(
-            f'I{44 + i * OFFSET}', "Dimensiones:",
-            Format.SIZE(9)
-        )
-        
-        writer.write(
-            f'I{45 + i * OFFSET}', "Distancia a :",
-            Format.SIZE(9)
-        )
+        writer.write(f'I{43 + i * OFFSET}', "Materialidad:",Format.SIZE(9))
+        writer.write(f'I{44 + i * OFFSET}', "Dimensiones:",Format.SIZE(9))
+        writer.write(f'I{45 + i * OFFSET}', "Distancia a :",Format.SIZE(9))
         
         
         writer.merge(f"G{42 + i * OFFSET}:G{48 + i * OFFSET}","",Format.BRIGHT)
         writer.merge(f"AA{42 + i * OFFSET}:AA{48 + i * OFFSET}","",Format.BLEFT)
         writer.merge(f"H{49 + i * OFFSET}:Z{49 + i * OFFSET}","",Format.TOP)
         writer.merge(f"A{50 + i * OFFSET}:AA{50 + i * OFFSET}","",{})
+        
         PAGEBREAKS.append(50 + i * OFFSET)
     
     worksheet.set_h_pagebreaks(PAGEBREAKS)
     annexUtils.set_row_dict(worksheet,ROW_DICT)
     
-    
-    
-    
-
     # formatter.set_rows({0:2,1:2,2:2, 4:2})
     workbook.close()
 
