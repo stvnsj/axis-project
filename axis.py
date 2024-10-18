@@ -12,7 +12,8 @@ import annex
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
-  
+import annex8
+
 # import only asksaveasfile from filedialog 
 # which is used to save file in any extension 
 from tkinter.filedialog import asksaveasfile
@@ -25,6 +26,43 @@ from tkinter.filedialog import asksaveasfile
 #     file_selector
 #     =============
 # file_selector string_var -> ()
+
+def generate_annex_2 ():
+    
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Text files", "*.xlsx"), ("All files", "*.*"))
+    )
+    if filename == "":
+        return 
+    
+    annex2.generate(master_table.get(),filename)
+
+
+def generate_annex_4 ():
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Text files", "*.xlsx"), ("All files", "*.*"))
+    )
+    if filename == "":
+        return 
+    annex4.generate(master_table.get(),filename)
+
+
+def generate_annex_5 ():
+    pass
+
+def generate_annex_8 ():
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Text files", "*.xlsx"), ("All files", "*.*"))
+    )
+    if filename == "":
+        return 
+    annex8.generate(master_table.get(),filename)
+
+def generate_annex_11 ():
+    pass
 
 def generate_report():
     
@@ -256,14 +294,14 @@ notebook.pack(expand=True, fill='both')
 tab1 = ttk.Frame(notebook)
 tab2 = ttk.Frame(notebook)
 tab3 = ttk.Frame(notebook)
+tab4 = ttk.Frame(notebook)
 
 
 # Add tabs to the notebook (tabs container)
 notebook.add(tab1, text='CAD')
 notebook.add(tab2, text='NIVELACION')
 notebook.add(tab3, text='ANEXO')
-#notebook.add(tab3, text='test')
-
+notebook.add(tab4, text='ANEXO Anteproyecto')
 
 # def greet(inputs):
 #     print("First input :" , inputs[0].get())
@@ -278,6 +316,9 @@ notebook.add(tab3, text='ANEXO')
 fileA = tk.StringVar()
 fileB = tk.StringVar()
 fileC = tk.StringVar()
+
+master_table = tk.StringVar()
+level_annex  = tk.StringVar() 
 
 height_pr_file = tk.StringVar()
 circuit_file   = tk.StringVar()
@@ -366,6 +407,23 @@ button_params = [
     {"label":"Perfiles Transversales", "command":generate_anexo_trans},
 ]
 component.ButtonFrame(tab3, title="FORMULARIO N° 2.5.3", button_params=button_params)
+
+
+########################
+# ANEXO ANTEPROYECTO 4 #
+########################
+button_params = [
+    {"label":"Anexo 1 (Tabla Maestra)", "stringvar": master_table},
+    {"label":"Anexo 10 (Nivelación)"  , "stringvar": level_annex}
+]
+component.LoadFileFrame(tab4, title='Carga de Anexos', button_params=button_params)
+
+
+button_params = [
+    {"label":"Anexo 8", "command":generate_annex_8},
+]
+component.ButtonFrame(tab4, title="Generación de Anexos", button_params=button_params)
+
 
 
 

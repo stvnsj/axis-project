@@ -16,9 +16,9 @@ from openpyxl import load_workbook
 OFFSET   = 38
 PAGEBREAKS = []
 
-def generate () :
+def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xlsx") :
     
-    workbook = xlsxwriter.Workbook("test2.xlsx")
+    workbook = xlsxwriter.Workbook(output_file)
     worksheet = workbook.add_worksheet("PERFILES")
     writer = Writer(workbook,worksheet)
     
@@ -102,7 +102,7 @@ def generate () :
 
     
     
-    wb = load_workbook('anexos/anteproyecto/anexo1.xlsx')
+    wb = load_workbook(input_file)
     ws = wb.active
     VALUE = ws['C22'].value
     FRST_ROW = 0

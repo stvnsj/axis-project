@@ -13,17 +13,17 @@ from annexUtils import Formatter
 from openpyxl   import load_workbook
 
 
-def generate () :
+def generate (input_file = 'anexos/anteproyecto/anexo10.xlsx', output_file = "test11.xlsx") :
     
-    workbook = xlsxwriter.Workbook("test11.xlsx")
+    workbook = xlsxwriter.Workbook(output_file)
     worksheet = workbook.add_worksheet("Cotas PR")
     worksheetG = workbook.add_worksheet("Cotas G")
     worksheetT = workbook.add_worksheet("Cotas T")
     
     
-    generatePR(workbook, worksheet)
-    generateG(workbook, worksheetG)
-    generateT(workbook, worksheetT)
+    generatePR(workbook, worksheet, input_file)
+    generateG(workbook, worksheetG, input_file)
+    generateT(workbook, worksheetT, input_file)
     
     workbook.close()
 
@@ -36,7 +36,7 @@ def generate () :
 # \___/             \____/\___/  \_/\_| |_/\____/  \_|   \_| \_| #
 ##################################################################
 
-def generatePR (workbook,worksheet) :
+def generatePR (workbook,worksheet, input_file) :
     
     worksheet.hide_gridlines(2)
     worksheet.set_portrait()
@@ -130,7 +130,7 @@ def generatePR (workbook,worksheet) :
     
     writer.merge(f'B17:I17','',Format.BORDER)
     
-    wb = load_workbook('anexos/anteproyecto/anexo10.xlsx')
+    wb = load_workbook(input_file)
     ws = wb.active
     
     max_row = ws.max_row
@@ -238,7 +238,7 @@ def generatePR (workbook,worksheet) :
 # _| |_            | \__/\ \_/ / | || | | |/\__/ / | |_\ \ #
 # \___/             \____/\___/  \_/\_| |_/\____/   \____/ #
 ############################################################
-def generateG (workbook,worksheet) :
+def generateG (workbook,worksheet,input_file) :
     
     worksheet.hide_gridlines(2)
     worksheet.set_portrait()
@@ -455,7 +455,7 @@ def generateG (workbook,worksheet) :
 # _| |_            | \__/\ \_/ / | || | | |/\__/ /   | |   #
 # \___/             \____/\___/  \_/\_| |_/\____/    \_/   #
 ############################################################
-def generateT(workbook,worksheet):
+def generateT(workbook,worksheet,input_file):
     
     worksheet.hide_gridlines(2)
     worksheet.set_portrait()

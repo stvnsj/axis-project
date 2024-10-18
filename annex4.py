@@ -1,5 +1,3 @@
-
-
 import xlsxwriter
 import openpyxl
 import numpy as np
@@ -15,10 +13,10 @@ from annexUtils import Formatter
 from openpyxl   import load_workbook
 
 
-def generate () :
+def generate (input_file = 'anexos/anteproyecto/anexo1.xlsx' , output_file = "test4.xlsx") :
     
-    workbook = xlsxwriter.Workbook("test4.xlsx")
-    wb = load_workbook('anexos/anteproyecto/anexo1.xlsx')
+    workbook = xlsxwriter.Workbook(output_file)
+    wb = load_workbook(input_file)
     ws = wb.active
     
     column = 'B'

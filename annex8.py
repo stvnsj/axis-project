@@ -29,13 +29,10 @@ class Polygone :
         return f'coor: {self.coordinate}\nmin_row: {self.min_row}\nmax_row: {self.max_row}\nval: {self.value}'
 
 
-def generate () :
+def generate (input_file = 'anexos/anteproyecto/anexo1.xlsx', output_file='test8.xlsx') :
     
-    workbook = xlsxwriter.Workbook("test8.xlsx")
-
-    
-    
-    wb = load_workbook('anexos/anteproyecto/anexo1.xlsx')
+    workbook = xlsxwriter.Workbook(output_file)
+    wb = load_workbook(input_file)
     ws = wb.active
     
     column = 'B'
