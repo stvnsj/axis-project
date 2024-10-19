@@ -49,9 +49,9 @@ class ButtonFrame(tk.Frame):
 
 class LoadFileFrame(tk.Frame):
     
-    def __init__ (self, parent, title="Load File", button_params = []):
+    def __init__ (self, parent, title="Load File", button_params = [], pady = 3):
         
-        super().__init__(parent,pady=3,padx=3,bd=3,relief="groove")
+        super().__init__(parent,pady=pady,padx=3,bd=3,relief="groove")
         self.row = 0
         self.pack(pady=5)
         self.insert_title(title)
@@ -77,7 +77,7 @@ class LoadFileFrame(tk.Frame):
     def load_file_command(self,stringvar) :
         path = filedialog.askopenfilename(
             title="Seleccione archivo",
-            filetypes=(("Text files", "*.csv *.txt *.CSV *.TXT"), ("All files", "*.*"))
+            filetypes=(("Text files", "*.csv *.txt *.CSV *.TXT *.xlsx"), ("All files", "*.*"))
         )
         stringvar.set(path)
     

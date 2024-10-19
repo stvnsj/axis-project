@@ -12,7 +12,10 @@ import annex
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
+import annex2
+import annex4
 import annex8
+import annex11
 
 # import only asksaveasfile from filedialog 
 # which is used to save file in any extension 
@@ -62,7 +65,13 @@ def generate_annex_8 ():
     annex8.generate(master_table.get(),filename)
 
 def generate_annex_11 ():
-    pass
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Text files", "*.xlsx"), ("All files", "*.*"))
+    )
+    if filename == "":
+        return 
+    annex11.generate(level_annex.get(),filename)
 
 def generate_report():
     
@@ -294,14 +303,11 @@ notebook.pack(expand=True, fill='both')
 tab1 = ttk.Frame(notebook)
 tab2 = ttk.Frame(notebook)
 tab3 = ttk.Frame(notebook)
-tab4 = ttk.Frame(notebook)
-
 
 # Add tabs to the notebook (tabs container)
 notebook.add(tab1, text='CAD')
 notebook.add(tab2, text='NIVELACION')
 notebook.add(tab3, text='ANEXO')
-notebook.add(tab4, text='ANEXO Anteproyecto')
 
 # def greet(inputs):
 #     print("First input :" , inputs[0].get())
@@ -404,9 +410,9 @@ component.LoadFileFrame(tab3, title="Carga de Archivos", button_params = button_
 
 
 button_params = [
-    {"label":"Perfiles Transversales", "command":generate_anexo_trans},
+    {"label":"FORMULARIO N° 2.5.3", "command":generate_anexo_trans},
 ]
-component.ButtonFrame(tab3, title="FORMULARIO N° 2.5.3", button_params=button_params)
+component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
 
 
 ########################
@@ -416,13 +422,17 @@ button_params = [
     {"label":"Anexo 1 (Tabla Maestra)", "stringvar": master_table},
     {"label":"Anexo 10 (Nivelación)"  , "stringvar": level_annex}
 ]
-component.LoadFileFrame(tab4, title='Carga de Anexos', button_params=button_params)
 
+component.LoadFileFrame(tab3, title='Carga de Anexos', button_params=button_params, pady=10)
 
+# 2 , 4 , 8 , 11
 button_params = [
+    {"label":"Anexo 2", "command":generate_annex_2},
+    {"label":"Anexo 4", "command":generate_annex_4},
     {"label":"Anexo 8", "command":generate_annex_8},
+    {"label":"Anexo 11", "command":generate_annex_11},
 ]
-component.ButtonFrame(tab4, title="Generación de Anexos", button_params=button_params)
+component.ButtonFrame(tab3, title="Generación de Anexos (ANTEPROYECTO)", button_params=button_params)
 
 
 

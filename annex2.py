@@ -122,7 +122,7 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xl
                 LST_ROW  = merged_cell_range.max_row
                 first_row = merged_cell_range.min_row
                 last_row = merged_cell_range.max_row
-                print(f"Merged region with 'RBP' starts at row {first_row} and ends at row {last_row}")
+                # print(f"Merged region with 'RBP' starts at row {first_row} and ends at row {last_row}")
                 break
     
     

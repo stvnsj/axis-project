@@ -18,6 +18,7 @@ recomienda eliminar los dos puntos.
 
 *** Puntos Faltantes
 
+
 ** Anteproyecto
 
 *** Auxiliares
@@ -26,7 +27,6 @@ recomienda eliminar los dos puntos.
 :PROPERTIES:
 :formulario: 2.903.3.I
 :END:
-
 
 *** Aceptados
 
@@ -71,6 +71,7 @@ T
 **** Anexo 6
 **** Anexo 7
 **** Anexo 9
+
 
 ** Definitivo
 *** Anexo 2

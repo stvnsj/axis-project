@@ -3,6 +3,7 @@ import numpy as np
 import utils
 import levelCad
 
+
 class Point :
     
     def __init__ (
@@ -288,6 +289,98 @@ class Circuit :
         
         with open(filename, "w") as f:
             np.savetxt(f,output,delimiter=',',fmt='%s')
+ 
+ 
+    def get_report_long (self):
+        
+        pos_dm, pos_pnt = self.get_positive_table()
+        neg_dm, neg_pnt = self.get_negative_table()
+        
+        intersection    = np.intersect1d(pos_dm, neg_dm)
+        union           = np.union1d(pos_dm, neg_dm)
+        
+        # complement      = np.setdiff1d(union,intersection)
+        positive_dict   = dict (zip(pos_dm,pos_pnt))
+        negative_dict   = dict (zip(neg_dm,neg_pnt))
+        
+        full_table = np.empty((0, 8))
+        
+        for dm in union:
+            
+            if dm == "":
+                continue
+            
+            if dm in intersection:
+                
+                positive_h = positive_dict.get(dm)
+                negative_h = negative_dict.get(dm)
+                dif = np.round(np.absolute(float(positive_h) - float(negative_h)),3)
+                mean = np.mean([float(positive_h),float(negative_h)])
+                
+                new_row = np.array([[
+                    dm,
+                    utils.format_float(positive_h),
+                    utils.format_float(negative_h),
+                    utils.format_float(dif),
+                    utils.format_float(mean),
+                    self.pr_dict.get(dm)[0],
+                    self.pr_dict.get(dm)[1],
+                    "FT" if dif >= 0.01 else ""
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+            
+            if dm in positive_dict:
+                positive_h = positive_dict.get(dm)
+                negative_h = "SIN COTA"
+                dif        = 0.0
+                mean       = positive_h
+                new_row = np.array([[
+                    dm,
+                    utils.format_float(positive_h) if not np.isnan(positive_h) else "VACIO",
+                    negative_h,
+                    utils.format_float(dif),
+                    utils.format_float(mean),
+                    self.pr_dict.get(dm)[0],
+                    self.pr_dict.get(dm)[1],
+                    ""
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+                
+            if dm in negative_dict:
+                positive_h = "SIN COTA"
+                negative_h = negative_dict.get(dm)
+                dif        = 0.0
+                mean       = negative_h
+                new_row = np.array([[
+                    dm,
+                    positive_h,
+                    utils.format_float(negative_h) if not np.isnan(negative_h) else "VACIO",
+                    utils.format_float(dif),
+                    utils.format_float(mean),
+                    self.pr_dict.get(dm)[0],
+                    self.pr_dict.get(dm)[1],
+                    ""
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+            
+            
+            
+        
+        num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
+        str_index = np.where([not utils.is_float(x) for x in full_table[:,0]])
+        ordered_num_index = np.argsort(full_table[num_index][:,0].astype(float))
+        
+        output = np.vstack((
+            np.array([["DM", "IDA","VUELTA","DIF","MEDIA","PR-A","PR-B","TOLERANCIA"]]),
+            full_table[ordered_num_index] ,
+            full_table[str_index]
+        ))
+        
+        
+        return output
  
     def write_longitudinal(self, filename):
         
