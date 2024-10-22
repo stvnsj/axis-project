@@ -58,18 +58,6 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
         0.10, #U
     ]
     
-    # ROW_HEIGHTS = [
-    #     0.17, #1
-    #     0.17, #2
-    #     0.23, #3
-    #     0.17, #4
-    #     0.07, #5
-    #     0.19, #6
-    #     0.07, #7
-    #     0.17, 0.17, 0.17, # 8,9,10
-    #     0.07, #11
-    # ]
-
     HEIGHT_DICT = {0:0.12 , 6:0.12 , 7:0.18 , 8:0.18 , 9:0.18 , 10:0.08, 12:0.12}
  
     worksheet = workbook.add_worksheet("2.903.3.G")
@@ -111,7 +99,7 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
     writer.merge("B9:C9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge("B10:C10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge("B12:C12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge("Q12:T12","FECHA:",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    writer.merge("Q12:T12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
 
     writer.merge("B14:B16", 'Punto', Format.SIZE(9), Format.CENTER,Format.VCENTER,Format.BORDER)
     writer.write("D14", 'Geodésicas   Ref.', Format.SIZE(9), Format.LEFT)

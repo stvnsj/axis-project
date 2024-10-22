@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 INCH_COL = 10
 INCH_ROW = 72
@@ -110,7 +111,22 @@ def is_t (s):
     else:
         return False
 
-
+def curr_date () :
+    MES = {
+        1 : "ENERO",
+        2 : "FEBRERO",
+        3 : "MARZO",
+        4 : "ABRIL",
+        5 : "MAYO",
+        6 : "JUNIO",
+        7 : "JULIO",
+        8 : "AGOSTO",
+        9 : "SEPTIEMBRE",
+        10 : "OCTUBRE",
+        11 : "NOVIEMBRE"
+    }
+    
+    return f'{MES[datetime.now().month]} {datetime.now().year}'
 
 class Scanner :
     
@@ -187,3 +203,8 @@ class Scanner :
                 if cell.value == "COTA-GEO":
                     self.COTA_GEO =  cell
                     continue
+
+
+if __name__ == "__main__":
+    
+    print(curr_date())
