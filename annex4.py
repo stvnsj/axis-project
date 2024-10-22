@@ -10,10 +10,11 @@ import annexUtils
 from annexUtils import Format 
 from annexUtils import Writer
 from annexUtils import Formatter
+from annexUtils import Scanner
 from openpyxl   import load_workbook
 
 
-def generate (input_file = 'anexos/anteproyecto/anexo1.xlsx' , output_file = "test4.xlsx") :
+def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "test4.xlsx") :
     
     workbook = xlsxwriter.Workbook(output_file)
     wb = load_workbook(input_file)
@@ -35,7 +36,7 @@ def generate (input_file = 'anexos/anteproyecto/anexo1.xlsx' , output_file = "te
     
     COL_WIDTHS = [
         0.10, #A
-        0.45, #B
+        0.53, #B
         0.25, #C
         1.20, #D
         0.35, #E
@@ -117,103 +118,150 @@ def generate (input_file = 'anexos/anteproyecto/anexo1.xlsx' , output_file = "te
     writer.write("D15", 'SIRGAS', Format.SIZE(9), Format.LEFT)
     writer.merge("C16:F16", '', Format.BBOTTOM, Format.BRIGHT)
     writer.merge("F14:F15", '', Format.BRIGHT)
-
+    
     writer.merge("G15:I15",'Geocéntricas',Format.SIZE(9),Format.CENTER,Format.VCENTER)
     writer.merge("G16:J16",'',Format.BBOTTOM,Format.BRIGHT)
     writer.merge("J14:J15",'',Format.BRIGHT)
-
+    
     writer.merge("K15:N15", 'UTM', Format.SIZE(9),Format.CENTER,Format.VCENTER)
     writer.merge("K16:O16", '', Format.BBOTTOM, Format.BRIGHT)
     writer.merge("O14:O15", '', Format.BRIGHT)
-
+    
     writer.merge("P15:S15", 'LTM', Format.SIZE(9),Format.CENTER,Format.VCENTER)
     writer.merge("P16:T16", '', Format.BBOTTOM, Format.BRIGHT)
     writer.merge("T14:T15", '', Format.BRIGHT)
-
+    
     curr_row = 17
-    for i,row in enumerate(range(min_row,max_row+1)):
+
+    scanner = Scanner(ws)
+
+    i = 0
+    
+    
+    for row in range(min_row,max_row+1):
         
-        POINT = ws[f'C{row}'].value
+        # ESTACION
+        POINT = ws[f'{scanner.EST.column_letter}{row}'].value
         
-        GEO_f = ws[f'D{row}'].value
-        GEO_l = ws[f'E{row}'].value
-        GEO_h = ws[f'M{row}'].value
+        # COORDENADAS GEODÉSICAS
+        GEO_f = ws[f'{scanner.GEO_S.column_letter}{row}'].value
+        GEO_l = ws[f'{scanner.GEO_W.column_letter}{row}'].value
         
-        GEO_X = ws[f'H{row}'].value
-        GEO_Y = ws[f'I{row}'].value
-        GEO_Z = ws[f'J{row}'].value
+        # ALTURA ELIP
+        GEO_h = ws[f'{scanner.ELIP.column_letter}{row}'].value
         
-        UTM_N = ws[f'F{row}'].value
-        UTM_E = ws[f'G{row}'].value
-        UTM_H = ws[f'N{row}'].value
+        # GEOCÉNTRICAS
+        GEO_X = ws[f'{scanner.GEO_X.column_letter}{row}'].value
+        GEO_Y = ws[f'{scanner.GEO_Y.column_letter}{row}'].value
+        GEO_Z = ws[f'{scanner.GEO_Z.column_letter}{row}'].value
+        
+        # COORDENADAS UTM
+        UTM_N = ws[f'{scanner.UTM_N.column_letter}{row}'].value
+        UTM_E = ws[f'{scanner.UTM_E.column_letter}{row}'].value
+        UTM_H = ws[f'{scanner.COTA_ORTO.column_letter}{row}'].value
+        
         
         LTM_N = ws[f'K{row}'].value
         LTM_E = ws[f'L{row}'].value
-        LTM_C = ws[f'O{row}'].value
+        
+        # COTA
+        # GEOMÉTRICA
+        LTM_C = ws[f'{scanner.COTA_GEO.column_letter}{row}'].value
         
         
-        writer.merge(f"B{curr_row}:B{curr_row+3}",POINT,Format.CENTER,Format.VCENTER,Format.SIZE(10),Format.BORDER)
-        
-        writer.write(f'C{curr_row}','f:'  ,Format.SIZE(10),Format.CENTER,Format.BOLD)
-        writer.write(f'C{curr_row+1}','l:',Format.SIZE(10),Format.CENTER,Format.BOLD)
-        writer.write(f'C{curr_row+2}','h:',Format.SIZE(10),Format.CENTER)
-        
-        writer.merge(f'D{curr_row}:E{curr_row}',GEO_f,Format.SIZE(10)  ,Format.CENTER)
-        writer.merge(f'D{curr_row+1}:E{curr_row+1}',GEO_l,Format.SIZE(10),Format.CENTER)
-        writer.merge(f'D{curr_row+2}:E{curr_row+2}',GEO_h,Format.SIZE(10),Format.CENTER)
-        
-        writer.merge(f'F{curr_row}:F{curr_row+2}','',Format.BRIGHT)
-        writer.merge(f'C{curr_row+3}:F{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
-        
-        writer.write(f'G{curr_row}','X:',Format.SIZE(10)  ,Format.RIGHT)
-        writer.write(f'G{curr_row+1}','Y:',Format.SIZE(10),Format.RIGHT)
-        writer.write(f'G{curr_row+2}','Z:',Format.SIZE(10),Format.RIGHT)
-        
-        writer.write(f'H{curr_row}',GEO_X,Format.SIZE(10)  ,Format.RIGHT)
-        writer.write(f'H{curr_row+1}',GEO_Y,Format.SIZE(10),Format.RIGHT)
-        writer.write(f'H{curr_row+2}',GEO_Z,Format.SIZE(10),Format.RIGHT)
+        for k in range(len(scanner.PTL_N)):
+            
+            LTM_N = ws[f'{scanner.PTL_N[k].column_letter}{row}'].value
+            LTM_E = ws[f'{scanner.PTL_E[k].column_letter}{row}'].value
 
-        writer.write(f'I{curr_row}','m',Format.SIZE(10))
-        writer.write(f'I{curr_row+1}','m',Format.SIZE(10))
-        writer.write(f'I{curr_row+2}','m',Format.SIZE(10))
-        
-        writer.merge(f'J{curr_row}:J{curr_row+2}','',Format.BRIGHT)
-        writer.merge(f'G{curr_row+3}:J{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
-
-        writer.write(f'K{curr_row}','N:',Format.SIZE(10))
-        writer.write(f'K{curr_row+1}','E:',Format.SIZE(10))
-        writer.merge(f'K{curr_row+2}:L{curr_row+2}','H (model):',Format.SIZE(10))
-        
-        writer.merge(f'L{curr_row}:M{curr_row}',UTM_N,Format.SIZE(10))
-        writer.merge(f'L{curr_row+1}:M{curr_row+1}',UTM_E,Format.SIZE(10))
-        writer.write(f'M{curr_row+2}',UTM_H,Format.SIZE(10))
-        
-        writer.write(f'N{curr_row}','m',Format.SIZE(10))
-        writer.write(f'N{curr_row+1}','m',Format.SIZE(10))
-        writer.write(f'N{curr_row+2}','m',Format.SIZE(10))
-        
-        writer.merge(f'O{curr_row}:O{curr_row+2}','',Format.BRIGHT)
-        writer.merge(f'K{curr_row+3}:O{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
-        
-        writer.write(f'P{curr_row}','NL:',Format.SIZE(10))
-        writer.write(f'P{curr_row+1}','EL:',Format.SIZE(10))
-        writer.merge(f'P{curr_row+2}:Q{curr_row+2}','Cota (nivelada):',Format.SIZE(10))
-        
-        writer.merge(f'Q{curr_row}:R{curr_row}',LTM_N,Format.SIZE(10))
-        writer.merge(f'Q{curr_row+1}:R{curr_row+1}',LTM_E,Format.SIZE(10))
-        writer.write(f'R{curr_row+2}',LTM_C,Format.SIZE(10))
-        
-        writer.write(f'S{curr_row}','m',Format.SIZE(10))
-        writer.write(f'S{curr_row+1}','m',Format.SIZE(10))
-        writer.write(f'S{curr_row+2}','m',Format.SIZE(10))
-        
-        writer.merge(f'T{curr_row}:T{curr_row+2}','',Format.BRIGHT)
-        writer.merge(f'P{curr_row+3}:T{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
-        
-        if i > 0:
-            writer.merge(f'B{curr_row-1}:T{curr_row-1}','',Format.BORDER)
-            HEIGHT_DICT[curr_row-2]=0.15
-        curr_row += 5
+            try:
+                float(LTM_N)
+            except:
+                continue
+            
+            
+            if len(scanner.PTL_N) == 1:
+                writer.merge(
+                    f"B{curr_row}:B{curr_row+3}",
+                    POINT,
+                    Format.CENTER,
+                    Format.VCENTER,
+                    Format.SIZE(10),
+                    Format.BORDER
+                )
+            else:
+                writer.merge(
+                    f"B{curr_row}:B{curr_row+3}",
+                    f'{POINT}\n(PTL-{k+1})',
+                    Format.CENTER,
+                    Format.VCENTER,
+                    Format.SIZE(10),
+                    Format.BORDER)
+            
+            
+            
+            
+            writer.write(f'C{curr_row}','f:'  ,Format.SIZE(10),Format.CENTER,Format.BOLD)
+            writer.write(f'C{curr_row+1}','l:',Format.SIZE(10),Format.CENTER,Format.BOLD)
+            writer.write(f'C{curr_row+2}','h:',Format.SIZE(10),Format.CENTER)
+            
+            writer.merge(f'D{curr_row}:E{curr_row}',GEO_f,Format.SIZE(10)  ,Format.CENTER)
+            writer.merge(f'D{curr_row+1}:E{curr_row+1}',GEO_l,Format.SIZE(10),Format.CENTER)
+            writer.merge(f'D{curr_row+2}:E{curr_row+2}',GEO_h,Format.SIZE(10),Format.CENTER)
+            
+            writer.merge(f'F{curr_row}:F{curr_row+2}','',Format.BRIGHT)
+            writer.merge(f'C{curr_row+3}:F{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
+            
+            writer.write(f'G{curr_row}','X:',Format.SIZE(10)  ,Format.RIGHT)
+            writer.write(f'G{curr_row+1}','Y:',Format.SIZE(10),Format.RIGHT)
+            writer.write(f'G{curr_row+2}','Z:',Format.SIZE(10),Format.RIGHT)
+            
+            writer.write(f'H{curr_row}',GEO_X,Format.SIZE(10)  ,Format.RIGHT)
+            writer.write(f'H{curr_row+1}',GEO_Y,Format.SIZE(10),Format.RIGHT)
+            writer.write(f'H{curr_row+2}',GEO_Z,Format.SIZE(10),Format.RIGHT)
+            
+            writer.write(f'I{curr_row}','m',Format.SIZE(10))
+            writer.write(f'I{curr_row+1}','m',Format.SIZE(10))
+            writer.write(f'I{curr_row+2}','m',Format.SIZE(10))
+            
+            writer.merge(f'J{curr_row}:J{curr_row+2}','',Format.BRIGHT)
+            writer.merge(f'G{curr_row+3}:J{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
+            
+            writer.write(f'K{curr_row}','N:',Format.SIZE(10))
+            writer.write(f'K{curr_row+1}','E:',Format.SIZE(10))
+            writer.merge(f'K{curr_row+2}:L{curr_row+2}','H (model):',Format.SIZE(10))
+            
+            writer.merge(f'L{curr_row}:M{curr_row}',UTM_N,Format.SIZE(10))
+            writer.merge(f'L{curr_row+1}:M{curr_row+1}',UTM_E,Format.SIZE(10))
+            writer.write(f'M{curr_row+2}',UTM_H,Format.SIZE(10))
+            
+            writer.write(f'N{curr_row}','m',Format.SIZE(10))
+            writer.write(f'N{curr_row+1}','m',Format.SIZE(10))
+            writer.write(f'N{curr_row+2}','m',Format.SIZE(10))
+            
+            writer.merge(f'O{curr_row}:O{curr_row+2}','',Format.BRIGHT)
+            writer.merge(f'K{curr_row+3}:O{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
+            
+            writer.write(f'P{curr_row}','NL:',Format.SIZE(10))
+            writer.write(f'P{curr_row+1}','EL:',Format.SIZE(10))
+            writer.merge(f'P{curr_row+2}:Q{curr_row+2}','Cota (nivelada):',Format.SIZE(10))
+            
+            writer.merge(f'Q{curr_row}:R{curr_row}',LTM_N,Format.SIZE(10))
+            writer.merge(f'Q{curr_row+1}:R{curr_row+1}',LTM_E,Format.SIZE(10))
+            writer.write(f'R{curr_row+2}',LTM_C,Format.SIZE(10))
+            
+            writer.write(f'S{curr_row}','m',Format.SIZE(10))
+            writer.write(f'S{curr_row+1}','m',Format.SIZE(10))
+            writer.write(f'S{curr_row+2}','m',Format.SIZE(10))
+            
+            writer.merge(f'T{curr_row}:T{curr_row+2}','',Format.BRIGHT)
+            writer.merge(f'P{curr_row+3}:T{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
+            
+            if i > 0:
+                writer.merge(f'B{curr_row-1}:T{curr_row-1}','',Format.BORDER)
+                HEIGHT_DICT[curr_row-2]=0.15
+            curr_row += 5
+            i += 1
         
         #curr_row -= 1
     writer.merge(f'B{curr_row-1}:T{curr_row-1}','',Format.BTOP)

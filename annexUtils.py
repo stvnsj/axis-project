@@ -1,4 +1,4 @@
-
+import re
 
 INCH_COL = 10
 INCH_ROW = 72
@@ -109,3 +109,81 @@ def is_t (s):
         return True
     else:
         return False
+
+
+
+class Scanner :
+    
+    def __init__ (self,ws) :
+        self.ws = ws
+        self.row = self.__find_row__()
+        
+        self.PRO       = None
+        self.EST       = None
+        self.GEO_S     = None
+        self.GEO_W     = None
+        self.UTM_N     = None
+        self.UTM_E     = None
+        self.GEO_X     = None
+        self.GEO_Y     = None
+        self.GEO_Z     = None
+        self.PTL_N     = []
+        self.PTL_E     = []
+        self.ELIP      = None
+        self.COTA_ORTO = None
+        self.COTA_GEO  = None
+        
+        self.__find_field__()
+ 
+    def __find_row__ (self) :
+        for col in self.ws.iter_cols(min_col=1):
+            for cell in col:
+                if cell.value == "MASTER":
+                    return cell.row
+        raise Exception("No row starting with \'MASTER\' cell")
+    
+    def __find_field__ (self) :
+        for row in self.ws.iter_rows(min_row=self.row,max_row=self.row):
+            for cell in row:
+                if cell.value == "PRO":
+                    self.PRO = cell
+                    continue
+                if cell.value == "EST":
+                    self.EST = cell
+                    continue
+                if cell.value == "GEO-S":
+                    self.GEO_S = cell
+                    continue
+                if cell.value == "GEO-W":
+                    self.GEO_W = cell
+                    continue
+                if cell.value == "UTM-N":
+                    self.UTM_N = cell
+                    continue
+                if cell.value == "UTM-E":
+                    self.UTM_E = cell
+                    continue
+                if cell.value == "GEO-X":
+                    self.GEO_X = cell
+                    continue
+                if cell.value == "GEO-Y":
+                    self.GEO_Y = cell
+                    continue
+                if cell.value == "GEO-Z":
+                    self.GEO_Z = cell
+                    continue
+                if  bool(re.match(r"^PTL\d*-N", str(cell.value))):
+                    self.PTL_N.append(cell)
+                    continue
+                if  bool(re.match(r"^PTL\d*-E", str(cell.value))):
+                    self.PTL_E.append(cell)
+                    continue
+                if cell.value == "ELIP":
+                    self.ELIP = cell
+                    continue
+                if cell.value == "COTA-ORTO":
+                    self.COTA_ORTO = cell
+                    continue
+                if cell.value == "COTA-GEO":
+                    self.COTA_GEO =  cell
+                    continue
