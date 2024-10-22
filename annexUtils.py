@@ -111,22 +111,39 @@ def is_t (s):
     else:
         return False
 
-def curr_date () :
-    MES = {
-        1 : "ENERO",
-        2 : "FEBRERO",
-        3 : "MARZO",
-        4 : "ABRIL",
-        5 : "MAYO",
-        6 : "JUNIO",
-        7 : "JULIO",
-        8 : "AGOSTO",
-        9 : "SEPTIEMBRE",
-        10 : "OCTUBRE",
-        11 : "NOVIEMBRE"
-    }
+def curr_date (opt=0) :
     
-    return f'{MES[datetime.now().month]} {datetime.now().year}'
+    if opt  == 0:
+        MES = {
+            1 : "ENERO",
+            2 : "FEBRERO",
+            3 : "MARZO",
+            4 : "ABRIL",
+            5 : "MAYO",
+            6 : "JUNIO",
+            7 : "JULIO",
+            8 : "AGOSTO",
+            9 : "SEPTIEMBRE",
+            10 : "OCTUBRE",
+            11 : "NOVIEMBRE"
+        }
+        return f'{MES[datetime.now().month]} {datetime.now().year}'
+    
+    else :
+        MES  = {
+            1 : "EN",
+            2 : "FEBR",
+            3 : "MAR",
+            4 : "ABR",
+            5 : "MAY",
+            6 : "JUN",
+            7 : "JUL",
+            8 : "AGO",
+            9 : "SEPT",
+            10 : "OCT",
+            11 : "NOV"
+        }
+        return f'{MES[datetime.now().month]} {datetime.now().year}'
 
 class Scanner :
     

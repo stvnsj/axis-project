@@ -96,7 +96,7 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xl
     writer.merge(f"B9:D9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge(f"B10:D10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge(f"B12:D12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge(f"U12:Z12","FECHA:",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    writer.merge(f"U12:Z12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
   
     
 
@@ -124,6 +124,8 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xl
                 last_row = merged_cell_range.max_row
                 # print(f"Merged region with 'RBP' starts at row {first_row} and ends at row {last_row}")
                 break
+ 
+    scanner = annexUtils.Scanner(ws)
     
     
     # LOOP THE FOLLOWING CELLS 
@@ -131,23 +133,23 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xl
         
         CELL_nombre = ws[f'C{r}'].value # DONE
         
-        CELL_f      = ws[f'D{r}'].value
-        CELL_l      = ws[f'E{r}'].value
-        CELL_h      = ws[f'M{r}'].value
+        CELL_f      = ws[f'{scanner.GEO_S.column_letter}{r}'].value
+        CELL_l      = ws[f'{scanner.GEO_W.column_letter}{r}'].value
+        CELL_h      = ws[f'{scanner.ELIP.column_letter}{r}'].value
         
-        CELL_X      = ws[f'H{r}'].value
-        CELL_Y      = ws[f'I{r}'].value
-        CELL_Z      = ws[f'J{r}'].value
+        CELL_X      = ws[f'{scanner.GEO_X.column_letter}{r}'].value
+        CELL_Y      = ws[f'{scanner.GEO_Y.column_letter}{r}'].value
+        CELL_Z      = ws[f'{scanner.GEO_Z.column_letter}{r}'].value
         
-        CELL_N      = ws[f'F{r}'].value
-        CELL_E      = ws[f'G{r}'].value
-
-        CELL_altura = ws[f'N{r}'].value
-        CELL_cota   = ws[f'O{r}'].value
-
+        CELL_N      = ws[f'{scanner.UTM_N.column_letter}{r}'].value
+        CELL_E      = ws[f'{scanner.UTM_E.column_letter}{r}'].value
+        
+        CELL_altura = ws[f'{scanner.COTA_ORTO.column_letter}{r}'].value
+        CELL_cota   = ws[f'{scanner.COTA_GEO.column_letter}{r}'].value
+        
         CELL_NL     = ws[f'K{r}'].value
         CELL_EL     = ws[f'L{r}'].value
-
+        
         CELL_MCL    = ws['H9'].value
         CELL_Ko     = ws['H12'].value
         
@@ -249,8 +251,8 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xl
         
         
         writer.merge(f"Q{15 + i * OFFSET}:T{15 + i * OFFSET}", "",Format.CENTER,Format.SIZE(10),Format.BOTTOM)
-        writer.write(f"W{15 + i * OFFSET}","Fecha:",Format.SIZE(10))
-        writer.merge(f"Y{15 + i * OFFSET}:Z{15 + i * OFFSET}", "",Format.BOTTOM,Format.CENTER,Format.SIZE(10))
+        writer.write(f"W{15 + i * OFFSET}","FECHA:",Format.SIZE(10))
+        writer.merge(f"Y{15 + i * OFFSET}:Z{15 + i * OFFSET}", annexUtils.curr_date(1),Format.BOTTOM,Format.CENTER,Format.SIZE(10))
         
         writer.merge(f"B{17 + i * OFFSET}:Z{17 + i * OFFSET}", "Coordenadas",Format.SIZE(11),Format.CENTER)
         writer.merge(f"B{18 + i * OFFSET}:F{18 + i * OFFSET}", "Geodésicas",Format.SIZE(11),Format.CENTER)
