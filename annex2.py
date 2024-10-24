@@ -16,10 +16,10 @@ from openpyxl import load_workbook
 OFFSET   = 38
 PAGEBREAKS = []
 
-def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xlsx") :
+def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xlsx") :
     
     workbook = xlsxwriter.Workbook(output_file)
-    worksheet = workbook.add_worksheet("PERFILES")
+    worksheet = workbook.add_worksheet("2.903.3.F (RRP)")
     writer = Writer(workbook,worksheet)
     
     COL_WIDTHS = [
@@ -128,10 +128,14 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xl
     scanner = annexUtils.Scanner(ws)
     
     
-    # LOOP THE FOLLOWING CELLS 
+    # LOOP THE FOLLOWING CELLS
+    CORRECTION = 0
     for i,r in enumerate(range(FRST_ROW,LST_ROW+1)):
         
-        CELL_nombre = ws[f'C{r}'].value # DONE
+        CONST = i * OFFSET + CORRECTION
+        
+        
+        CELL_nombre = ws[f'{scanner.PRO.column_letter}{r}'].value # DONE
         
         CELL_f      = ws[f'{scanner.GEO_S.column_letter}{r}'].value
         CELL_l      = ws[f'{scanner.GEO_W.column_letter}{r}'].value
@@ -155,165 +159,165 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xl
         
         
         
-        writer.write(f"B{15 + i * OFFSET}","Identificación del Punto",Format.BOLD, Format.ITALIC, Format.SIZE(10))
-        writer.write(f"F{15 + i * OFFSET}", "Nombre:", Format.SIZE(10))
-        writer.write(f"N{15 + i * OFFSET}", "Dm. Ref.:",Format.SIZE(10))
+        writer.write(f"B{15 + CONST}","Identificación del Punto",Format.BOLD, Format.ITALIC, Format.SIZE(10))
+        writer.write(f"F{15 + CONST}", "Nombre:", Format.SIZE(10))
+        writer.write(f"N{15 + CONST}", "Dm. Ref.:",Format.SIZE(10))
         
         writer.merge(
-            f"I{15 + i * OFFSET}:L{15 + i * OFFSET}",
+            f"I{15 + CONST}:L{15 + CONST}",
             CELL_nombre,
             Format.SIZE(11), Format.BOTTOM, Format.CENTER
         )
         
         writer.write(
-            f"C{21 + i * OFFSET}",
+            f"C{21 + CONST}",
             CELL_f,
         )
         
         writer.write(
-            f"C{22 + i * OFFSET}",
+            f"C{22 + CONST}",
             CELL_l,
         )
         
         writer.write(
-            f"C{23 + i * OFFSET}",
+            f"C{23 + CONST}",
             CELL_h,
             Format.CENTER
         )
         
         writer.merge(
-            f"H{21 + i * OFFSET}:K{21 + i * OFFSET}",
+            f"H{21 + CONST}:K{21 + CONST}",
             CELL_X,
             Format.RIGHT
         )
         
         writer.merge(
-            f"H{22 + i * OFFSET}:K{22 + i * OFFSET}",
+            f"H{22 + CONST}:K{22 + CONST}",
             CELL_Y,
             Format.RIGHT
         )
         
         writer.merge(
-            f"H{23 + i * OFFSET}:K{23 + i * OFFSET}",
+            f"H{23 + CONST}:K{23 + CONST}",
             CELL_Z,
             Format.RIGHT
         )
         
-        writer.merge(
-            f"N{25 + i * OFFSET}:P{25 + i * OFFSET}",
-            CELL_altura,
-            Format.RIGHT
-        )
+        writer.merge(f'P{20 + CONST}:R{20 + CONST}',scanner.ZONA, Format.CENTER)
+        writer.merge(f'P{21 + CONST}:R{21 + CONST}',scanner.MC, Format.CENTER)
+        writer.merge(f"O{22 + CONST}:R{22 + CONST}",CELL_N,Format.RIGHT)
+        writer.merge(f"O{23 + CONST}:R{23 + CONST}",CELL_E,Format.RIGHT)
         
-        writer.merge(
-            f"X{25 + i * OFFSET}:Y{25 + i * OFFSET}",
-            CELL_cota,
-            Format.RIGHT
-        )
         
-        writer.merge(
-            f"O{22 + i * OFFSET}:R{22 + i * OFFSET}",
-            CELL_N,
-            Format.RIGHT
-        )
+        writer.merge(f"Q{15 + CONST}:T{15 + CONST}", "",Format.CENTER,Format.SIZE(10),Format.BOTTOM)
+        writer.write(f"W{15 + CONST}","FECHA:",Format.SIZE(10))
+        writer.merge(f"Y{15 + CONST}:Z{15 + CONST}", annexUtils.curr_date(1),Format.BOTTOM,Format.CENTER,Format.SIZE(10))
         
-        writer.merge(
-            f"O{23 + i * OFFSET}:R{23 + i * OFFSET}",
-            CELL_E,
-            Format.RIGHT
-        )
+        writer.merge(f"B{17 + CONST}:Z{17 + CONST}", "Coordenadas",Format.SIZE(11),Format.CENTER)
+        writer.merge(f"B{18 + CONST}:F{18 + CONST}", "Geodésicas",Format.SIZE(11),Format.CENTER)
+        writer.merge(f"B{19 + CONST}:F{19 + CONST}", "Ref. SIRGAS", Format.SIZE(11),Format.CENTER)
         
-        writer.merge(
-            f"V{22 + i * OFFSET}:Y{22 + i * OFFSET}",
-            CELL_NL,
-            Format.RIGHT
-        )
+        writer.merge(f"G{18 + CONST}:L{19 + CONST}", "Geocéntricas",Format.SIZE(11), Format.CENTER, Format.VCENTER )
+        writer.merge(f"N{18 + CONST}:S{19 + CONST}", "UTM",Format.SIZE(11),Format.CENTER,Format.VCENTER)
         
-        writer.merge(
-            f"V{23 + i * OFFSET}:Y{23 + i * OFFSET}",
-            CELL_EL,
-            Format.RIGHT
-        )
         
-        writer.merge(
-            f"W{20 + i * OFFSET}:Z{20 + i * OFFSET}",
-            CELL_MCL,
-            Format.LEFT
-        )
+        writer.write(f"B{21 + CONST}","f:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"B{22 + CONST}","l:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"B{23 + CONST}","h:",Format.SIZE(10),Format.LEFT)
         
-        writer.merge(
-            f"W{21 + i * OFFSET}:Z{21 + i * OFFSET}",
-            CELL_Ko,
-            Format.LEFT
-        )
+        writer.write(f"G{21 + CONST}","X:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"G{22 + CONST}","Y:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"G{23 + CONST}","Z:",Format.SIZE(11),Format.LEFT)
+        
+        
+        writer.write(f"L{21 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"L{22 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"L{23 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"D{23 + CONST}","m",Format.SIZE(11),Format.LEFT)
+
+        writer.write(f"S{22 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"S{23 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"Z{22 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"Z{23 + CONST}","m",Format.SIZE(11),Format.LEFT)
         
         
         
-        
-        writer.merge(f"Q{15 + i * OFFSET}:T{15 + i * OFFSET}", "",Format.CENTER,Format.SIZE(10),Format.BOTTOM)
-        writer.write(f"W{15 + i * OFFSET}","FECHA:",Format.SIZE(10))
-        writer.merge(f"Y{15 + i * OFFSET}:Z{15 + i * OFFSET}", annexUtils.curr_date(1),Format.BOTTOM,Format.CENTER,Format.SIZE(10))
-        
-        writer.merge(f"B{17 + i * OFFSET}:Z{17 + i * OFFSET}", "Coordenadas",Format.SIZE(11),Format.CENTER)
-        writer.merge(f"B{18 + i * OFFSET}:F{18 + i * OFFSET}", "Geodésicas",Format.SIZE(11),Format.CENTER)
-        writer.merge(f"B{19 + i * OFFSET}:F{19 + i * OFFSET}", "Ref. SIRGAS", Format.SIZE(11),Format.CENTER)
-        
-        writer.merge(f"G{18 + i * OFFSET}:L{19 + i * OFFSET}", "Geocéntricas",Format.SIZE(11), Format.CENTER, Format.VCENTER )
-        writer.merge(f"N{18 + i * OFFSET}:S{19 + i * OFFSET}", "UTM",Format.SIZE(11),Format.CENTER,Format.VCENTER)
-        writer.merge(f"U{18 + i * OFFSET}:Z{19 + i * OFFSET}", "PTL-1",Format.SIZE(11),Format.CENTER,Format.VCENTER)
-        
-        writer.write(f"B{21 + i * OFFSET}","f:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"B{22 + i * OFFSET}","l:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"B{23 + i * OFFSET}","h:",Format.SIZE(10),Format.LEFT)
-        
-        writer.write(f"G{21 + i * OFFSET}","X:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"G{22 + i * OFFSET}","Y:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"G{23 + i * OFFSET}","Z:",Format.SIZE(11),Format.LEFT)
-        
-        writer.write(f"L{21 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"L{22 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"L{23 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"D{23 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"Q{25 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"Z{25 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"S{22 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"S{23 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"Z{22 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"Z{23 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"N{20 + CONST}","Huso:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"N{21 + CONST}","MC:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"N{22 + CONST}","N:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"N{23 + CONST}","E:",Format.SIZE(11),Format.LEFT)
         
         
+        #############
+        # ITERATION #
+        #############
         
-        writer.write(f"N{20 + i * OFFSET}","Huso:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"N{21 + i * OFFSET}","MC:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"N{22 + i * OFFSET}","N:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"N{23 + i * OFFSET}","E:",Format.SIZE(11),Format.LEFT)
+        PTL_OFFSET = 0
         
-        writer.write(f"U{20 + i * OFFSET}","MCL:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"U{21 + i * OFFSET}","Ko:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"U{22 + i * OFFSET}","NL:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"U{23 + i * OFFSET}","EL:",Format.SIZE(11),Format.LEFT)
+        for k in range(len(scanner.PTL_N)):
+            
+            LTM_N = ws[f'{scanner.PTL_N[k].column_letter}{r}'].value
+            LTM_E = ws[f'{scanner.PTL_E[k].column_letter}{r}'].value
+            MCL   = scanner.MERIDIANO_CENTRAL[k].value
+            FACTOR = scanner.FACTOR_ESCALA[k].value
+            
+            try:
+                float(LTM_N)
+                
+            except:
+                continue
+            
+            writer.merge(f"U{18 + CONST + PTL_OFFSET }:Z{19 + CONST + PTL_OFFSET}", f"PTL-{k+1}",Format.SIZE(11),Format.CENTER,Format.VCENTER)
+            writer.write(f"U{20 + CONST + PTL_OFFSET }","MCL:",Format.SIZE(11),Format.LEFT)
+            writer.write(f"U{21 + CONST + PTL_OFFSET}","Ko:",Format.SIZE(11),Format.LEFT)
+            writer.write(f"U{22 + CONST + PTL_OFFSET}","NL:",Format.SIZE(11),Format.LEFT)
+            writer.write(f"U{23 + CONST + PTL_OFFSET}","EL:",Format.SIZE(11),Format.LEFT)
+            writer.merge(f"W{20 + CONST + PTL_OFFSET}:Z{20 + CONST + PTL_OFFSET}", MCL, Format.LEFT )
+            writer.merge(f"W{21 + CONST + PTL_OFFSET}:Z{21 + CONST + PTL_OFFSET}", FACTOR, Format.LEFT )
+            writer.merge(f"V{22 + CONST + PTL_OFFSET}:Y{22 + CONST + PTL_OFFSET}",LTM_N,Format.RIGHT )
+            writer.merge(f"V{23 + CONST + PTL_OFFSET}:Y{23 + CONST + PTL_OFFSET}",LTM_E,Format.RIGHT )
+            PTL_OFFSET += 6
+            
         
-        writer.write(f"F{25 + i * OFFSET}","Altura (n.m.m. modelada):",Format.SIZE(11))
-        writer.write(f"S{25 + i * OFFSET}","Cota (nivelada):",Format.SIZE(11),Format.BOLD)
+        CORRECTION += PTL_OFFSET - 6
+        CONST += PTL_OFFSET - 6
         
-        writer.merge(f"B{27 + i * OFFSET}:K{39 + i * OFFSET}","Fotografía\nPanorámica",Format.BORDER,Format.CENTER,Format.VCENTER)
-        writer.merge(f"M{27 + i * OFFSET}:Z{39 + i * OFFSET}","Vista\nAérea",Format.BORDER,Format.CENTER,Format.VCENTER)
-        writer.merge(f"B{41 + i * OFFSET}:F{48 + i * OFFSET}","Fotografía\nDetalle",Format.BORDER,Format.CENTER,Format.VCENTER)
+        #-------------------------------------------------------------------------------
+        ###############
+        # SUB 24 ROWS #
+        ###############
+        writer.write(f"F{25 + CONST}","Altura (n.m.m. modelada):",Format.SIZE(11))
+        writer.write(f"S{25 + CONST}","Cota (nivelada):",Format.SIZE(11),Format.BOLD)
+        writer.write(f"Q{25 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"Z{25 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.merge(f"N{25 + CONST}:P{25 + CONST}",CELL_altura, Format.RIGHT)
+        writer.merge(f"X{25 + CONST}:Y{25 + CONST}",CELL_cota,Format.RIGHT)
         
         
-        writer.merge(f"H{41 + i * OFFSET}:Z{41 + i * OFFSET}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
         
-        writer.write(f'I{43 + i * OFFSET}', "Materialidad:",Format.SIZE(9))
-        writer.write(f'I{44 + i * OFFSET}', "Dimensiones:",Format.SIZE(9))
-        writer.write(f'I{45 + i * OFFSET}', "Distancia a :",Format.SIZE(9))
+        writer.merge(f"B{27 + CONST}:K{39 + CONST}","Fotografía\nPanorámica",Format.BORDER,Format.CENTER,Format.VCENTER)
+        writer.merge(f"M{27 + CONST}:Z{39 + CONST}","Vista\nAérea",Format.BORDER,Format.CENTER,Format.VCENTER)
+        writer.merge(f"B{41 + CONST}:F{48 + CONST}","Fotografía\nDetalle",Format.BORDER,Format.CENTER,Format.VCENTER)
         
         
-        writer.merge(f"G{42 + i * OFFSET}:G{48 + i * OFFSET}","",Format.BRIGHT)
-        writer.merge(f"AA{42 + i * OFFSET}:AA{48 + i * OFFSET}","",Format.BLEFT)
-        writer.merge(f"H{49 + i * OFFSET}:Z{49 + i * OFFSET}","",Format.TOP)
-        writer.merge(f"A{50 + i * OFFSET}:AA{50 + i * OFFSET}","",{})
+        writer.merge(f"H{41 + CONST}:Z{41 + CONST}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
         
-        PAGEBREAKS.append(50 + i * OFFSET)
+        writer.write(f'I{43 + CONST}', "Materialidad:",Format.SIZE(9))
+        writer.write(f'I{44 + CONST}', "Dimensiones:",Format.SIZE(9))
+        writer.write(f'I{45 + CONST}', "Distancia a :",Format.SIZE(9))
+        
+        writer.write(f'L{43 + CONST}', "MONOLITO DE HORMIGÓN, PINTADO DE AMARILLO", Format.SIZE(9))
+        writer.write(f'L{44 + CONST}', "30,0 cm x 30,0 cm x 50,0 cm", Format.SIZE(9))
+        
+        writer.merge(f"G{42 + CONST}:G{48 + CONST}","",Format.BRIGHT)
+        writer.merge(f"AA{42 + CONST}:AA{48 + CONST}","",Format.BLEFT)
+        writer.merge(f"H{49 + CONST}:Z{49 + CONST}","",Format.TOP)
+        writer.merge(f"A{50 + CONST}:AA{50 + CONST}","",{})
+        
+        ROW_DICT.update({key:0.18 for key in range(27 + i*OFFSET , 39 + i*OFFSET)})
+        
+        PAGEBREAKS.append(50 + CONST)
+
     
     worksheet.set_h_pagebreaks(PAGEBREAKS)
     annexUtils.set_row_dict(worksheet,ROW_DICT)

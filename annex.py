@@ -7,6 +7,7 @@ import reader as rd
 import re 
 
 class Writer :
+    
     def __init__ (self,workbook,worksheet):
         self.workbook = workbook
         self.worksheet = worksheet

@@ -18,6 +18,7 @@ def generate (
         input1 = "",
         input2 = "",
         output_file = "testlongi.xlsx") :
+    
     cir = level.parser(input1, input2)
     TABLE = cir.get_report_long()
     print(TABLE)
@@ -49,7 +50,6 @@ def generate (
         Format.BOLD,Format.CENTER
     )
     
-    
     writer.write(f"I2","",Format.BLEFT)
     writer.merge(f"B7:H7","",{"bottom":1})
     writer.merge(f"A8:A12","",{"right":1})
@@ -60,46 +60,49 @@ def generate (
     writer.write(f"B9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge(f"G12:H12","FECHA:",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
-  
+    writer.merge(f"G12:H12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
     
-    # wb = load_workbook(input_file)
-    # ws = wb.active
+    writer.write("C15", "DM" , Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER)
+    writer.write("D15", "IDA" , Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER)
+    writer.write("E15", "VUELTA" , Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER)
+    writer.write("F15", "DIFERENCIA" , Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER)
+    writer.write("G15", "PROMEDIO" , Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER)
     
-    # max_row = ws.max_row
-    # first_row = True
-    # curr_row = 18
-    # DESDE = 1
-    # HASTA = 1
-    # BREAK = False
- 
-    # POINT_A = ""
-    # POINT_B = ""
-    # DELTA_A = 0.0
-    # DELTA_B = 0.0
-    # ERR     = 0.0
-    # DELTA_MEAN = 0.0
-    # HEIGHT = 0.0
-    
+    curr_row = 16
     
     COL_WIDTH = [
         0.13, # A
-        0.40, # B
-        0.40, # C
-        0.40, # D
-        0.40, # E
-        0.40, # F
-        0.40, # G
-        0.40, # H
+        0.99, # B
+        0.99, # C
+        0.99, # D
+        0.99, # E
+        0.99, # F
+        0.99, # G
+        0.99, # H
         0.13, # I   
     ]
+    
     annexUtils.set_column(worksheet,COL_WIDTH)
+    
+    for ROW in TABLE:
+        V_DM = ROW[0]
+        V_IDA = ROW[1]
+        V_VUELTA = ROW[2]
+        V_DIF  = ROW[3]
+        V_MEAN = ROW[4]
+        
+        writer.write(f'C{curr_row}', V_DM,     Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
+        writer.write(f'D{curr_row}', V_IDA,    Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
+        writer.write(f'E{curr_row}', V_VUELTA, Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
+        writer.write(f'F{curr_row}', V_DIF,    Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
+        writer.write(f'G{curr_row}', V_MEAN,   Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
+        
+        curr_row += 1
+    
+    writer.merge(f'C{curr_row}:G{curr_row}', '', Format.BTOP)
     
     workbook.close()
     
-
-
-
 
 
 

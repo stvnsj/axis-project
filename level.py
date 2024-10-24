@@ -172,20 +172,26 @@ class Segment :
 
 class Circuit :
     
-    def __init__ (self, positive, negative):
+    def __init__ (self, positive, negative, trigonometric = None):
         
         # self.positive and self.negative are lists
         # of Segment instances.
         self.positive = positive
         self.negative = negative
         
-        self.pr_dict  = {}
+        self.pr_dict  =  {}
+        self.trig_dict = self.__build_trig_dict__(trigonometric)
         
         for s in positive:
             self.pr_dict.update(s.get_pr_dict())
             
         for s in negative:
             self.pr_dict.update(s.get_pr_dict())
+    
+    def __build_trig_dict__ (self, table) :
+        if table is None:
+            return {}
+        
  
     def get_positive_table(self):
         lst = [s.get_table() for s in self.positive]
@@ -299,84 +305,74 @@ class Circuit :
         intersection    = np.intersect1d(pos_dm, neg_dm)
         union           = np.union1d(pos_dm, neg_dm)
         
-        # complement      = np.setdiff1d(union,intersection)
         positive_dict   = dict (zip(pos_dm,pos_pnt))
         negative_dict   = dict (zip(neg_dm,neg_pnt))
         
-        full_table = np.empty((0, 8))
+        full_table = np.empty((0, 5))
         
         for dm in union:
             
             if dm == "":
                 continue
             
-            if dm in intersection:
+            if utils.is_float(dm) and dm in intersection:
                 
-                positive_h = positive_dict.get(dm)
-                negative_h = negative_dict.get(dm)
-                dif = np.round(np.absolute(float(positive_h) - float(negative_h)),3)
-                mean = np.mean([float(positive_h),float(negative_h)])
+                positive_h = utils.round(positive_dict.get(dm))
+                negative_h = utils.round(negative_dict.get(dm))
+                dif        = np.absolute(positive_h - negative_h)
+                mean       = np.mean([positive_h,negative_h])
                 
                 new_row = np.array([[
-                    dm,
-                    utils.format_float(positive_h),
-                    utils.format_float(negative_h),
-                    utils.format_float(dif),
-                    utils.format_float(mean),
-                    self.pr_dict.get(dm)[0],
-                    self.pr_dict.get(dm)[1],
-                    "FT" if dif >= 0.01 else ""
-                ]])
-                full_table = np.append(full_table, new_row, axis=0)
-                continue
-            
-            if dm in positive_dict:
-                positive_h = positive_dict.get(dm)
-                negative_h = "SIN COTA"
-                dif        = 0.0
-                mean       = positive_h
-                new_row = np.array([[
-                    dm,
-                    utils.format_float(positive_h) if not np.isnan(positive_h) else "VACIO",
-                    negative_h,
-                    utils.format_float(dif),
-                    utils.format_float(mean),
-                    self.pr_dict.get(dm)[0],
-                    self.pr_dict.get(dm)[1],
-                    ""
-                ]])
-                full_table = np.append(full_table, new_row, axis=0)
-                continue
-                
-            if dm in negative_dict:
-                positive_h = "SIN COTA"
-                negative_h = negative_dict.get(dm)
-                dif        = 0.0
-                mean       = negative_h
-                new_row = np.array([[
-                    dm,
+                    utils.round(float(dm)),
                     positive_h,
-                    utils.format_float(negative_h) if not np.isnan(negative_h) else "VACIO",
-                    utils.format_float(dif),
-                    utils.format_float(mean),
-                    self.pr_dict.get(dm)[0],
-                    self.pr_dict.get(dm)[1],
-                    ""
+                    negative_h,
+                    dif,
+                    utils.round(mean),
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
             
-            
-            
+            if utils.is_float(dm) and dm in positive_dict and dm in self.trig_dict and False:
+                
+                positive_h = utils.round(positive_dict.get(dm))
+                negative_h = utils.round(self.trig_dict.get(dm, positive_h))
+                dif        = np.absolute(positive_h - negative_h)
+                mean       = np.mean([positive_h,negative_h])
+                new_row = np.array([[
+                    float(dm),
+                    positive_h,
+                    negative_h,
+                    dif,
+                    utils.round(mean),
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+                
+            if utils.is_float(dm) and dm in negative_dict and dm in self.trig_dict and False:
+                
+                positive_h = utils.round(self.trig_dict.get(dm,negative_h))
+                negative_h = utils.round(negative_dict.get(dm))
+                dif        = np.absolute(positive_h - negative_h)
+                mean       = np.mean([positive_h,negative_h])
+                
+                new_row = np.array([[
+                    utils.round(float(dm)),
+                    positive_h,
+                    negative_h,
+                    dif,
+                    utils.round(mean),
+                ]])
+                full_table = np.append(full_table, new_row, axis=0)
+                continue
+        
+        
         
         num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
         str_index = np.where([not utils.is_float(x) for x in full_table[:,0]])
         ordered_num_index = np.argsort(full_table[num_index][:,0].astype(float))
         
         output = np.vstack((
-            np.array([["DM", "IDA","VUELTA","DIF","MEDIA","PR-A","PR-B","TOLERANCIA"]]),
             full_table[ordered_num_index] ,
-            full_table[str_index]
         ))
         
         
