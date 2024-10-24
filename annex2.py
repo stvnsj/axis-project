@@ -21,6 +21,11 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
     workbook = xlsxwriter.Workbook(output_file)
     worksheet = workbook.add_worksheet("2.903.3.F (RRP)")
     writer = Writer(workbook,worksheet)
+    wb = load_workbook(input_file)
+    ws = wb.active
+    scanner = annexUtils.Scanner(ws)
+    
+    
     
     COL_WIDTHS = [
         0.10, #A 
@@ -61,16 +66,14 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         10:0.1,
         12:0.12,
         13:0.12
-        
     }
     
-    ROW_DICT[1 - 1]  = 0.1
-    ROW_DICT[7 - 1]  = 0.1
-    ROW_DICT[11 - 1] = 0.1 
     
     #worksheet.autofit()
     annexUtils.set_column(worksheet,COL_WIDTHS)
     
+    
+    # Page configuration
     worksheet.hide_gridlines(2)
     worksheet.set_portrait()
     worksheet.set_page_view(2)
@@ -86,7 +89,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
                  {"bottom":1,"right":1, "font_size":12,"bold":True,"align":"center","valign":"vcenter"})
     
     writer.write(f"AA2","",Format.LEFT)
-
+    
     writer.merge(f"B7:Z7","",{"bottom":1})
     writer.merge(f"A8:A12","",{"right":1})
     writer.merge(f"AA8:AA12","",{"left":1})
@@ -99,33 +102,21 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
     writer.merge(f"U12:Z12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
   
     
-
     
-    
-    wb = load_workbook(input_file)
-    ws = wb.active
-    VALUE = ws['C22'].value
+  
     FRST_ROW = 0
     LST_ROW  = 0
     
-    # Iterate through merged cell ranges
     for merged_cell_range in ws.merged_cells.ranges:
-        # Check if the merged region is in column B
-        if merged_cell_range.min_col == 2 and merged_cell_range.max_col == 2:  # Column B has index 2
-            # Get the first cell of the merged region
+        if merged_cell_range.min_col == 2 and merged_cell_range.max_col == 2:
             first_cell = ws.cell(row=merged_cell_range.min_row, column=2).value
-            print(first_cell)
-            # Check if the first cell contains the text "RBP"
             if first_cell == "RRP":
-                # Get the first and last rows of the merged region
                 FRST_ROW = merged_cell_range.min_row
                 LST_ROW  = merged_cell_range.max_row
                 first_row = merged_cell_range.min_row
                 last_row = merged_cell_range.max_row
-                # print(f"Merged region with 'RBP' starts at row {first_row} and ends at row {last_row}")
                 break
  
-    scanner = annexUtils.Scanner(ws)
     
     
     # LOOP THE FOLLOWING CELLS
@@ -135,21 +126,20 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         CONST = i * OFFSET + CORRECTION
         
         
-        CELL_nombre = ws[f'{scanner.PRO.column_letter}{r}'].value # DONE
+        CELL_nombre = scanner.get_pro(r)
+        CELL_f      = scanner.get_geo_s(r)
+        CELL_l      = scanner.get_geo_w(r)
+        CELL_h      = scanner.get_elip(r)
         
-        CELL_f      = ws[f'{scanner.GEO_S.column_letter}{r}'].value
-        CELL_l      = ws[f'{scanner.GEO_W.column_letter}{r}'].value
-        CELL_h      = ws[f'{scanner.ELIP.column_letter}{r}'].value
+        CELL_X      = scanner.get_geo_x(r)
+        CELL_Y      = scanner.get_geo_y(r)
+        CELL_Z      = scanner.get_geo_z(r)
         
-        CELL_X      = ws[f'{scanner.GEO_X.column_letter}{r}'].value
-        CELL_Y      = ws[f'{scanner.GEO_Y.column_letter}{r}'].value
-        CELL_Z      = ws[f'{scanner.GEO_Z.column_letter}{r}'].value
+        CELL_N      = scanner.get_utm_n(r)
+        CELL_E      = scanner.get_utm_e(r)
         
-        CELL_N      = ws[f'{scanner.UTM_N.column_letter}{r}'].value
-        CELL_E      = ws[f'{scanner.UTM_E.column_letter}{r}'].value
-        
-        CELL_altura = ws[f'{scanner.COTA_ORTO.column_letter}{r}'].value
-        CELL_cota   = ws[f'{scanner.COTA_GEO.column_letter}{r}'].value
+        CELL_altura = scanner.get_cota_orto(r)
+        CELL_cota   = scanner.get_cota_geo(r)
         
         CELL_NL     = ws[f'K{r}'].value
         CELL_EL     = ws[f'L{r}'].value
@@ -255,15 +245,19 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         PTL_OFFSET = 0
         
         for k in range(len(scanner.PTL_N)):
-            
-            LTM_N = ws[f'{scanner.PTL_N[k].column_letter}{r}'].value
-            LTM_E = ws[f'{scanner.PTL_E[k].column_letter}{r}'].value
-            MCL   = scanner.MERIDIANO_CENTRAL[k].value
-            FACTOR = scanner.FACTOR_ESCALA[k].value
+            print("XXXXX")
+            LTM_N = ws.cell(column=scanner.PTL_N[k],row=r).value
+            LTM_E = ws.cell(column=scanner.PTL_E[k],row=r).value
+            print(scanner.PTL_N[k])
+            print(r)
+            print(            ws.cell(scanner.PTL_N[k],r))
+            print(LTM_N)
+            MCL   = scanner.MERIDIANO_CENTRAL[k]
+            FACTOR = scanner.FACTOR_ESCALA[k]
             
             try:
                 float(LTM_N)
-                
+                print(LTM_N)
             except:
                 continue
             

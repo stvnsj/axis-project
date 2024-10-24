@@ -30,39 +30,34 @@ recomienda eliminar los dos puntos.
 
 *** Aceptados
 
-**** DONE Anexo 2 
+**** Anexo 2 
 :PROPERTIES:
 :formulario: 2.903.3.F
+:file:     annex2.py
 :END:
 
 **** Anexo 4
 :PROPERTIES:
 :formulario: 2.903.3.G
+:file:     annex4.py
 :END:
-
-A margin
-B punto
-C,D,E square
-F,G,H,I square
-J,K,L,M,N, square
-O,P,Q,R,S, square
-T
-
-
 
 **** Anexo 5
 :PROPERTIES:
 :formulario: 2.303.104.A
+:file:     annex5.py
 :END:
 
-**** DONE Anexo 8
+**** Anexo 8
 :PROPERTIES:
 :formulario: 2.303.104.B
+:file:     annex8.py
 :END:
 
-**** DONE Anexo 11 
+**** Anexo 11 
 :PROPERTIES:
 :formulario: 2.903.3.I
+:file:     annex11.py
 :END:
 
 *** Omitidos
@@ -75,4 +70,12 @@ T
 
 ** Definitivo
 *** Anexo 2
+:PROPERTIES:
+:file:     annex.py
+:END:
+
 *** Anexo 3
+:PROPERTIES:
+:file:     annexLong.py
+:END:
+

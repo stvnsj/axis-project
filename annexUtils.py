@@ -156,6 +156,7 @@ def curr_date (opt=0) :
 class Scanner :
     
     def __init__ (self,ws) :
+        
         self.ws = ws
         self.row = self.__find_row__()
         
@@ -189,6 +190,43 @@ class Scanner :
         self.__find_field__()
         self.__init_ptl__ ()
         self.__init_global__()
+    
+    def get_pro(self,row):
+        return self.ws.cell(column=self.PRO,row=row).value
+    
+    def get_est(self,row):
+        return self.ws.cell(column=self.EST,row=row).value
+    
+    def get_geo_s(self,row):
+        return self.ws.cell(column=self.GEO_S,row=row).value
+    
+    def get_geo_w (self,row):
+        return self.ws.cell(column=self.GEO_W,row=row).value
+    
+    def get_utm_n (self,row):
+        return self.ws.cell(column=self.UTM_N,row=row).value
+    
+    def get_utm_e  (self,row):
+        return self.ws.cell(column=self.UTM_E,row=row).value
+    
+    def get_geo_x  (self,row):
+        return self.ws.cell(column=self.GEO_X,row=row).value
+    
+    def get_geo_y  (self,row):
+        return self.ws.cell(column=self.GEO_Y,row=row).value
+    
+    def get_geo_z  (self,row):
+        return self.ws.cell(column=self.GEO_Z,row=row).value
+    
+    def get_elip  (self,row):
+        return self.ws.cell(column=self.ELIP,row=row).value
+    
+    def get_cota_orto  (self,row):
+        return self.ws.cell(column=self.COTA_ORTO,row=row).value
+    
+    def get_cota_geo  (self,row):
+        return self.ws.cell(column=self.COTA_GEO,row=row).value
+    
  
     def __init_global__ (self) :
         for col in self.ws.iter_cols(min_row = 0, max_row = self.row):
@@ -239,19 +277,19 @@ class Scanner :
             for col in self.ws.iter_cols(min_col=i,max_col=i,min_row=1,max_row=self.row):
                 for cell in col:
                     if bool(re.match(r"altura", str(cell.value), re.I)):
-                        self.ALTURA_PTL.append(self.ws.cell(column = cell.column + 1 , row = cell.row))
+                        self.ALTURA_PTL.append(self.ws.cell(column = cell.column + 1 , row = cell.row).value)
                         continue
                     if bool(re.match(r"meridiano", str(cell.value), re.I)):
-                        self.MERIDIANO_CENTRAL.append(self.ws.cell(column = cell.column + 1 , row = cell.row))
+                        self.MERIDIANO_CENTRAL.append(self.ws.cell(column = cell.column + 1 , row = cell.row).value)
                         continue
                     if bool(re.match(r"norte", str(cell.value), re.I)):
-                        self.NORTE_FALSO.append(self.ws.cell(column = cell.column + 1 , row = cell.row))
+                        self.NORTE_FALSO.append(self.ws.cell(column = cell.column + 1 , row = cell.row).value)
                         continue
                     if bool(re.match(r"este", str(cell.value), re.I)):
-                        self.ESTE_FALSO.append(self.ws.cell(column = cell.column + 1 , row = cell.row))
+                        self.ESTE_FALSO.append(self.ws.cell(column = cell.column + 1 , row = cell.row).value)
                         continue
                     if bool(re.match(r"factor", str(cell.value), re.I)):
-                        self.FACTOR_ESCALA.append(self.ws.cell(column = cell.column + 1 , row = cell.row))
+                        self.FACTOR_ESCALA.append(self.ws.cell(column = cell.column + 1 , row = cell.row).value)
                         continue
     
  
@@ -266,47 +304,47 @@ class Scanner :
         for row in self.ws.iter_rows(min_row=self.row,max_row=self.row):
             for cell in row:
                 if cell.value == "PRO":
-                    self.PRO = cell
+                    self.PRO = cell.column
                     continue
                 if cell.value == "EST":
-                    self.EST = cell
+                    self.EST = cell.column
                     continue
                 if cell.value == "GEO-S":
-                    self.GEO_S = cell
+                    self.GEO_S = cell.column
                     continue
                 if cell.value == "GEO-W":
-                    self.GEO_W = cell
+                    self.GEO_W = cell.column
                     continue
                 if cell.value == "UTM-N":
-                    self.UTM_N = cell
+                    self.UTM_N = cell.column
                     continue
                 if cell.value == "UTM-E":
-                    self.UTM_E = cell
+                    self.UTM_E = cell.column
                     continue
                 if cell.value == "GEO-X":
-                    self.GEO_X = cell
+                    self.GEO_X = cell.column
                     continue
                 if cell.value == "GEO-Y":
-                    self.GEO_Y = cell
+                    self.GEO_Y = cell.column
                     continue
                 if cell.value == "GEO-Z":
-                    self.GEO_Z = cell
+                    self.GEO_Z = cell.column
                     continue
                 if  bool(re.match(r"^PTL\d*-N", str(cell.value))):
                     self.PTL_COLS.append(cell.column)
-                    self.PTL_N.append(cell)
+                    self.PTL_N.append(cell.column)
                     continue
                 if  bool(re.match(r"^PTL\d*-E", str(cell.value))):
-                    self.PTL_E.append(cell)
+                    self.PTL_E.append(cell.column)
                     continue
                 if cell.value == "ELIP":
-                    self.ELIP = cell
+                    self.ELIP = cell.column
                     continue
                 if cell.value == "COTA-ORTO":
-                    self.COTA_ORTO = cell
+                    self.COTA_ORTO = cell.column
                     continue
                 if cell.value == "COTA-GEO":
-                    self.COTA_GEO =  cell
+                    self.COTA_GEO =  cell.column
                     break
 
 
