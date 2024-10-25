@@ -245,13 +245,8 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         PTL_OFFSET = 0
         
         for k in range(len(scanner.PTL_N)):
-            print("XXXXX")
             LTM_N = ws.cell(column=scanner.PTL_N[k],row=r).value
             LTM_E = ws.cell(column=scanner.PTL_E[k],row=r).value
-            print(scanner.PTL_N[k])
-            print(r)
-            print(            ws.cell(scanner.PTL_N[k],r))
-            print(LTM_N)
             MCL   = scanner.MERIDIANO_CENTRAL[k]
             FACTOR = scanner.FACTOR_ESCALA[k]
             

@@ -120,48 +120,44 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
     writer.merge("T14:T15", '', Format.BRIGHT)
     
     curr_row = 17
-
+    
     scanner = Scanner(ws)
-
+    
     i = 0
     
     
     for row in range(min_row,max_row+1):
         
+        
         # ESTACION
-        POINT = ws[f'{scanner.EST.column_letter}{row}'].value
+        POINT = scanner.get_est(row)
         
         # COORDENADAS GEODÉSICAS
-        GEO_f = ws[f'{scanner.GEO_S.column_letter}{row}'].value
-        GEO_l = ws[f'{scanner.GEO_W.column_letter}{row}'].value
+        GEO_f = scanner.get_geo_s(row)
+        GEO_l = scanner.get_geo_w(row)
         
         # ALTURA ELIP
-        GEO_h = ws[f'{scanner.ELIP.column_letter}{row}'].value
+        GEO_h = scanner.get_elip(row)
         
         # GEOCÉNTRICAS
-        GEO_X = ws[f'{scanner.GEO_X.column_letter}{row}'].value
-        GEO_Y = ws[f'{scanner.GEO_Y.column_letter}{row}'].value
-        GEO_Z = ws[f'{scanner.GEO_Z.column_letter}{row}'].value
+        GEO_X = scanner.get_geo_x(row)
+        GEO_Y = scanner.get_geo_y(row)
+        GEO_Z = scanner.get_geo_z(row)
         
         # COORDENADAS UTM
-        UTM_N = ws[f'{scanner.UTM_N.column_letter}{row}'].value
-        UTM_E = ws[f'{scanner.UTM_E.column_letter}{row}'].value
-        UTM_H = ws[f'{scanner.COTA_ORTO.column_letter}{row}'].value
+        UTM_N = scanner.get_utm_n(row)
+        UTM_E = scanner.get_utm_e(row)
+        UTM_H = scanner.get_cota_orto(row)
         
-        
-        LTM_N = ws[f'K{row}'].value
-        LTM_E = ws[f'L{row}'].value
-        
-        # COTA
-        # GEOMÉTRICA
-        LTM_C = ws[f'{scanner.COTA_GEO.column_letter}{row}'].value
-        
+        LTM_C = scanner.get_cota_geo(row)
         
         for k in range(len(scanner.PTL_N)):
             
-            LTM_N = ws[f'{scanner.PTL_N[k].column_letter}{row}'].value
-            LTM_E = ws[f'{scanner.PTL_E[k].column_letter}{row}'].value
-
+            
+            LTM_N = ws.cell(column=scanner.PTL_N[k],row=row).value
+            LTM_E = ws.cell(column=scanner.PTL_E[k],row=row).value
+            
+            
             try:
                 float(LTM_N)
             except:
@@ -186,11 +182,8 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
                     Format.SIZE(10),
                     Format.BORDER)
             
-            
-            
-            
-            writer.write(f'C{curr_row}','f:'  ,Format.SIZE(10),Format.CENTER,Format.BOLD)
-            writer.write(f'C{curr_row+1}','l:',Format.SIZE(10),Format.CENTER,Format.BOLD)
+            writer.write(f'C{curr_row}','φ:'  ,Format.SIZE(10),Format.CENTER,Format.BOLD)
+            writer.write(f'C{curr_row+1}','λ:',Format.SIZE(10),Format.CENTER,Format.BOLD)
             writer.write(f'C{curr_row+2}','h:',Format.SIZE(10),Format.CENTER)
             
             writer.merge(f'D{curr_row}:E{curr_row}',GEO_f,Format.SIZE(10)  ,Format.CENTER)

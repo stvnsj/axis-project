@@ -18,7 +18,7 @@ from openpyxl import load_workbook
 OFFSET   = 38
 PAGEBREAKS = []
 
-def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xlsx") :
+def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xlsx") :
     
     workbook = xlsxwriter.Workbook(output_file)
     worksheet = workbook.add_worksheet("PERFILES")
@@ -83,7 +83,7 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
     writer.merge(f"G4:Z6","FORMULARIO N° 2.903.3.F",
                  {"bottom":1,"right":1, "font_size":12,"bold":True,"align":"center","valign":"vcenter"})
     
-    writer.write(f"AA2","",Format.LEFT)
+    writer.write(f"AA2","",Format.BLEFT)
 
     writer.merge(f"B7:Z7","",{"bottom":1})
     writer.merge(f"A8:A12","",{"right":1})
@@ -102,9 +102,7 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
     
     wb = load_workbook(input_file)
     ws = wb.active
- 
     scanner = annexUtils.Scanner(ws)
-    
     t_rows = scanner.get_t_rows()
     i = 0
     
@@ -113,28 +111,26 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
         
         CELL_nombre = ws[f'C{r}'].value # DONE
         
-        CELL_f      = ws[f'{scanner.GEO_S.column_letter}{r}'].value
-        CELL_l      = ws[f'{scanner.GEO_W.column_letter}{r}'].value
-        CELL_h      = ws[f'{scanner.ELIP.column_letter}{r}'].value
-
+        CELL_f      = scanner.get_geo_s(r)
+        CELL_l      = scanner.get_geo_w(r)
+        CELL_h      = scanner.get_elip(r)
+        
         POLY_NUM    = scanner.get_poligonal_num(r)
         
-        CELL_X      = ws[f'{scanner.GEO_X.column_letter}{r}'].value
-        CELL_Y      = ws[f'{scanner.GEO_Y.column_letter}{r}'].value
-        CELL_Z      = ws[f'{scanner.GEO_Z.column_letter}{r}'].value
+        CELL_X      = scanner.get_geo_x(r)
+        CELL_Y      = scanner.get_geo_y(r)
+        CELL_Z      = scanner.get_geo_z(r)
         
-        CELL_N      = ws[f'{scanner.UTM_N.column_letter}{r}'].value
-        CELL_E      = ws[f'{scanner.UTM_E.column_letter}{r}'].value
+        CELL_N      = scanner.get_utm_n(r)
+        CELL_E      = scanner.get_utm_e(r)
         
-        CELL_altura = ws[f'{scanner.COTA_ORTO.column_letter}{r}'].value
-        CELL_cota   = ws[f'{scanner.COTA_GEO.column_letter}{r}'].value
+        CELL_altura = scanner.get_cota_orto(r)
+        CELL_cota   = scanner.get_cota_geo(r)
         
         CELL_NL     = ws[f'K{r}'].value
         CELL_EL     = ws[f'L{r}'].value
-        
         CELL_MCL    = ws['H9'].value
         CELL_Ko     = ws['H12'].value
-        
         
         
         writer.write(f"B{15 + i * OFFSET}","Identificación del Vértice",Format.BOLD, Format.ITALIC, Format.SIZE(10))
@@ -207,36 +203,29 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
             Format.RIGHT
         )
         
-        writer.merge(
-            f"D{22 + i * OFFSET}:H{22 + i * OFFSET}",
-            CELL_NL,
-            Format.RIGHT
-        )
-        
-        writer.merge(
-            f"D{23 + i * OFFSET}:H{23 + i * OFFSET}",
-            CELL_EL,
-            Format.RIGHT
-        )
-        
-        writer.merge(
-            f"D{20 + i * OFFSET}:H{20 + i * OFFSET}",
-            CELL_MCL,
-            Format.LEFT
-        )
-        
-        writer.merge(
-            f"D{21 + i * OFFSET}:H{21 + i * OFFSET}",
-            CELL_Ko,
-            Format.LEFT
-        )
+        for k in range(len(scanner.PTL_N)):
+            LTM_N = ws.cell(column=scanner.PTL_N[k],row=r).value
+            LTM_E = ws.cell(column=scanner.PTL_E[k],row=r).value
+            MCL   = scanner.MERIDIANO_CENTRAL[k]
+            FACTOR = scanner.FACTOR_ESCALA[k]
+            try:
+                float(LTM_N)
+                print(LTM_N)
+            except:
+                continue
+            writer.merge(f"D{18 + i * OFFSET}:H{19 + i * OFFSET}", f"PTL{k+1}",Format.SIZE(11),Format.CENTER,Format.VCENTER)
+            writer.merge(f"D{22 + i * OFFSET}:H{22 + i * OFFSET}",LTM_N,Format.RIGHT)
+            writer.merge(f"D{23 + i * OFFSET}:H{23 + i * OFFSET}",LTM_E,Format.RIGHT)
+            writer.merge(f"D{20 + i * OFFSET}:H{20 + i * OFFSET}",MCL,Format.LEFT)
+            writer.merge(f"D{21 + i * OFFSET}:H{21 + i * OFFSET}",FACTOR,Format.LEFT)
+            break
         
         writer.merge(f"Q{15 + i * OFFSET}:T{15 + i * OFFSET}", "",Format.CENTER,Format.SIZE(10),Format.BOTTOM)
         writer.write(f"W{15 + i * OFFSET}","FECHA:",Format.SIZE(10))
         writer.merge(f"Y{15 + i * OFFSET}:Z{15 + i * OFFSET}", annexUtils.curr_date(1),Format.BOTTOM,Format.CENTER,Format.SIZE(10))
         
         writer.merge(f"N{18 + i * OFFSET}:S{19 + i * OFFSET}", "UTM",Format.SIZE(11),Format.CENTER,Format.VCENTER)
-        writer.merge(f"D{18 + i * OFFSET}:H{19 + i * OFFSET}", "PTL",Format.SIZE(11),Format.CENTER,Format.VCENTER)
+        
         
         writer.write(f"Q{25 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
         writer.write(f"Z{25 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)

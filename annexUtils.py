@@ -246,7 +246,7 @@ class Scanner :
     
     def get_t_rows (self) :
         t_rows = []
-        for col in self.ws.iter_cols(min_col=self.EST.column, max_col=self.EST.column, min_row=self.row):
+        for col in self.ws.iter_cols(min_col=self.EST, max_col=self.EST, min_row=self.row):
                 for cell in col:
                     if bool(re.match(r"T-", str(cell.value), re.I)):
                         t_rows.append(cell.row)
@@ -254,7 +254,7 @@ class Scanner :
     
     def get_g_rows (self) :
         g_rows = []
-        for col in self.ws.iter_cols(min_col=self.EST.column, max_col=self.EST.column, min_row=self.row):
+        for col in self.ws.iter_cols(min_col=self.EST, max_col=self.EST, min_row=self.row):
                 for cell in col:
                     if bool(re.match(r"G-", str(cell.value), re.I)):
                         g_rows.append(cell.row)
@@ -262,7 +262,7 @@ class Scanner :
         
     
     def get_poligonal_num (self, row):
-        target_cell = self.ws.cell(row = row, column = self.PRO.column)
+        target_cell = self.ws.cell(row = row, column = self.PRO)
         for merged_range in self.ws.merged_cells.ranges:
             if target_cell.coordinate in merged_range:
                 cell = self.ws.cell(row=merged_range.min_row, column=merged_range.min_col)
