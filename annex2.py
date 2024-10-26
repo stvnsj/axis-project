@@ -38,16 +38,16 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         0.19, #H
         0.25, #I
         0.22, #J
-        0.30, #K
-        0.25, #L
+        0.40, #K
+        0.20, #L
         0.15, #M
         0.35, #N
         0.15, #O
-        0.20, #P
+        0.25, #P
         0.20, #Q
         0.33, #R
         0.25, #S
-        0.15, #T
+        0.10, #T
         0.25, #U
         0.15, #V
         0.33, #W
@@ -125,8 +125,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         
         CONST = i * OFFSET + CORRECTION
         
-        
-        CELL_nombre = scanner.get_pro(r)
+        CELL_nombre = scanner.get_est(r)
         CELL_f      = scanner.get_geo_s(r)
         CELL_l      = scanner.get_geo_w(r)
         CELL_h      = scanner.get_elip(r)
@@ -141,15 +140,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         CELL_altura = scanner.get_cota_orto(r)
         CELL_cota   = scanner.get_cota_geo(r)
         
-        CELL_NL     = ws[f'K{r}'].value
-        CELL_EL     = ws[f'L{r}'].value
-        
-        CELL_MCL    = ws['H9'].value
-        CELL_Ko     = ws['H12'].value
-        
-        
-        
-        writer.write(f"B{15 + CONST}","Identificación del Punto",Format.BOLD, Format.ITALIC, Format.SIZE(10))
+        writer.write(f"B{15 + CONST}","Identificación del Punto",Format.BOLD, Format.ITALIC, Format.SIZE(11))
         writer.write(f"F{15 + CONST}", "Nombre:", Format.SIZE(10))
         writer.write(f"N{15 + CONST}", "Dm. Ref.:",Format.SIZE(10))
         
@@ -169,34 +160,34 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
             CELL_l,
         )
         
-        writer.write(
-            f"C{23 + CONST}",
+        writer.merge(
+            f"C{23 + CONST}:D{23 + CONST}",
             CELL_h,
-            Format.CENTER
+            Format.CENTER, Format.NUM
         )
         
         writer.merge(
             f"H{21 + CONST}:K{21 + CONST}",
             CELL_X,
-            Format.RIGHT
+            Format.RIGHT,Format.NUM
         )
         
         writer.merge(
             f"H{22 + CONST}:K{22 + CONST}",
             CELL_Y,
-            Format.RIGHT
+            Format.RIGHT,Format.NUM
         )
         
         writer.merge(
             f"H{23 + CONST}:K{23 + CONST}",
             CELL_Z,
-            Format.RIGHT
+            Format.RIGHT, Format.NUM
         )
         
         writer.merge(f'P{20 + CONST}:R{20 + CONST}',scanner.ZONA, Format.CENTER)
         writer.merge(f'P{21 + CONST}:R{21 + CONST}',scanner.MC, Format.CENTER)
-        writer.merge(f"O{22 + CONST}:R{22 + CONST}",CELL_N,Format.RIGHT)
-        writer.merge(f"O{23 + CONST}:R{23 + CONST}",CELL_E,Format.RIGHT)
+        writer.merge(f"O{22 + CONST}:R{22 + CONST}",CELL_N,Format.RIGHT,Format.NUM)
+        writer.merge(f"O{23 + CONST}:R{23 + CONST}",CELL_E,Format.RIGHT,Format.NUM)
         
         
         writer.merge(f"Q{15 + CONST}:T{15 + CONST}", "",Format.CENTER,Format.SIZE(10),Format.BOTTOM)
@@ -211,8 +202,8 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         writer.merge(f"N{18 + CONST}:S{19 + CONST}", "UTM",Format.SIZE(11),Format.CENTER,Format.VCENTER)
         
         
-        writer.write(f"B{21 + CONST}","f:",Format.SIZE(11),Format.LEFT)
-        writer.write(f"B{22 + CONST}","l:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"B{21 + CONST}","φ:",Format.SIZE(11),Format.LEFT)
+        writer.write(f"B{22 + CONST}","λ:",Format.SIZE(11),Format.LEFT)
         writer.write(f"B{23 + CONST}","h:",Format.SIZE(10),Format.LEFT)
         
         writer.write(f"G{21 + CONST}","X:",Format.SIZE(11),Format.LEFT)
@@ -223,7 +214,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         writer.write(f"L{21 + CONST}","m",Format.SIZE(11),Format.LEFT)
         writer.write(f"L{22 + CONST}","m",Format.SIZE(11),Format.LEFT)
         writer.write(f"L{23 + CONST}","m",Format.SIZE(11),Format.LEFT)
-        writer.write(f"D{23 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"E{23 + CONST}","m",Format.SIZE(11),Format.LEFT)
 
         writer.write(f"S{22 + CONST}","m",Format.SIZE(11),Format.LEFT)
         writer.write(f"S{23 + CONST}","m",Format.SIZE(11),Format.LEFT)
@@ -252,7 +243,6 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
             
             try:
                 float(LTM_N)
-                print(LTM_N)
             except:
                 continue
             
@@ -261,12 +251,12 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
             writer.write(f"U{21 + CONST + PTL_OFFSET}","Ko:",Format.SIZE(11),Format.LEFT)
             writer.write(f"U{22 + CONST + PTL_OFFSET}","NL:",Format.SIZE(11),Format.LEFT)
             writer.write(f"U{23 + CONST + PTL_OFFSET}","EL:",Format.SIZE(11),Format.LEFT)
-            writer.merge(f"W{20 + CONST + PTL_OFFSET}:Z{20 + CONST + PTL_OFFSET}", MCL, Format.LEFT )
-            writer.merge(f"W{21 + CONST + PTL_OFFSET}:Z{21 + CONST + PTL_OFFSET}", FACTOR, Format.LEFT )
-            writer.merge(f"V{22 + CONST + PTL_OFFSET}:Y{22 + CONST + PTL_OFFSET}",LTM_N,Format.RIGHT )
-            writer.merge(f"V{23 + CONST + PTL_OFFSET}:Y{23 + CONST + PTL_OFFSET}",LTM_E,Format.RIGHT )
+            writer.merge(f"W{20 + CONST + PTL_OFFSET}:Z{20 + CONST + PTL_OFFSET}", MCL,Format.LEFT)
+            writer.merge(f"W{21 + CONST + PTL_OFFSET}:Z{21 + CONST + PTL_OFFSET}", FACTOR,Format.LEFT,Format.DEC)
+            writer.merge(f"V{22 + CONST + PTL_OFFSET}:Y{22 + CONST + PTL_OFFSET}",LTM_N,Format.RIGHT,Format.NUM)
+            writer.merge(f"V{23 + CONST + PTL_OFFSET}:Y{23 + CONST + PTL_OFFSET}",LTM_E,Format.RIGHT,Format.NUM)
             PTL_OFFSET += 6
-            
+        
         
         CORRECTION += PTL_OFFSET - 6
         CONST += PTL_OFFSET - 6
@@ -275,12 +265,12 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         ###############
         # SUB 24 ROWS #
         ###############
-        writer.write(f"F{25 + CONST}","Altura (n.m.m. modelada):",Format.SIZE(11))
-        writer.write(f"S{25 + CONST}","Cota (nivelada):",Format.SIZE(11),Format.BOLD)
-        writer.write(f"Q{25 + CONST}","m",Format.SIZE(11),Format.LEFT)
+        writer.write(f"E{25 + CONST}","Altura (n.m.m. modelada):",Format.SIZE(11))
+        writer.write(f"R{25 + CONST}","Cota (nivelada):",Format.SIZE(11),Format.BOLD)
+        writer.write(f"P{25 + CONST}","m",Format.SIZE(11),Format.LEFT)
         writer.write(f"Z{25 + CONST}","m",Format.SIZE(11),Format.LEFT)
-        writer.merge(f"N{25 + CONST}:P{25 + CONST}",CELL_altura, Format.RIGHT)
-        writer.merge(f"X{25 + CONST}:Y{25 + CONST}",CELL_cota,Format.RIGHT)
+        writer.merge(f"L{25 + CONST}:O{25 + CONST}",CELL_altura, Format.RIGHT, Format.NUM)
+        writer.merge(f"W{25 + CONST}:Y{25 + CONST}",CELL_cota,Format.RIGHT, Format.NUM)
         
         
         

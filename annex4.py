@@ -38,21 +38,21 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
         0.10, #A
         0.53, #B
         0.25, #C
-        1.20, #D
-        0.35, #E
+        1.15, #D
+        0.30, #E
         0.02, #F
         0.13, #G
-        1.30, #H
+        1.20, #H
         0.15, #I
         0.02, #J
         0.15, #K
-        0.70, #L
-        0.60, #M
+        0.55, #L
+        0.85, #M
         0.15, #N
         0.02, #O
         0.30, #P
         0.80, #Q
-        0.60, #R
+        0.75, #R
         0.15, #S
         0.02, #T
         0.10, #U
@@ -171,7 +171,8 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
                     Format.CENTER,
                     Format.VCENTER,
                     Format.SIZE(10),
-                    Format.BORDER
+                    Format.BORDER,
+                    Format.NUM
                 )
             else:
                 writer.merge(
@@ -180,15 +181,18 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
                     Format.CENTER,
                     Format.VCENTER,
                     Format.SIZE(10),
-                    Format.BORDER)
+                    Format.BORDER,
+                    Format.NUM
+                )
             
             writer.write(f'C{curr_row}','φ:'  ,Format.SIZE(10),Format.CENTER,Format.BOLD)
             writer.write(f'C{curr_row+1}','λ:',Format.SIZE(10),Format.CENTER,Format.BOLD)
             writer.write(f'C{curr_row+2}','h:',Format.SIZE(10),Format.CENTER)
             
-            writer.merge(f'D{curr_row}:E{curr_row}',GEO_f,Format.SIZE(10)  ,Format.CENTER)
+            writer.merge(f'D{curr_row}:E{curr_row}',    GEO_f,Format.SIZE(10),Format.CENTER)
             writer.merge(f'D{curr_row+1}:E{curr_row+1}',GEO_l,Format.SIZE(10),Format.CENTER)
-            writer.merge(f'D{curr_row+2}:E{curr_row+2}',GEO_h,Format.SIZE(10),Format.CENTER)
+            writer.write(f'D{curr_row+2}',GEO_h,Format.SIZE(10),Format.RIGHT,Format.NUM)
+            writer.write(f'E{curr_row+2}','m',Format.LEFT,Format.SIZE(10))
             
             writer.merge(f'F{curr_row}:F{curr_row+2}','',Format.BRIGHT)
             writer.merge(f'C{curr_row+3}:F{curr_row+3}','',Format.BBOTTOM,Format.BRIGHT)
@@ -197,9 +201,9 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
             writer.write(f'G{curr_row+1}','Y:',Format.SIZE(10),Format.RIGHT)
             writer.write(f'G{curr_row+2}','Z:',Format.SIZE(10),Format.RIGHT)
             
-            writer.write(f'H{curr_row}',GEO_X,Format.SIZE(10)  ,Format.RIGHT)
-            writer.write(f'H{curr_row+1}',GEO_Y,Format.SIZE(10),Format.RIGHT)
-            writer.write(f'H{curr_row+2}',GEO_Z,Format.SIZE(10),Format.RIGHT)
+            writer.write(f'H{curr_row}'  ,GEO_X,Format.SIZE(10),Format.RIGHT,Format.NUM)
+            writer.write(f'H{curr_row+1}',GEO_Y,Format.SIZE(10),Format.RIGHT,Format.NUM)
+            writer.write(f'H{curr_row+2}',GEO_Z,Format.SIZE(10),Format.RIGHT,Format.NUM)
             
             writer.write(f'I{curr_row}','m',Format.SIZE(10))
             writer.write(f'I{curr_row+1}','m',Format.SIZE(10))
@@ -212,9 +216,9 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
             writer.write(f'K{curr_row+1}','E:',Format.SIZE(10))
             writer.merge(f'K{curr_row+2}:L{curr_row+2}','H (model):',Format.SIZE(10))
             
-            writer.merge(f'L{curr_row}:M{curr_row}',UTM_N,Format.SIZE(10))
-            writer.merge(f'L{curr_row+1}:M{curr_row+1}',UTM_E,Format.SIZE(10))
-            writer.write(f'M{curr_row+2}',UTM_H,Format.SIZE(10))
+            writer.merge(f'L{curr_row}:M{curr_row}',UTM_N,Format.SIZE(10),Format.NUM)
+            writer.merge(f'L{curr_row+1}:M{curr_row+1}',UTM_E,Format.SIZE(10), Format.NUM)
+            writer.write(f'M{curr_row+2}',UTM_H,Format.SIZE(10),Format.NUM)
             
             writer.write(f'N{curr_row}','m',Format.SIZE(10))
             writer.write(f'N{curr_row+1}','m',Format.SIZE(10))
@@ -227,9 +231,10 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
             writer.write(f'P{curr_row+1}','EL:',Format.SIZE(10))
             writer.merge(f'P{curr_row+2}:Q{curr_row+2}','Cota (nivelada):',Format.SIZE(10))
             
+            
             writer.merge(f'Q{curr_row}:R{curr_row}',LTM_N,Format.SIZE(10))
             writer.merge(f'Q{curr_row+1}:R{curr_row+1}',LTM_E,Format.SIZE(10))
-            writer.write(f'R{curr_row+2}',LTM_C,Format.SIZE(10))
+            writer.write(f'R{curr_row+2}',LTM_C,Format.SIZE(10),Format.NUM)
             
             writer.write(f'S{curr_row}','m',Format.SIZE(10))
             writer.write(f'S{curr_row+1}','m',Format.SIZE(10))

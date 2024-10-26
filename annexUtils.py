@@ -59,6 +59,7 @@ class Format :
     # Variables
     BOLD   = {"bold":True}
     ITALIC = {"italic":True}
+    DEC    = {'num_format': '#,##0.0000000000'}
     NUM    = {'num_format': '#,##0.000'}
     TOP    = {"top" :1}
     BTOP   = {"top" :1}

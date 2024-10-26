@@ -48,7 +48,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         0.25, #U
         0.15, #V
         0.33, #W
-        0.19, #X
+        0.28, #X
         0.46, #Y
         0.25, #Z
         0.10, #AA
@@ -170,37 +170,36 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         writer.merge(
             f"N{25 + i * OFFSET}:P{25 + i * OFFSET}",
             CELL_altura,
-            Format.RIGHT
+            Format.NUM
         )
         
         writer.merge(
             f"X{25 + i * OFFSET}:Y{25 + i * OFFSET}",
             CELL_cota,
-            Format.RIGHT
+            Format.NUM
         )
         
         writer.merge(
             f'O{20 + i * OFFSET}:R{20 + i * OFFSET}',
-            scanner.ZONA,
+            scanner.ZONA,Format.CENTER
             
         )
         
         writer.merge(
             f'O{21 + i * OFFSET}:R{21 + i * OFFSET}',
-            scanner.MC,
-            
+            scanner.MC, Format.CENTER
         )
         
         writer.merge(
             f"O{22 + i * OFFSET}:R{22 + i * OFFSET}",
             CELL_N,
-            Format.RIGHT
+            Format.NUM
         )
         
         writer.merge(
             f"O{23 + i * OFFSET}:R{23 + i * OFFSET}",
             CELL_E,
-            Format.RIGHT
+            Format.NUM
         )
         
         for k in range(len(scanner.PTL_N)):
@@ -210,14 +209,13 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
             FACTOR = scanner.FACTOR_ESCALA[k]
             try:
                 float(LTM_N)
-                print(LTM_N)
             except:
                 continue
             writer.merge(f"D{18 + i * OFFSET}:H{19 + i * OFFSET}", f"PTL{k+1}",Format.SIZE(11),Format.CENTER,Format.VCENTER)
-            writer.merge(f"D{22 + i * OFFSET}:H{22 + i * OFFSET}",LTM_N,Format.RIGHT)
-            writer.merge(f"D{23 + i * OFFSET}:H{23 + i * OFFSET}",LTM_E,Format.RIGHT)
-            writer.merge(f"D{20 + i * OFFSET}:H{20 + i * OFFSET}",MCL,Format.LEFT)
-            writer.merge(f"D{21 + i * OFFSET}:H{21 + i * OFFSET}",FACTOR,Format.LEFT)
+            writer.merge(f"D{22 + i * OFFSET}:H{22 + i * OFFSET}",LTM_N,Format.RIGHT, Format.NUM)
+            writer.merge(f"D{23 + i * OFFSET}:H{23 + i * OFFSET}",LTM_E,Format.RIGHT, Format.NUM)
+            writer.merge(f"D{20 + i * OFFSET}:H{20 + i * OFFSET}",MCL,Format.LEFT, Format.CENTER)
+            writer.merge(f"D{21 + i * OFFSET}:H{21 + i * OFFSET}",FACTOR, Format.DEC)
             break
         
         writer.merge(f"Q{15 + i * OFFSET}:T{15 + i * OFFSET}", "",Format.CENTER,Format.SIZE(10),Format.BOTTOM)
