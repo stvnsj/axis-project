@@ -12,6 +12,13 @@ from annexUtils import Writer
 from annexUtils import Formatter
 from openpyxl   import load_workbook
 
+ROW_DICT = {
+    0:0.1,
+    6:0.1,
+    12:0.1,
+    10:0.1,
+    16:0.13,
+}
 
 def generate (input_file = 'anexos/anteproyecto/anexo10.xlsx', output_file = "test11.xlsx") :
     
@@ -72,7 +79,7 @@ def generatePR (workbook,worksheet, input_file) :
     writer.write(f"B9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge(f"G12:I12","FECHA:",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    writer.merge(f"G12:I12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
   
     writer.merge(
         f'B14:C14',
@@ -198,11 +205,11 @@ def generatePR (workbook,worksheet, input_file) :
         
         writer.write(f'B{curr_row}', POINT_A,Format.CENTER,Format.SIZE(10),Format.BORDER)
         writer.write(f'C{curr_row}', POINT_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'D{curr_row}', DELTA_A,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'E{curr_row}', DELTA_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'F{curr_row}', ERR,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'G{curr_row}', DELTA_MEAN,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'H{curr_row}', HEIGHT,Format.CENTER,Format.SIZE(10),Format.BOLD,Format.BORDER)
+        writer.write(f'D{curr_row}', DELTA_A,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'E{curr_row}', DELTA_B,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'F{curr_row}', ERR,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'G{curr_row}', DELTA_MEAN,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'H{curr_row}', HEIGHT,Format.CENTER,Format.SIZE(10),Format.BOLD,Format.BORDER, Format.NUM)
         writer.write(f'I{curr_row}', POINT_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
         
         
@@ -214,17 +221,18 @@ def generatePR (workbook,worksheet, input_file) :
     
     formatter = Formatter(worksheet)
     col_width = {
-        0:0.13,
-        1:0.79,
-        2:0.79,
-        3:0.79,
-        4:0.79,
-        5:0.79,
-        6:0.79,
-        7:0.79,
-        8:0.79,
-        9:0.13,
+        0:0.13, #A
+        1:0.79, #B
+        2:0.79, #C
+        3:0.79, #D
+        4:0.79, #E
+        5:0.79, #F
+        6:0.85, #G
+        7:0.79, #H
+        8:0.85, #I
+        9:0.13, #J
     }
+    annexUtils.set_row_dict(worksheet,ROW_DICT)
     # worksheet.autofit()
     formatter.set_cols(col_width)
     # formatter.set_rows({0:2,1:2,2:2, 4:2})
@@ -274,7 +282,7 @@ def generateG (workbook,worksheet,input_file) :
     writer.write(f"B9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge(f"G12:I12","FECHA:",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    writer.merge(f"G12:I12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
   
     writer.merge(
         f'B14:C14',
@@ -332,7 +340,7 @@ def generateG (workbook,worksheet,input_file) :
     
     writer.merge(f'B17:I17','',Format.BORDER)
     
-    wb = load_workbook('anexos/anteproyecto/anexo10.xlsx')
+    wb = load_workbook(input_file)
     ws = wb["Nivelacion G y T"]
     max_row = ws.max_row
     first_row = True
@@ -406,11 +414,11 @@ def generateG (workbook,worksheet,input_file) :
         
         writer.write(f'B{curr_row}', POINT_A,Format.CENTER,Format.SIZE(10),Format.BORDER)
         writer.write(f'C{curr_row}', POINT_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'D{curr_row}', DELTA_A,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'E{curr_row}', DELTA_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'F{curr_row}', ERR,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'G{curr_row}', DELTA_MEAN,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'H{curr_row}', HEIGHT_B,Format.CENTER,Format.SIZE(10),Format.BOLD,Format.BORDER)
+        writer.write(f'D{curr_row}', DELTA_A,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'E{curr_row}', DELTA_B,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'F{curr_row}', ERR,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'G{curr_row}', DELTA_MEAN,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'H{curr_row}', HEIGHT_B,Format.CENTER,Format.SIZE(10),Format.BOLD,Format.BORDER, Format.NUM)
         writer.write(f'I{curr_row}', POINT_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
         
         writer.write(f'B{curr_row+1}', '', Format.BORDER)
@@ -430,17 +438,18 @@ def generateG (workbook,worksheet,input_file) :
     
     formatter = Formatter(worksheet)
     col_width = {
-        0:0.13,
-        1:0.79,
-        2:0.79,
-        3:0.79,
-        4:0.79,
-        5:0.79,
-        6:0.79,
-        7:0.79,
-        8:0.79,
-        9:0.13,
+        0:0.13, #A
+        1:0.79, #B
+        2:0.79, #C
+        3:0.79, #D
+        4:0.79, #E
+        5:0.79, #F
+        6:0.85, #G
+        7:0.79, #H
+        8:0.85, #I
+        9:0.13, #J
     }
+    annexUtils.set_row_dict(worksheet,ROW_DICT)
     # worksheet.autofit()
     formatter.set_cols(col_width)
     # formatter.set_rows({0:2,1:2,2:2, 4:2})
@@ -491,7 +500,7 @@ def generateT(workbook,worksheet,input_file):
     writer.write(f"B9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge(f"G12:I12","FECHA:",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    writer.merge(f"G12:I12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
   
     writer.merge(
         f'B14:C14',
@@ -549,7 +558,7 @@ def generateT(workbook,worksheet,input_file):
     
     writer.merge(f'B17:I17','',Format.BORDER)
     
-    wb = load_workbook('anexos/anteproyecto/anexo10.xlsx')
+    wb = load_workbook(input_file)
     ws = wb["Nivelacion G y T"]
     max_row = ws.max_row
     first_row = True
@@ -626,11 +635,11 @@ def generateT(workbook,worksheet,input_file):
         
         writer.write(f'B{curr_row}', POINT_A,Format.CENTER,Format.SIZE(10),Format.BORDER)
         writer.write(f'C{curr_row}', POINT_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'D{curr_row}', DELTA_A,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'E{curr_row}', DELTA_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'F{curr_row}', ERR,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'G{curr_row}', DELTA_MEAN,Format.CENTER,Format.SIZE(10),Format.BORDER)
-        writer.write(f'H{curr_row}', HEIGHT_B,Format.CENTER,Format.SIZE(10),Format.BOLD,Format.BORDER)
+        writer.write(f'D{curr_row}', DELTA_A,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'E{curr_row}', DELTA_B,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'F{curr_row}', ERR,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'G{curr_row}', DELTA_MEAN,Format.CENTER,Format.SIZE(10),Format.BORDER, Format.NUM)
+        writer.write(f'H{curr_row}', HEIGHT_B,Format.CENTER,Format.SIZE(10),Format.BOLD,Format.BORDER, Format.NUM)
         writer.write(f'I{curr_row}', POINT_B,Format.CENTER,Format.SIZE(10),Format.BORDER)
         
         writer.write(f'B{curr_row+1}', '', Format.BORDER)
@@ -650,17 +659,18 @@ def generateT(workbook,worksheet,input_file):
     
     formatter = Formatter(worksheet)
     col_width = {
-        0:0.13,
-        1:0.79,
-        2:0.79,
-        3:0.79,
-        4:0.79,
-        5:0.79,
-        6:0.79,
-        7:0.79,
-        8:0.79,
-        9:0.13,
+        0:0.13, #A
+        1:0.79, #B
+        2:0.79, #C
+        3:0.79, #D
+        4:0.79, #E
+        5:0.79, #F
+        6:0.85, #G
+        7:0.79, #H
+        8:0.85, #I
+        9:0.13, #J
     }
+    annexUtils.set_row_dict(worksheet,ROW_DICT)
     # worksheet.autofit()
     formatter.set_cols(col_width)
     # formatter.set_rows({0:2,1:2,2:2, 4:2})

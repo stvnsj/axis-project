@@ -13,9 +13,11 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
 import annex2
+import annex5
 import annex4
 import annex8
 import annex11
+import annexLong
 
 # import only asksaveasfile from filedialog 
 # which is used to save file in any extension 
@@ -53,7 +55,13 @@ def generate_annex_4 ():
 
 
 def generate_annex_5 ():
-    pass
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Text files", "*.xlsx"), ("All files", "*.*"))
+    )
+    if filename == "":
+        return 
+    annex5.generate(master_table.get(),filename)
 
 def generate_annex_8 ():
     filename = filedialog.asksaveasfilename(
@@ -72,6 +80,17 @@ def generate_annex_11 ():
     if filename == "":
         return 
     annex11.generate(level_annex.get(),filename)
+
+def generate_annex_long ():   
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Excel", "*.xlsx"), ("All files", "*.*"))
+    )
+    
+    if filename == "":
+        return
+    
+    annexLong.generate(circuit_file.get(),height_pr_file.get(), filename)
 
 def generate_report():
     
@@ -401,18 +420,33 @@ component.ButtonFrame(tab2, title="Planillas", button_params=button_params)
 # # ANEXOS TAB 3 # #
 # ################ #
 ####################
+
+button_params = [
+    {"label": "Cotas Topograficas", "stringvar": height_pr_file },
+    {"label": "Circuito Nivelación", "stringvar": circuit_file },
+]
+component.LoadFileFrame(tab3, title="Carga de Archivos Nivelación", button_params = button_params)
+
+button_params = [
+    {"label":"FORMULARIO N° 2.5.2", "command":generate_annex_long},
+]
+component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
+
 button_params = [
     {"label": "Estacado con Descriptor", "stringvar": fileA },
     {"label": "Estacado con Coordenadas", "stringvar": fileB },
     {"label": "Longitudinal", "stringvar": fileC}
 ]
-component.LoadFileFrame(tab3, title="Carga de Archivos", button_params = button_params)
+component.LoadFileFrame(tab3, title="Carga de Archivos Estacado", button_params = button_params)
 
 
 button_params = [
     {"label":"FORMULARIO N° 2.5.3", "command":generate_anexo_trans},
 ]
 component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
+
+
+
 
 
 ########################
@@ -429,6 +463,7 @@ component.LoadFileFrame(tab3, title='Carga de Anexos', button_params=button_para
 button_params = [
     {"label":"Anexo 2", "command":generate_annex_2},
     {"label":"Anexo 4", "command":generate_annex_4},
+    {"label":"Anexo 5", "command":generate_annex_5},
     {"label":"Anexo 8", "command":generate_annex_8},
     {"label":"Anexo 11", "command":generate_annex_11},
 ]

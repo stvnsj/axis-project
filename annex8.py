@@ -76,9 +76,9 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx', output_file='test8
         0.25, #L
         0.30, #M
         0.20, #N
-        0.30, #O
+        0.54, #O
         0.20, #P
-        0.30, #Q
+        0.20, #Q
         0.20, #R
         0.20, #S
         0.20, #T
@@ -92,7 +92,7 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx', output_file='test8
         0.17, #2
         0.23, #3
         0.17, #4
-        0.07, #5
+        0.18, #5
         0.19, #6
         0.07, #7
         0.17, 0.17, 0.17, # 8,9,10
@@ -216,11 +216,11 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx', output_file='test8
                 except:
                     continue
             
-            writer.merge(f'F{curr_row}:H{curr_row}',NL,Format.RIGHT,Format.SIZE(10))
-            writer.merge(f'F{curr_row+1}:H{curr_row+1}',EL,Format.RIGHT,Format.SIZE(10))
+            writer.merge(f'F{curr_row}:H{curr_row}',NL,Format.RIGHT,Format.SIZE(10),Format.NUM)
+            writer.merge(f'F{curr_row+1}:H{curr_row+1}',EL,Format.RIGHT,Format.SIZE(10), Format.NUM)
             
             
-            writer.merge(f'G{curr_row+2}:H{curr_row+2}',COTA,Format.RIGHT,Format.SIZE(10))
+            writer.merge(f'G{curr_row+2}:H{curr_row+2}',COTA,Format.RIGHT,Format.SIZE(10), Format.NUM)
             
             writer.write(f'I{curr_row}','m')
             writer.write(f'I{curr_row+1}','m')
@@ -235,9 +235,9 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx', output_file='test8
             writer.write(f'L{curr_row+1}',"E:",Format.LEFT,Format.SIZE(10))
             writer.merge(f'L{curr_row+2}:M{curr_row+2}',"H(model):",Format.LEFT,Format.SIZE(9))
             
-            writer.merge(f'M{curr_row}:O{curr_row}', N, Format.RIGHT,Format.SIZE(10))
-            writer.merge(f'M{curr_row+1}:O{curr_row+1}', E, Format.RIGHT,Format.SIZE(10))
-            writer.merge(f'N{curr_row+2}:O{curr_row+2}', H, Format.RIGHT,Format.SIZE(10))
+            writer.merge(f'M{curr_row}:O{curr_row}', N, Format.RIGHT,Format.SIZE(10), Format.NUM)
+            writer.merge(f'M{curr_row+1}:O{curr_row+1}', E, Format.RIGHT,Format.SIZE(10), Format.NUM)
+            writer.merge(f'N{curr_row+2}:O{curr_row+2}', H, Format.RIGHT,Format.SIZE(10),Format.NUM)
             
             writer.merge(f'Q{curr_row}:Q{curr_row+2}', '', Format.BRIGHT)
             writer.merge(f'K{curr_row+3}:Q{curr_row+3}', '',Format.BBOTTOM,Format.BRIGHT)

@@ -21,7 +21,7 @@ PAGEBREAKS = []
 def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xlsx") :
     
     workbook = xlsxwriter.Workbook(output_file)
-    worksheet = workbook.add_worksheet("PERFILES")
+    worksheet = workbook.add_worksheet("2.303.104.A (STC)")
     writer = Writer(workbook,worksheet)
     
     COL_WIDTHS = [

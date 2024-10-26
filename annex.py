@@ -2,6 +2,8 @@ import xlsxwriter
 import numpy as np
 import model as mdl
 import utils
+import annexUtils
+from annexUtils import Format
 import sys
 import reader as rd
 import re 
@@ -30,7 +32,7 @@ class Writer :
             self.workbook.add_format(dic)
         )
 
-def trans (model,filename="anexo_trans.xlsx") :
+def trans (model,filename="annex_trans.xlsx") :
     
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet("PERFILES")
@@ -54,18 +56,18 @@ def trans (model,filename="anexo_trans.xlsx") :
     writer.merge('E4:I5', '', {'right':1,'left':1,'bold':True,'font_size':12})
     writer.merge('E6:I6', 'FORMULARIO N° 2.5.2', {'left':1,'bottom':1,'right':1,'bold':True,'font_size':12,'align':'center'})
     
-    writer.write('B8', 'PROYECTO', {'left':1,'top':1,'bold':True,'font_size':10})
-    writer.write('B9', 'SECTOR', {'left':1,'bold':True,'font_size':10})
-    writer.write('B10', 'TRAMO', {'left':1,'bold':True,'font_size':10})
-    writer.write('B12', 'REALIZADO', {'left':1,'bottom':1,'bold':True,'font_size':10})
+    writer.write('B8', 'PROYECTO:', {'left':1,'top':1,'bold':True,'font_size':10})
+    writer.write('B9', 'SECTOR:', {'left':1,'bold':True,'font_size':10})
+    writer.write('B10', 'TRAMO:', {'left':1,'bold':True,'font_size':10})
+    writer.write('B12', 'REALIZADO:', {'left':1,'bottom':1,'bold':True,'font_size':10})
 
-    writer.merge('C8:I8', ': Nombre proyecto', {'right':1,'top':1,'font_size':10,'align':'left'})
-    writer.merge('C9:I9', ': Nombre del sector', {'right':1,'font_size':10,'align':'left'})
-    writer.merge('C10:I10', ': Dm', {'right':1,'font_size':10,'align':'left'})
+    writer.merge('C8:I8', '', {'right':1,'top':1,'font_size':10,'align':'left'})
+    writer.merge('C9:I9', '', {'right':1,'font_size':10,'align':'left'})
+    writer.merge('C10:I10', '', {'right':1,'font_size':10,'align':'left'})
     writer.merge('B11:I11', '', {'right':1,'left':1})
     writer.write('J2','',{'left':1})
-    writer.merge('C12:G12', ': TOPOGRAFIA', {'bottom':1,'font_size':10,'align':'left'})
-    writer.merge('H12:I12', 'FECHA: ', {'right':1,'bottom':1,'align':'right','font_size':10})
+    writer.merge('C12:G12', 'TOPOGRAFIA', {'bottom':1,'font_size':10,'align':'left'})
+    writer.merge('H12:I12', f'FECHA: {annexUtils.curr_date()}', {'right':1,'bottom':1,'align':'right','font_size':10})
 
     writer.write('D14','DM',{'border':1,'font_size':10,'align':'center'})
     writer.write('E14','DIST_EJE',{'border':1,'font_size':10,'align':'center'})
@@ -74,8 +76,8 @@ def trans (model,filename="anexo_trans.xlsx") :
     
     worksheet.set_column(0,0,1) # A
     worksheet.set_column(1,1,9) # B
-    worksheet.set_column(2,2,4) # C
-    worksheet.set_column(3,3,15) # D
+    worksheet.set_column(2,2,2) # C
+    worksheet.set_column(3,3,14) # D
     worksheet.set_column(4,4,11) # E
     worksheet.set_column(5,5,11) # F
     worksheet.set_column(6,6,15) # G
@@ -84,7 +86,7 @@ def trans (model,filename="anexo_trans.xlsx") :
     worksheet.set_column(9,9,1) # J
     
     worksheet.set_row(0,10)
-    worksheet.set_row(4,5)
+    worksheet.set_row(4,8)
     worksheet.set_row(3,16)
     worksheet.set_row(6,5)
     worksheet.set_row(10,3)
@@ -118,9 +120,9 @@ def trans (model,filename="anexo_trans.xlsx") :
         section.labels[1:] = section.labels[1:][ascendingIndex]
         section.labels[1:neg+1] = section.labels[1:][descendingIndex]
         
-
+        
         pattern = r"(-[iIdD])$"
-
+        
         # Use re.sub() to remove the suffix
         clean_labels = [re.sub(pattern, "", s) for s in section.labels]
         
@@ -138,17 +140,18 @@ def trans (model,filename="anexo_trans.xlsx") :
                 writer.write(f'G{ROW}',row[0],{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
             
             else:
-                writer.write(f'D{ROW}','',{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
-                writer.write(f'G{ROW}', clean_labels[idx],{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
+                writer.write(f'D{ROW}','',{'left':1,'right':1,'font_size':10,'align':'center'})
+                writer.write(f'G{ROW}', clean_labels[idx],{'left':1,'right':1,'font_size':10,'align':'center'})
             
             writer.write(f'E{ROW}',row[1],{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
             writer.write(f'F{ROW}',row[2],{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
+            
             ROW += 1
-    
+            
+    writer.merge(f'D{ROW}:G{ROW}', '', Format.BTOP)
     workbook.close()
 
-if __name__ == "__name__":
-
+if __name__ == "__main__":
     f1 = sys.argv[1]
     f2 = sys.argv[2]
     
@@ -156,5 +159,7 @@ if __name__ == "__name__":
     matrix, labels, om, ol, heights = reader.getData()
     model = mdl.Model(heights,matrix,labels, om, ol)
     
+    
     trans (model)
+    
 

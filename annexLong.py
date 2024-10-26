@@ -13,6 +13,12 @@ from annexUtils import Formatter
 from openpyxl   import load_workbook
 import level
 
+ROW_DICT = {
+    0:0.1,
+    6:0.1,
+    10:0.1,
+    12:0.1,13:0.1
+}
 
 def generate (
         input1 = "",
@@ -21,10 +27,9 @@ def generate (
     
     cir = level.parser(input1, input2)
     TABLE = cir.get_report_long()
-    print(TABLE)
     
     workbook   = xlsxwriter.Workbook(output_file)
-    worksheet  = workbook.add_worksheet()
+    worksheet  = workbook.add_worksheet("NIVELACION LONGITUDINAL")
     
     worksheet.hide_gridlines(2)
     worksheet.set_portrait()
@@ -71,7 +76,7 @@ def generate (
     curr_row = 16
     
     COL_WIDTH = [
-        0.13, # A
+        0.1, # A
         0.99, # B
         0.99, # C
         0.99, # D
@@ -79,7 +84,7 @@ def generate (
         0.99, # F
         0.99, # G
         0.99, # H
-        0.13, # I   
+        0.1, # I   
     ]
     
     annexUtils.set_column(worksheet,COL_WIDTH)
@@ -100,6 +105,7 @@ def generate (
         curr_row += 1
     
     writer.merge(f'C{curr_row}:G{curr_row}', '', Format.BTOP)
+    annexUtils.set_row_dict(worksheet,ROW_DICT)
     
     workbook.close()
     
