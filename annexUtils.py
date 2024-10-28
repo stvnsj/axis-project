@@ -68,6 +68,7 @@ class Format :
     BLEFT = {"left": 1}
     BRIGHT = {"right": 1}
     BORDER = {"border":1}
+    BORDER_THICK = {"border":2}
     LEFT = {"align":"left"}
     RIGHT = {"align":"right"}
     CENTER = {"align":"center"}

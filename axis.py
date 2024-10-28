@@ -61,7 +61,7 @@ def generate_annex_5 ():
     )
     if filename == "":
         return 
-    annex5.generate(master_table.get(),filename)
+    annex5.generate(master_table.get(),filename,src_dir=img_dir.get())
 
 def generate_annex_8 ():
     filename = filedialog.asksaveasfilename(
@@ -342,6 +342,8 @@ fileA = tk.StringVar()
 fileB = tk.StringVar()
 fileC = tk.StringVar()
 
+img_dir = tk.StringVar()
+
 master_table = tk.StringVar()
 level_annex  = tk.StringVar() 
 
@@ -359,9 +361,9 @@ meter1 = tk.StringVar()
 ################
 
 button_params = [
-    {"label": "Estacado con Descriptor", "stringvar": fileA },
-    {"label": "Estacado con Coordenadas", "stringvar": fileB },
-    {"label": "Longitudinal", "stringvar": fileC}
+    {"label": "Estacado con Descriptor", "stringvar": fileA, "type":"file" },
+    {"label": "Estacado con Coordenadas", "stringvar": fileB , "type":"file"},
+    {"label": "Longitudinal", "stringvar": fileC , "type":"file"}
 ]
 component.LoadFileFrame(tab1, title="Carga de Archivos", button_params = button_params)
 
@@ -400,8 +402,8 @@ component.ButtonFrame(tab1, title="Planillas", button_params=button_params)
 #######################
 
 button_params = [
-    {"label": "Cotas Topograficas", "stringvar": height_pr_file },
-    {"label": "Circuito Nivelación", "stringvar": circuit_file },
+    {"label": "Cotas Topograficas", "stringvar": height_pr_file , "type":"file"},
+    {"label": "Circuito Nivelación", "stringvar": circuit_file , "type":"file"},
 ]
 component.LoadFileFrame(tab2, title="Carga de Archivos", button_params = button_params)
 
@@ -422,8 +424,8 @@ component.ButtonFrame(tab2, title="Planillas", button_params=button_params)
 ####################
 
 button_params = [
-    {"label": "Cotas Topograficas", "stringvar": height_pr_file },
-    {"label": "Circuito Nivelación", "stringvar": circuit_file },
+    {"label": "Cotas Topograficas", "stringvar": height_pr_file , "type":"file"},
+    {"label": "Circuito Nivelación", "stringvar": circuit_file , "type":"file"},
 ]
 component.LoadFileFrame(tab3, title="Carga de Archivos Nivelación", button_params = button_params)
 
@@ -433,9 +435,9 @@ button_params = [
 component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
 
 button_params = [
-    {"label": "Estacado con Descriptor", "stringvar": fileA },
-    {"label": "Estacado con Coordenadas", "stringvar": fileB },
-    {"label": "Longitudinal", "stringvar": fileC}
+    {"label": "Estacado con Descriptor", "stringvar": fileA , "type":"file"},
+    {"label": "Estacado con Coordenadas", "stringvar": fileB, "type":"file" },
+    {"label": "Longitudinal", "stringvar": fileC, "type":"file"}
 ]
 component.LoadFileFrame(tab3, title="Carga de Archivos Estacado", button_params = button_params)
 
@@ -450,11 +452,12 @@ component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_p
 
 
 ########################
-# ANEXO ANTEPROYECTO 4 #
+# ANEXO ANTEPROYECTO   #
 ########################
 button_params = [
-    {"label":"Anexo 1 (Tabla Maestra)", "stringvar": master_table},
-    {"label":"Anexo 10 (Nivelación)"  , "stringvar": level_annex}
+    {"label":"Anexo 1 (Tabla Maestra)", "stringvar": master_table ,  "type":"file"},
+    {"label":"Anexo 10 (Nivelación)"  , "stringvar": level_annex , "type":"file"},
+    {"label":"imagenes"               , "stringvar": img_dir , "type":"dir"},
 ]
 
 component.LoadFileFrame(tab3, title='Carga de Anexos', button_params=button_params, pady=10)

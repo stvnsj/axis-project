@@ -13,12 +13,16 @@ from annexUtils import Writer
 from annexUtils import Formatter
 import annexUtils
 from openpyxl import load_workbook
-
+import os
+import glob
+import annexImg
 
 OFFSET   = 38
 PAGEBREAKS = []
 
-def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xlsx") :
+def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xlsx", src_dir="img_copy") :
+    
+    print(f'\n\nGeneración de {output_file} en curso ...')
     
     workbook = xlsxwriter.Workbook(output_file)
     worksheet = workbook.add_worksheet("2.303.104.A (STC)")
@@ -73,7 +77,6 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
     worksheet.set_portrait()
     worksheet.set_page_view(2)
     worksheet.set_paper(9)
-    worksheet.set_margins(left=0.71, right=0.71, top=0.95, bottom=0.75)
     
     # FIXED CONTENT
     writer.merge(f"B2:F6","",Format.BORDER)
@@ -84,12 +87,12 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
                  {"bottom":1,"right":1, "font_size":12,"bold":True,"align":"center","valign":"vcenter"})
     
     writer.write(f"AA2","",Format.BLEFT)
-
+    
     writer.merge(f"B7:Z7","",{"bottom":1})
     writer.merge(f"A8:A12","",{"right":1})
     writer.merge(f"AA8:AA12","",{"left":1})
     writer.merge(f"B13:Z13", "",{"top":1})
-
+    
     writer.merge(f"B8:C8","PROYECTO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge(f"B9:C9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge(f"B10:C10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
@@ -97,7 +100,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
     writer.merge(f"U12:Z12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
   
     
-
+    
     
     
     wb = load_workbook(input_file)
@@ -106,10 +109,14 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
     t_rows = scanner.get_t_rows()
     i = 0
     
+    dst_dir = annexImg.annex5_process(src_dir)
+    
+    
     # LOOP THE FOLLOWING CELLS 
     for r in t_rows :
         
-        CELL_nombre = ws[f'C{r}'].value # DONE
+        #CELL_nombre = ws[f'C{r}'].value # DONE
+        POINT = scanner.get_est(r)
         
         CELL_f      = scanner.get_geo_s(r)
         CELL_l      = scanner.get_geo_w(r)
@@ -127,10 +134,11 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         CELL_altura = scanner.get_cota_orto(r)
         CELL_cota   = scanner.get_cota_geo(r)
         
-        CELL_NL     = ws[f'K{r}'].value
-        CELL_EL     = ws[f'L{r}'].value
-        CELL_MCL    = ws['H9'].value
-        CELL_Ko     = ws['H12'].value
+        # CELL_NL     = ws[f'K{r}'].value
+        # CELL_EL     = ws[f'L{r}'].value
+        # CELL_MCL    = ws['H9'].value
+        # CELL_Ko     = ws['H12'].value
+        
         
         
         writer.write(f"B{15 + i * OFFSET}","Identificación del Vértice",Format.BOLD, Format.ITALIC, Format.SIZE(10))
@@ -140,7 +148,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         writer.write(
             f'F{16 + i * OFFSET}',
             "Pertenece a Poligonal Nº:",
-            Format.SIZE(11)
+            Format.SIZE(10)
         )
         
         writer.merge(
@@ -152,18 +160,18 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         writer.write(
             f'P{16 + i * OFFSET}',
             "Tipo de Poligonal: (Ppal/Aux):",
-            Format.SIZE(11)
+            Format.SIZE(10)
         )
         
         writer.merge(
             f'X{16 + i * OFFSET}:Z{16 + i * OFFSET}',
-            "",
+            "PRINCIPAL",
             Format.BBOTTOM,Format.SIZE(11), Format.CENTER
         )
         
         writer.merge(
             f"I{15 + i * OFFSET}:L{15 + i * OFFSET}",
-            CELL_nombre,
+            POINT,
             Format.SIZE(11), Format.BOTTOM, Format.CENTER
         )
         
@@ -232,6 +240,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         writer.write(f"I{22 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
         writer.write(f"I{23 + i * OFFSET}","m",Format.SIZE(11),Format.LEFT)
         
+        writer.merge(f'B{17 + i * OFFSET}:Z{17 + i * OFFSET}' , 'Coordenadas', Format.SIZE(11), Format.CENTER)
         writer.write(f"N{20 + i * OFFSET}","Huso:",Format.SIZE(11),Format.LEFT)
         writer.write(f"N{21 + i * OFFSET}","MC:",Format.SIZE(11),Format.LEFT)
         writer.write(f"N{22 + i * OFFSET}","N:",Format.SIZE(11),Format.LEFT)
@@ -245,9 +254,27 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         writer.write(f"F{25 + i * OFFSET}","Altura (n.m.m. modelada):",Format.SIZE(11))
         writer.write(f"S{25 + i * OFFSET}","Cota (nivelada):",Format.SIZE(11),Format.BOLD)
         
-        writer.merge(f"B{27 + i * OFFSET}:K{39 + i * OFFSET}","Fotografía\nPanorámica",Format.BORDER,Format.CENTER,Format.VCENTER)
-        writer.merge(f"M{27 + i * OFFSET}:Z{39 + i * OFFSET}","Vista\nAérea",Format.BORDER,Format.CENTER,Format.VCENTER)
-        writer.merge(f"B{41 + i * OFFSET}:F{48 + i * OFFSET}","Fotografía\nDetalle",Format.BORDER,Format.CENTER,Format.VCENTER)
+        writer.merge(f"B{27 + i * OFFSET}:L{39 + i * OFFSET}","Fotografía\nPanorámica",Format.BORDER_THICK,Format.CENTER,Format.VCENTER)
+        writer.merge(f"N{27 + i * OFFSET}:Z{39 + i * OFFSET}","Vista\nAérea",Format.BORDER_THICK,Format.CENTER,Format.VCENTER)
+        writer.merge(f"B{41 + i * OFFSET}:F{48 + i * OFFSET}","Fotografía\nDetalle",Format.BORDER_THICK,Format.CENTER,Format.VCENTER)
+        
+        
+        cleaned_point = POINT.replace("-", "")
+        
+        img_path_a = os.path.join(dst_dir, f'{POINT}*', f'{cleaned_point}_a.*')
+        img_path_p = os.path.join(dst_dir, f'{POINT}*', f'{cleaned_point}_p.*')
+        img_path_g = os.path.join(dst_dir, f'{POINT}*', f'{cleaned_point}_g.*')
+        
+        match_a = glob.glob(img_path_a)
+        match_p = glob.glob(img_path_p)
+        match_g = glob.glob(img_path_g)
+        
+        if match_a:
+            worksheet.insert_image(f'B{41 + i * OFFSET}', match_a[0] , {'object_position': 1}) if match_a else None
+        if match_p:
+            worksheet.insert_image(f'B{27 + i * OFFSET}', match_p[0],  {'object_position': 1}) if match_p else None
+        if match_g:
+            worksheet.insert_image(f'N{27 + i * OFFSET}', match_g[0] , {'object_position': 1}) if match_g else None
         
         
         writer.merge(f"H{41 + i * OFFSET}:Z{41 + i * OFFSET}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
@@ -265,8 +292,12 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         writer.merge(f"A{50 + i * OFFSET}:AA{50 + i * OFFSET}","",{})
         
         ROW_DICT.update({15 + i * OFFSET : 0.25})
-        ROW_DICT.update({16 + i * OFFSET : 0.35})
-        ROW_DICT.update({key:0.18 for key in range(27 + i*OFFSET , 39 + i*OFFSET)})  
+        ROW_DICT.update({16 + i * OFFSET : 0.45})
+        ROW_DICT.update({17 + i * OFFSET : 0.14})
+        ROW_DICT.update({18 + i * OFFSET : 0.14})
+        
+        ROW_DICT.update({key:0.16 for key in range(27 + i*OFFSET , 39 + i*OFFSET)})  
+        ROW_DICT.update({key:0.175 for key in range(41 + i*OFFSET , 48 + i*OFFSET)})  
         
         PAGEBREAKS.append(50 + i * OFFSET)
         
@@ -277,6 +308,8 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
     
     # formatter.set_rows({0:2,1:2,2:2, 4:2})
     workbook.close()
+    
+    print(f'\nGeneración de {output_file} completada\n')
 
 
 

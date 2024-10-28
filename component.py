@@ -58,15 +58,18 @@ class LoadFileFrame(tk.Frame):
         self.frame_grid = tk.Frame(self)
         self.frame_grid.pack()
         for param in button_params:
-            self.insert_button(param["label"],param["stringvar"])
+            self.insert_button(param["label"],param["stringvar"],typ=param["type"])
             self.row += 1
  
     def insert_title(self, title):
         label_title = tk.Label(self, text = title,font='Helvetica 10 bold', pady=4,padx=4,bd=3, relief="ridge")
         label_title.pack(pady=3,padx=3)
  
-    def insert_button (self, label, stringvar):
-        button    = tk.Button(self.frame_grid, text="Cargar", command=lambda:self.load_file_command(stringvar))
+    def insert_button (self, label, stringvar, typ = "file"):
+        if typ == "file":
+            button    = tk.Button(self.frame_grid, text="Cargar", command=lambda:self.load_file_command(stringvar))
+        elif typ == "dir":
+            button    = tk.Button(self.frame_grid, text="Cargar", command=lambda:self.load_dir_command(stringvar))            
         label     = tk.Label(self.frame_grid,  text=label, font='Helvetica 10 italic', width=26, anchor="w")
         filelabel = tk.Label(self.frame_grid, textvariable=stringvar, bg='white', bd=1, relief="solid", width=50,anchor="w")
         
@@ -80,6 +83,11 @@ class LoadFileFrame(tk.Frame):
             filetypes=(("Text files", "*.csv *.txt *.CSV *.TXT *.xlsx"), ("All files", "*.*"))
         )
         stringvar.set(path)
+ 
+    def load_dir_command(self,stringvar) :
+        path = filedialog.askdirectory(title="Seleccionar Directorio")
+        stringvar.set(path)
+    
     
 
 class InputFrame(tk.Frame):
