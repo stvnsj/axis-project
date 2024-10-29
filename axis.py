@@ -23,14 +23,6 @@ import annexLong
 # which is used to save file in any extension 
 from tkinter.filedialog import asksaveasfile
 
-# If I define commands in another file, what is the best way to pass a arguments
-# to a function.
-#
-# IDEAS for COMMANDS:
-#
-#     file_selector
-#     =============
-# file_selector string_var -> ()
 
 def generate_annex_2 ():
     
@@ -90,7 +82,7 @@ def generate_annex_long ():
     if filename == "":
         return
     
-    annexLong.generate(circuit_file.get(),height_pr_file.get(), filename)
+    annexLong.generate(circuit_file.get(),height_pr_file.get(), trigonometric_file.get(), filename)
 
 def generate_report():
     
@@ -102,7 +94,7 @@ def generate_report():
     if filename == "":
         return 
     
-    cir = level.parser(circuit_file.get(),height_pr_file.get())
+    cir = level.parser(circuit_file.get(),height_pr_file.get(),trigonometric_file.get())
     cir.write_circuit_table(filename)
     
 def generate_longitudinal():
@@ -115,7 +107,7 @@ def generate_longitudinal():
     if filename == "":
         return 
     
-    cir = level.parser(circuit_file.get(),height_pr_file.get())
+    cir = level.parser(circuit_file.get(),height_pr_file.get(), trigonometric_file.get())
     cir.write_longitudinal(filename)
 
 def generate_height_cad():
@@ -128,7 +120,7 @@ def generate_height_cad():
     if filename == "":
         return 
     
-    cir = level.parser(circuit_file.get(),height_pr_file.get())
+    cir = level.parser(circuit_file.get(),height_pr_file.get(),trigonometric_file.get())
     cir.plot(filename)
     
 
@@ -349,6 +341,7 @@ level_annex  = tk.StringVar()
 
 height_pr_file = tk.StringVar()
 circuit_file   = tk.StringVar()
+trigonometric_file = tk.StringVar()
 
 meter0 = tk.StringVar()
 meter1 = tk.StringVar()
@@ -404,6 +397,7 @@ component.ButtonFrame(tab1, title="Planillas", button_params=button_params)
 button_params = [
     {"label": "Cotas Topograficas", "stringvar": height_pr_file , "type":"file"},
     {"label": "Circuito Nivelación", "stringvar": circuit_file , "type":"file"},
+    {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
 ]
 component.LoadFileFrame(tab2, title="Carga de Archivos", button_params = button_params)
 
@@ -426,6 +420,7 @@ component.ButtonFrame(tab2, title="Planillas", button_params=button_params)
 button_params = [
     {"label": "Cotas Topograficas", "stringvar": height_pr_file , "type":"file"},
     {"label": "Circuito Nivelación", "stringvar": circuit_file , "type":"file"},
+    {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
 ]
 component.LoadFileFrame(tab3, title="Carga de Archivos Nivelación", button_params = button_params)
 

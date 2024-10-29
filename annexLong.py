@@ -23,9 +23,10 @@ ROW_DICT = {
 def generate (
         input1 = "",
         input2 = "",
+        input3 = "",
         output_file = "testlongi.xlsx") :
     
-    cir = level.parser(input1, input2)
+    cir = level.parser(input1, input2, input3)
     TABLE = cir.get_report_long()
     
     workbook   = xlsxwriter.Workbook(output_file)
