@@ -20,7 +20,7 @@ import annexImg
 OFFSET   = 38
 PAGEBREAKS = []
 
-def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xlsx", src_dir="img_copy", src_dir2="img_copy_g") :
+def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xlsx", src_dir="img", src_dir2="img_geo") :
     
     print(f'\n\nGeneración de {output_file} en curso ...')
     
@@ -236,7 +236,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
             writer.merge(f"D{21 + i * OFFSET}:H{21 + i * OFFSET}",FACTOR, Format.DEC)
             break
         
-        writer.merge(f"Q{15 + i * OFFSET}:T{15 + i * OFFSET}", CELL_dm,Format.CENTER,Format.SIZE(10),Format.BOTTOM)
+        writer.merge(f"Q{15 + i * OFFSET}:T{15 + i * OFFSET}", CELL_dm,Format.CENTER,Format.SIZE(10),Format.BOTTOM,Format.NUM2)
         writer.write(f"W{15 + i * OFFSET}","FECHA:",Format.SIZE(10))
         writer.merge(f"Y{15 + i * OFFSET}:Z{15 + i * OFFSET}", annexUtils.curr_date(1),Format.BOTTOM,Format.CENTER,Format.SIZE(10))
         
@@ -264,9 +264,9 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
         writer.write(f"F{25 + i * OFFSET}","Altura (n.m.m. modelada):",Format.SIZE(11))
         writer.write(f"S{25 + i * OFFSET}","Cota (nivelada):",Format.SIZE(11),Format.BOLD)
         
-        writer.merge(f"B{27 + i * OFFSET}:L{39 + i * OFFSET}","Fotografía\nPanorámica",Format.BORDER_THICK,Format.CENTER,Format.VCENTER)
-        writer.merge(f"N{27 + i * OFFSET}:Z{39 + i * OFFSET}","Vista\nAérea",Format.BORDER_THICK,Format.CENTER,Format.VCENTER)
-        writer.merge(f"B{41 + i * OFFSET}:F{48 + i * OFFSET}","Fotografía\nDetalle",Format.BORDER_THICK,Format.CENTER,Format.VCENTER)
+        
+        
+        
         
         if src_dir:
             cleaned_point = POINT.replace("-", "")
@@ -279,25 +279,41 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test5.xl
             
             if match_a:
                 worksheet.insert_image(f'B{41 + i * OFFSET}', match_a[0] , {'object_position': 1})
+            else :
+                writer.merge(
+                    f"B{41 + i * OFFSET}:F{48 + i * OFFSET}","Fotografía\nDetalle",
+                    Format.BORDER,
+                    Format.CENTER,Format.VCENTER)
+            
             if match_p:
                 worksheet.insert_image(f'B{27 + i * OFFSET}', match_p[0],  {'object_position': 1})
+            else:
+                writer.merge(
+                    f"B{27 + i * OFFSET}:L{39 + i * OFFSET}","Fotografía\nPanorámica",
+                    Format.BORDER,
+                    Format.CENTER,Format.VCENTER)
+        
      
         if src_dir2 :
             cleaned_point = POINT.replace("-", "")
-            img_path_g = os.path.join(dst_dir2, f'{POINT}*', f'{cleaned_point}_g.*')
+            img_path_g = os.path.join(dst_dir2, f'{cleaned_point}_g.*')
             match_g = glob.glob(img_path_g)
+            
             if match_g:
                 worksheet.insert_image(f'N{27 + i * OFFSET}', match_g[0] , {'object_position': 1})
-        
-        
-        
+            else:
+                writer.merge(
+                    f"N{27 + i * OFFSET}:Z{39 + i * OFFSET}","Vista\nAérea",
+                    Format.BORDER,
+                    Format.CENTER,Format.VCENTER)
         
         writer.merge(f"H{41 + i * OFFSET}:Z{41 + i * OFFSET}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
         
         writer.write(f'I{43 + i * OFFSET}', "Materialidad:",Format.SIZE(9))
         writer.write(f'I{44 + i * OFFSET}', "Dimensiones:",Format.SIZE(9))
-        writer.write(f'I{45 + i * OFFSET}', "Distancia a :",Format.SIZE(9))
-        writer.write(f'L{45 + i * OFFSET}', CELL_dist, Format.SIZE(10))
+        writer.write(f'I{45 + i * OFFSET}', "Distancia a la Ruta:",Format.SIZE(9))
+        writer.merge(f'M{45 + i * OFFSET}:O{45 + i * OFFSET}', CELL_dist, Format.SIZE(9), Format.NUM2)
+        writer.write(f'P{45 + i * OFFSET}', "m", Format.SIZE(9), Format.LEFT)
         
         writer.write(f'L{43 + i * OFFSET}', "MONOLITO DE HORMIGÓN, PINTADO DE AMARILLO", Format.SIZE(9))
         writer.write(f'L{44 + i * OFFSET}', "D: 15 cm. FIERRO ESTRIADO 12 mm.", Format.SIZE(9))

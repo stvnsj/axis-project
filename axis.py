@@ -53,7 +53,7 @@ def generate_annex_5 ():
     )
     if filename == "":
         return 
-    annex5.generate(master_table.get(),filename,src_dir=img_dir.get())
+    annex5.generate(master_table.get(),filename,src_dir=img_dir.get(), src_dir2=img_dir2.get())
 
 def generate_annex_8 ():
     filename = filedialog.asksaveasfilename(
@@ -335,6 +335,7 @@ fileB = tk.StringVar()
 fileC = tk.StringVar()
 
 img_dir = tk.StringVar()
+img_dir2 = tk.StringVar()
 
 master_table = tk.StringVar()
 level_annex  = tk.StringVar() 
@@ -452,7 +453,8 @@ component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_p
 button_params = [
     {"label":"Anexo 1 (Tabla Maestra)", "stringvar": master_table ,  "type":"file"},
     {"label":"Anexo 10 (Nivelación)"  , "stringvar": level_annex , "type":"file"},
-    {"label":"imagenes"               , "stringvar": img_dir , "type":"dir"},
+    {"label":"imagenes (Pan. Det.)"   , "stringvar": img_dir , "type":"dir"},
+    {"label":"imagenes (Geo.)"        , "stringvar": img_dir2 , "type":"dir"},
 ]
 
 component.LoadFileFrame(tab3, title='Carga de Anexos', button_params=button_params, pady=10)

@@ -61,6 +61,7 @@ class Format :
     ITALIC = {"italic":True}
     DEC    = {'num_format': '#,##0.0000000000'}
     NUM    = {'num_format': '#,##0.000'}
+    NUM2   = {'num_format': '#,##0.00'}
     TOP    = {"top" :1}
     BTOP   = {"top" :1}
     BBOTTOM = {"bottom" :1}
