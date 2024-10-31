@@ -50,7 +50,6 @@ def format_float (x):
     """float to string with three decimal places"""
     return "{:.3f}".format(x)
 
-
 def format_float_array (arr):
     """floats of array to string with three decimal places"""
     return np.vectorize(format_float)(arr)

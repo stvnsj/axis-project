@@ -188,6 +188,8 @@ class Scanner :
         self.ELIP      = None
         self.COTA_ORTO = None
         self.COTA_GEO  = None
+        self.DM        = None
+        self.DIST      = None
         
         self.__find_field__()
         self.__init_ptl__ ()
@@ -229,6 +231,11 @@ class Scanner :
     def get_cota_geo  (self,row):
         return self.ws.cell(column=self.COTA_GEO,row=row).value
     
+    def get_dm (self,row):
+        return self.ws.cell(column=self.DM, row = row).value
+ 
+    def get_dist (self,row):
+        return self.ws.cell(column=self.DIST, row = row).value
  
     def __init_global__ (self) :
         for col in self.ws.iter_cols(min_row = 0, max_row = self.row):
@@ -347,6 +354,12 @@ class Scanner :
                     continue
                 if cell.value == "COTA-GEO":
                     self.COTA_GEO =  cell.column
+                    continue
+                if cell.value == "DM":
+                    self.DM = cell.column
+                    continue
+                if cell.value == "DIST":
+                    self.DIST = cell.column
                     break
 
 

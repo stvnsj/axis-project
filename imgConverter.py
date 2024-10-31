@@ -3,6 +3,9 @@
 
 from PIL import Image
 
+def adjust_annex5_geo (filename, output_file, HEIGHT = 5.31, WIDTH= 8.12):
+    adjust_img (filename, output_file, HEIGHT, WIDTH )
+
 def adjust_annex5_panoramic (filename, output_file, HEIGHT = 5.31, WIDTH  = 7.45) :
     adjust_img (filename, output_file, HEIGHT, WIDTH )
 
@@ -12,7 +15,7 @@ def adjust_annex5_detail (filename, output_file, HEIGHT=3.5, WIDTH=4.05) :
 def zoom_img (image, factor):
 
     width, height = image.size
-
+    
     # Calculate crop box for center zoom
     crop_width = int(width / factor)
     crop_height = int(height / factor)

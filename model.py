@@ -209,7 +209,7 @@ class Model :
                     height = self.findHeight(labels[start])
                     
                     section = sec.Section(
-                        labels[start], matrix[start:end], labels[start:end],
+                        labels[start], matrix[start:end+1], labels[start:end+1],
                         height, axis = matrix[start,1:3], vector = matrix[start,1:3],
                         oriented = False
                     )
@@ -260,7 +260,7 @@ class Model :
                     height = self.findHeight(labels[start])
                     
                     section = sec.Section(
-                        labels[start], matrix[start:end], labels[start:end],
+                        labels[start], matrix[start:end+1], labels[start:end+1],
                         height, axis = matrix[start,1:3], vector = matrix[start,1:3],
                         oriented = True
                     )
