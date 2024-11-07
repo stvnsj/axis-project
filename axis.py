@@ -33,7 +33,7 @@ def generate_annex_2 ():
     if filename == "":
         return 
     
-    annex2.generate(master_table.get(),filename)
+    annex2.generate(master_table.get(),filename,src_dir=img_dir.get(), src_dir2=img_dir2.get())
 
 
 def generate_annex_4 ():
@@ -314,11 +314,13 @@ notebook.pack(expand=True, fill='both')
 tab1 = ttk.Frame(notebook)
 tab2 = ttk.Frame(notebook)
 tab3 = ttk.Frame(notebook)
+tab4 = ttk.Frame(notebook)
 
 # Add tabs to the notebook (tabs container)
 notebook.add(tab1, text='CAD')
 notebook.add(tab2, text='NIVELACION')
-notebook.add(tab3, text='ANEXO')
+notebook.add(tab3, text='ANEXO (Ante.)')
+notebook.add(tab4, text='ANEXO (Def.)')
 
 # def greet(inputs):
 #     print("First input :" , inputs[0].get())
@@ -419,30 +421,30 @@ component.ButtonFrame(tab2, title="Planillas", button_params=button_params)
 ####################
 
 button_params = [
-    {"label": "Cotas Topograficas", "stringvar": height_pr_file , "type":"file"},
-    {"label": "Circuito Nivelación", "stringvar": circuit_file , "type":"file"},
-    {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
-]
-component.LoadFileFrame(tab3, title="Carga de Archivos Nivelación", button_params = button_params)
-
-button_params = [
-    {"label":"FORMULARIO N° 2.5.2", "command":generate_annex_long},
-]
-component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
-
-button_params = [
     {"label": "Estacado con Descriptor", "stringvar": fileA , "type":"file"},
     {"label": "Estacado con Coordenadas", "stringvar": fileB, "type":"file" },
     {"label": "Longitudinal", "stringvar": fileC, "type":"file"}
 ]
-component.LoadFileFrame(tab3, title="Carga de Archivos Estacado", button_params = button_params)
+component.LoadFileFrame(tab4, title="Carga de Archivos Estacado", button_params = button_params)
 
 
 button_params = [
-    {"label":"FORMULARIO N° 2.5.3", "command":generate_anexo_trans},
+    {"label":"2 - Perfiles Transversales (2.5.2)", "command":generate_anexo_trans},
 ]
-component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
+component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
 
+
+button_params = [
+    {"label": "Cotas Topograficas", "stringvar": height_pr_file , "type":"file"},
+    {"label": "Circuito Nivelación", "stringvar": circuit_file , "type":"file"},
+    {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
+]
+component.LoadFileFrame(tab4, title="Carga de Archivos Nivelación", button_params = button_params)
+
+button_params = [
+    {"label":"3 - Nivelación Longitudinal del Eje Estacado (2.5.3)", "command":generate_annex_long},
+]
+component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
 
 
 
@@ -453,19 +455,19 @@ component.ButtonFrame(tab3, title="Generación de Anexos (DEFINITIVO)", button_p
 button_params = [
     {"label":"Anexo 1 (Tabla Maestra)", "stringvar": master_table ,  "type":"file"},
     {"label":"Anexo 10 (Nivelación)"  , "stringvar": level_annex , "type":"file"},
-    {"label":"imagenes (Pan. Det.)"   , "stringvar": img_dir , "type":"dir"},
-    {"label":"imagenes (Geo.)"        , "stringvar": img_dir2 , "type":"dir"},
+    {"label":"Imagenes (Pan. Det.)"   , "stringvar": img_dir , "type":"dir"},
+    {"label":"Imagenes (Geo.)"        , "stringvar": img_dir2 , "type":"dir"},
 ]
 
-component.LoadFileFrame(tab3, title='Carga de Anexos', button_params=button_params, pady=10)
+component.LoadFileFrame(tab3, title='Carga de Anexos', button_params=button_params)
 
 # 2 , 4 , 8 , 11
 button_params = [
-    {"label":"Anexo 2", "command":generate_annex_2},
-    {"label":"Anexo 4", "command":generate_annex_4},
-    {"label":"Anexo 5", "command":generate_annex_5},
-    {"label":"Anexo 8", "command":generate_annex_8},
-    {"label":"Anexo 11", "command":generate_annex_11},
+    {"label":"2 - Puntos de la Red de Referencia Principal (2.903.3.F)", "command":generate_annex_2},
+    {"label":"4 - Resumen de Coordenadas de la Red de Referencia Principal (2.903.3.G)", "command":generate_annex_4},
+    {"label":"5 - Formulario de Ubicación de Vértices del STC (2.303.104.A)", "command":generate_annex_5},
+    {"label":"8 - Coordenadas de Vértices del STC (2.303.104.B)", "command":generate_annex_8},
+    {"label":"11 - Cotas de PR (2.903.3.I)", "command":generate_annex_11},
 ]
 component.ButtonFrame(tab3, title="Generación de Anexos (ANTEPROYECTO)", button_params=button_params)
 

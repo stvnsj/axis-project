@@ -6,17 +6,20 @@ import utils
 import sys
 import reader as rd
 import re
+import os
 from annexUtils import Format 
 from annexUtils import Writer
 from annexUtils import Formatter
 import annexUtils
+import annexImg
+import glob
 from openpyxl import load_workbook
 
 
 OFFSET   = 38
 PAGEBREAKS = []
 
-def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xlsx") :
+def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test2.xlsx", src_dir="img", src_dir2="img_geo") :
     
     workbook = xlsxwriter.Workbook(output_file)
     worksheet = workbook.add_worksheet("2.903.3.F (RRP)")
@@ -25,11 +28,9 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
     ws = wb.active
     scanner = annexUtils.Scanner(ws)
     
-    
-    
     COL_WIDTHS = [
         0.10, #A 
-        0.30, #B
+        0.25, #B
         0.75, #C
         0.25, #D
         0.35, #E
@@ -40,11 +41,11 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         0.22, #J
         0.40, #K
         0.20, #L
-        0.15, #M
+        0.07, #M
         0.35, #N
         0.15, #O
         0.25, #P
-        0.20, #Q
+        0.28, #Q
         0.33, #R
         0.25, #S
         0.10, #T
@@ -94,15 +95,26 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
     writer.merge(f"A8:A12","",{"right":1})
     writer.merge(f"AA8:AA12","",{"left":1})
     writer.merge(f"B13:Z13", "",{"top":1})
-
-    writer.merge(f"B8:D8","PROYECTO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge(f"B9:D9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge(f"B10:D10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge(f"B12:D12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
+    
+    writer.merge(f"B8:C8","PROYECTO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
+    writer.merge(f"B9:C9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
+    writer.merge(f"B10:C10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
+    writer.merge(f"B12:C12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge(f"U12:Z12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    
+    writer.merge(f'D8:Y8', scanner.PROYECTO,Format.SIZE(10))
+    writer.merge(f'D9:Y9',scanner.SECTOR,Format.SIZE(10))
+    writer.merge(f'D10:Y10', scanner.TRAMO,Format.SIZE(10))
+    writer.merge(f'D12:R12',scanner.REALIZADO,Format.SIZE(10))
   
     
     
+    if src_dir:
+        dst_dir = annexImg.annex2_process(src_dir)
+        
+    if src_dir2:
+        dst_dir2 = annexImg.annex2_process_geo(src_dir2)
+        
   
     FRST_ROW = 0
     LST_ROW  = 0
@@ -125,7 +137,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         
         CONST = i * OFFSET + CORRECTION
         
-        CELL_nombre = scanner.get_est(r)
+        POINT       = scanner.get_est(r)
         CELL_f      = scanner.get_geo_s(r)
         CELL_l      = scanner.get_geo_w(r)
         CELL_h      = scanner.get_elip(r)
@@ -146,7 +158,7 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         
         writer.merge(
             f"I{15 + CONST}:L{15 + CONST}",
-            CELL_nombre,
+            POINT,
             Format.SIZE(11), Format.BOTTOM, Format.CENTER
         )
         
@@ -273,10 +285,36 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         writer.merge(f"W{25 + CONST}:Y{25 + CONST}",CELL_cota,Format.RIGHT, Format.NUM)
         
         
+        if src_dir:
+            cleaned_point = POINT.replace("-", "")
+            
+            img_path_a = os.path.join(dst_dir, f'{POINT}*', f'{cleaned_point}_a.*')
+            img_path_p = os.path.join(dst_dir, f'{POINT}*', f'{cleaned_point}_p.*')
+            
+            match_a = glob.glob(img_path_a)
+            match_p = glob.glob(img_path_p)
+            
+            if match_a:
+                worksheet.insert_image(f'B{41 + CONST}', match_a[0] , {'object_position': 1})
+            else:
+                writer.merge(f"B{41 + CONST}:F{48 + CONST}","Fotografía\nDetalle",Format.BORDER,Format.CENTER,Format.VCENTER)
+            
+            
+            if match_p:
+                worksheet.insert_image(f'B{27 + CONST}', match_p[0],  {'object_position': 1})
+            else:
+                writer.merge(f"B{27 + CONST}:L{39 + CONST}","Fotografía\nPanorámica",Format.BORDER,Format.CENTER,Format.VCENTER)
         
-        writer.merge(f"B{27 + CONST}:K{39 + CONST}","Fotografía\nPanorámica",Format.BORDER,Format.CENTER,Format.VCENTER)
-        writer.merge(f"M{27 + CONST}:Z{39 + CONST}","Vista\nAérea",Format.BORDER,Format.CENTER,Format.VCENTER)
-        writer.merge(f"B{41 + CONST}:F{48 + CONST}","Fotografía\nDetalle",Format.BORDER,Format.CENTER,Format.VCENTER)
+     
+        if src_dir2 :
+            cleaned_point = POINT.replace("-", "")
+            img_path_g = os.path.join(dst_dir2, f'{cleaned_point}_g.*')
+            match_g = glob.glob(img_path_g)
+            
+            if match_g:
+                worksheet.insert_image(f'N{27 + CONST}', match_g[0] , {'object_position': 1})
+            else :
+                writer.merge(f"N{27 + CONST}:Z{39 + CONST}","Vista\nAérea",Format.BORDER,Format.CENTER,Format.VCENTER)
         
         
         writer.merge(f"H{41 + CONST}:Z{41 + CONST}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
@@ -293,7 +331,8 @@ def generate (input_file='anexos/anteproyecto/annex1.xlsx',output_file="test2.xl
         writer.merge(f"H{49 + CONST}:Z{49 + CONST}","",Format.TOP)
         writer.merge(f"A{50 + CONST}:AA{50 + CONST}","",{})
         
-        ROW_DICT.update({key:0.18 for key in range(27 + i*OFFSET , 39 + i*OFFSET)})
+        ROW_DICT.update({key:0.16 for key in range(27 + i*OFFSET , 39 + i*OFFSET)})
+        ROW_DICT.update({key:0.175 for key in range(41 + i*OFFSET , 48 + i*OFFSET)})  
         
         PAGEBREAKS.append(50 + CONST)
 

@@ -43,11 +43,20 @@ class Writer :
         for f in dic :
             CELL_FORMAT = CELL_FORMAT | f
             
-        self.worksheet.write(
-            cell,
-            dat,
-            self.workbook.add_format(CELL_FORMAT)
-        )
+        try:
+            self.worksheet.write(
+                cell,
+                dat,
+                self.workbook.add_format(CELL_FORMAT)
+            )
+        except:
+            print(cell)
+            self.worksheet.write(
+                cell,
+                -1,
+                self.workbook.add_format(CELL_FORMAT)
+            )
+            
 
 
 class Format :
@@ -166,6 +175,11 @@ class Scanner :
         self.DATUM = None
         self.ZONA  = None
         self.MC    = None
+
+        self.PROYECTO  = None
+        self.SECTOR    = None
+        self.TRAMO     = None
+        self.REALIZADO = None
         
         self.PTL_COLS = []
         
@@ -251,7 +265,19 @@ class Scanner :
                     continue
                 if bool(re.match(r"^mc", str(cell.value), re.I)):
                     self.MC = self.ws.cell(row=r, column=c+1).value
-                    break
+                    continue
+                if bool(re.match(r"^proyecto", str(cell.value), re.I)):
+                    self.PROYECTO = self.ws.cell(row=r, column=c+1).value
+                    continue
+                if bool(re.match(r"^sector", str(cell.value), re.I)):
+                    self.SECTOR = self.ws.cell(row=r, column=c+1).value
+                    continue
+                if bool(re.match(r"^tramo", str(cell.value), re.I)):
+                    self.TRAMO = self.ws.cell(row=r, column=c+1).value
+                    continue
+                if bool(re.match(r"^realizado", str(cell.value), re.I)):
+                    self.REALIZADO = self.ws.cell(row=r, column=c+1).value
+                    continue
     
     
     def get_t_rows (self) :
@@ -364,6 +390,23 @@ class Scanner :
                     break
 
 
-if __name__ == "__main__":
+
+class Scanner10 :
     
+    def __init__ (self, ws) :
+        self.ws = ws
+        self.PROYECTO = None
+        self.SECTOR   = None
+        self.TRAMO    = None
+        self.REALIZADO = None
+    
+    def __init_cols__ (self) :
+        pass
+    
+    
+    
+    
+
+
+if __name__ == "__main__":
     print(curr_date())

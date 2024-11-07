@@ -1,5 +1,45 @@
 import numpy as np
 import re
+import os
+
+def normalize_pr (string) :
+    match = re.search(r'\d+', s)  # Find the first number in the string
+    if match:
+        number = match.group(0)
+        return f"PR{number}"
+    else:
+        raise CustomError(f"PR erróneo: {string}")
+    return s  # Return the original if no number is found
+
+class Reporter :
+    
+    def __init__ (self, filename):
+        self.path = self.__init_file_path__(filename)
+        self.write_report_header(filename)
+    
+    def __init_file_path__ (self, filename) :
+        
+        output_filename_ext = os.path.basename(filename)
+        output_filename , ext    =  os.path.splitext(output_filename_ext)
+        parent_dir = os.path.dirname(os.getcwd())
+        target_dir = os.path.join(parent_dir, 'log')
+        file_path = os.path.join(target_dir, output_filename)
+        return file_path + ".txt"
+    
+    def write_report_header (self, filename) :
+        name = os.path.basename(filename)
+        with open(self.path, 'w') as f:
+            f.write(f"Reporte de {name}\n\n")
+    
+    def patchFound (self, dm, direction, patch):
+        with open(self.path, 'a') as f:
+            f.write(f'DM {dm} parchado con altura {patch} en cota de {direction}\n')
+    
+    def patchNotFound (self,dm,direction):
+        with open(self.path, 'a') as f:
+            f.write(f'DM {dm} sin cota de {direction}\n')
+
+
 
 formatFloat = lambda x : f'{np.round(x,3)}'
 formatFloatArray = lambda array : np.vectorize(formatFloat)(array)

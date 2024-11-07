@@ -33,13 +33,13 @@ class ButtonFrame(tk.Frame):
         label_title = tk.Label(self, text = title,font='Helvetica 10 bold', pady=4,padx=4,bd=3, relief="ridge")
         label_title.pack(pady=3,padx=3)
  
-    def insert_button (self, label, command=lambda:print("ButtonFrame button")):
+    def insert_button (self, text, command=lambda:print("ButtonFrame button")):
+        width = len(text) + 1
+        label     = tk.Label(self.frame_grid,  text=text, font='Helvetica 10 italic', width=width, anchor="w")
+        button    = tk.Button(self.frame_grid, text="Generar", command=command,)
         
-        label     = tk.Label(self.frame_grid,  text=label, font='Helvetica 10 italic', width=26, anchor="w")
-        button    = tk.Button(self.frame_grid, text="Generar", command=command)
-        
-        label.grid(row=self.row,column=0)
-        button.grid(row=self.row,column=1)
+        button.grid(row=self.row,column=0, sticky='w')        
+        label.grid(row=self.row,column=1, sticky='w')
         
     
     def load_file_command(self,stringvar) :

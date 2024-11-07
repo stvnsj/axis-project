@@ -27,6 +27,9 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
     workbook = xlsxwriter.Workbook(output_file)
     worksheet = workbook.add_worksheet("2.303.104.A (STC)")
     writer = Writer(workbook,worksheet)
+    wb = load_workbook(input_file)
+    ws = wb.active
+    scanner = annexUtils.Scanner(ws)
     dst_dir = None
     dst_dir2 = None
     
@@ -82,10 +85,10 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
     
     # FIXED CONTENT
     writer.merge(f"B2:F6","",Format.BORDER)
-    writer.merge(f"G2:Z3","PUNTOS DE LA RED DE REFERENCIA PRINCIPAL",
+    writer.merge(f"G2:Z3","FORMULARIO DE UBICACIÓN DE VÉRTICES DEL STC",
                  {"top":1, "right":1,"font_size":12,"bold":True,"align":"center","valign":"vcenter"})
     
-    writer.merge(f"G4:Z6","FORMULARIO N° 2.903.3.F",
+    writer.merge(f"G4:Z6","FORMULARIO N°2.303.104.A",
                  {"bottom":1,"right":1, "font_size":12,"bold":True,"align":"center","valign":"vcenter"})
     
     writer.write(f"AA2","",Format.BLEFT)
@@ -100,14 +103,14 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
     writer.merge(f"B10:C10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge(f"B12:C12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge(f"U12:Z12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    
+    writer.merge(f'D8:Y8', scanner.PROYECTO, Format.LEFT,Format.SIZE(10))
+    writer.merge(f'D9:Y9',scanner.SECTOR,Format.SIZE(10))
+    writer.merge(f'D10:Y10', scanner.TRAMO,Format.SIZE(10))
+    writer.merge(f'D12:R12',scanner.REALIZADO,Format.SIZE(10))
+    
+    
   
-    
-    
-    
-    
-    wb = load_workbook(input_file)
-    ws = wb.active
-    scanner = annexUtils.Scanner(ws)
     t_rows = scanner.get_t_rows()
     i = 0
     
@@ -169,7 +172,7 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
         
         writer.write(
             f'P{16 + i * OFFSET}',
-            "Tipo de Poligonal: (Ppal/Aux):",
+            "Tipo de Poligonal (Ppal/Aux):",
             Format.SIZE(10)
         )
         
@@ -307,13 +310,14 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
                     Format.BORDER,
                     Format.CENTER,Format.VCENTER)
         
+        
         writer.merge(f"H{41 + i * OFFSET}:Z{41 + i * OFFSET}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
         
         writer.write(f'I{43 + i * OFFSET}', "Materialidad:",Format.SIZE(9))
         writer.write(f'I{44 + i * OFFSET}', "Dimensiones:",Format.SIZE(9))
-        writer.write(f'I{45 + i * OFFSET}', "Distancia a la Ruta:",Format.SIZE(9))
-        writer.merge(f'M{45 + i * OFFSET}:O{45 + i * OFFSET}', CELL_dist, Format.SIZE(9), Format.NUM2)
-        writer.write(f'P{45 + i * OFFSET}', "m", Format.SIZE(9), Format.LEFT)
+        writer.merge(f'I{45 + i * OFFSET}:N{45 + i * OFFSET}', "Distancia a la Ruta:",Format.SIZE(9))
+        writer.merge(f'O{45 + i * OFFSET}:Q{45 + i * OFFSET}', CELL_dist, Format.SIZE(9), Format.NUM2)
+        writer.write(f'R{45 + i * OFFSET}', "m.", Format.SIZE(9), Format.LEFT)
         
         writer.write(f'L{43 + i * OFFSET}', "MONOLITO DE HORMIGÓN, PINTADO DE AMARILLO", Format.SIZE(9))
         writer.write(f'L{44 + i * OFFSET}', "D: 15 cm. FIERRO ESTRIADO 12 mm.", Format.SIZE(9))
@@ -348,7 +352,7 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
 
 if __name__ == "__main__":
     
-    generate()
+    generate(src_dir = '', src_dir2= '')
     
     #f1 = sys.argv[1]
     #f2 = sys.argv[2]

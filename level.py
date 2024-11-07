@@ -3,6 +3,11 @@ import numpy as np
 import utils
 import levelCad
 
+def strToFltKey (string) :
+    try:
+        return float(string)
+    except:
+        return -1
 
 class Point :
     
@@ -33,7 +38,7 @@ class Point :
         self.point_corrected  = []
         self.instr_corrected  = 0.0
         self.size = len(dm) + 1
-        self.str_dm = str_dm
+        self.str_dm = utils.normalize_pr(str_dm)
         
         
     def __str__ (self):
@@ -157,12 +162,12 @@ class Segment :
                 self.pr_dict.update({dm:(self.pr1,self.pr0) for dm in p.str_dm})
                 
                 
-            
+        
     def get_pr_dict(self):
         return self.pr_dict
- 
+    
+    
     def  get_table (self):
-        
         lst = [p.get_table() for p in self.points]
         dm_list, pnt_list = list(zip(*lst))
         return (np.concatenate(dm_list),np.concatenate(pnt_list))
@@ -209,34 +214,52 @@ class Circuit :
     # This is used for the REPORT
     def write_circuit_table(self, filename):
         
+        reporter = utils.Reporter(filename)
+        
+        
         pos_dm, pos_pnt = self.get_positive_table()
         neg_dm, neg_pnt = self.get_negative_table()
         
         intersection    = np.intersect1d(pos_dm, neg_dm)
         union           = np.union1d(pos_dm, neg_dm)
         
-        # complement      = np.setdiff1d(union,intersection)
         positive_dict   = dict (zip(pos_dm,pos_pnt))
         negative_dict   = dict (zip(neg_dm,neg_pnt))
         
         full_table = np.empty((0, 8))
+        
+        notFound = []
+        patches  = []
+        
         
         for dm in union:
             
             if dm == "":
                 continue
             
-            if dm in intersection or dm in self.trig_dict:
+            if dm in intersection:
                 
-                positive_h = positive_dict.get(dm) if dm in positive_dict else self.trig_dict.get(dm)
-                negative_h = negative_dict.get(dm) if dm in negative_dict else self.trig_dict.get(dm)
-                dif = np.round(np.absolute(float(positive_h) - float(negative_h)),3)
-                mean = np.mean([float(positive_h),float(negative_h)])
+                positive_h = positive_dict.get(dm)
+                negative_h = negative_dict.get(dm)
+                
+                # Content of the report cells.
+                if (not np.isnan(positive_h)) and (not np.isnan(negative_h)):
+                    dif = np.round(np.absolute(float(positive_h) - float(negative_h)),3)
+                    mean = np.mean([float(positive_h),float(negative_h)])
+                elif (not np.isnan(positive_h)):
+                    dif = 0.000
+                    mean = float(positive_h)
+                elif (not np.isnan(negative_h)):
+                    dif = 0.000
+                    mean = float(negative_h)
+                else :
+                    dif = 0.000
+                    mean = 0.0
                 
                 new_row = np.array([[
                     dm,
-                    utils.format_float(positive_h),
-                    utils.format_float(negative_h),
+                    utils.format_float(positive_h) if not np.isnan(positive_h) else "VACIO",
+                    utils.format_float(negative_h) if not np.isnan(negative_h) else "VACIO",
                     utils.format_float(dif),
                     utils.format_float(mean),
                     self.pr_dict.get(dm)[0],
@@ -246,10 +269,10 @@ class Circuit :
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
             
-            if dm in positive_dict and not (dm in self.trig_dict):
+            if dm in positive_dict:
                 positive_h = positive_dict.get(dm)
                 negative_h = "SIN COTA"
-                dif        = 0.0
+                dif        = 0.000
                 mean       = positive_h
                 new_row = np.array([[
                     dm,
@@ -264,7 +287,7 @@ class Circuit :
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
                 
-            if dm in negative_dict and not (dm in self.trig_dict):
+            if dm in negative_dict:
                 positive_h = "SIN COTA"
                 negative_h = negative_dict.get(dm)
                 dif        = 0.0
@@ -293,12 +316,11 @@ class Circuit :
             full_table[str_index]
         ))
         
-        
         with open(filename, "w") as f:
             np.savetxt(f,output,delimiter=',',fmt='%s')
  
  
-    # This is the the table used for the longitudinal ANNEX 3
+    # This is the table used for the longitudinal ANNEX 3
     def get_report_long (self):
         
         pos_dm, pos_pnt = self.get_positive_table()
@@ -317,10 +339,17 @@ class Circuit :
             if dm == "" or not utils.is_float(dm):
                 continue
             
-            if dm in intersection or dm in self.trig_dict :
+            if dm in intersection:
                 
-                positive_h = utils.round(positive_dict.get(dm)) if dm in positive_dict else utils.round(self.trig_dict.get(dm))
-                negative_h = utils.round(negative_dict.get(dm)) if dm in negative_dict else utils.round(self.trig_dict.get(dm))
+                positive_h = utils.round(positive_dict.get(dm))
+                negative_h = utils.round(negative_dict.get(dm))
+                
+                if np.isnan(positive_h):
+                    continue
+                    
+                if np.isnan(negative_h):
+                    continue
+                
                 dif        = np.absolute(positive_h - negative_h)
                 mean       = np.mean([positive_h,negative_h])
                 
@@ -352,7 +381,6 @@ class Circuit :
         neg_dm, neg_pnt = self.get_negative_table()
         intersection    = np.intersect1d(pos_dm, neg_dm)
         union           = np.union1d(pos_dm, neg_dm)
-        # complement      = np.setdiff1d(union,intersection)
         positive_dict   = dict (zip(pos_dm,pos_pnt))
         negative_dict   = dict (zip(neg_dm,neg_pnt))
         full_table = np.empty((0, 3))
@@ -362,10 +390,11 @@ class Circuit :
             if dm == "" or not utils.is_float(dm):
                 continue
             
-            if dm in intersection or dm in self.trig_dict:
+            if dm in intersection:
                 
-                positive_h = positive_dict.get(dm) if dm in positive_dict else self.trig_dict.get(dm)
-                negative_h = negative_dict.get(dm) if dm in negative_dict else self.trig_dict.get(dm)
+                positive_h = positive_dict.get(dm)
+                negative_h = negative_dict.get(dm)
+                
                 dif = np.round(np.absolute(float(positive_h) - float(negative_h)),3)
                 mean = np.mean([float(positive_h),float(negative_h)])
                 
@@ -380,7 +409,7 @@ class Circuit :
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
             
-            if dm in positive_dict and not (dm in self.trig_dict):
+            if dm in positive_dict:
                 positive_h = positive_dict.get(dm)
                 mean       = positive_h
                 
@@ -395,7 +424,7 @@ class Circuit :
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
                 
-            if dm in negative_dict and not (dm in self.trig_dict):
+            if dm in negative_dict:
                 negative_h = negative_dict.get(dm)
                 mean       = negative_h
                 if np.isnan(negative_h):
@@ -435,18 +464,26 @@ class Circuit :
                 continue
             
             # DM's with two measurements 
-            if dm in intersection or dm in self.trig_dict:
-                positive_h = positive_dict.get(dm) if dm in positive_dict else self.trig_dict.get(dm)
-                negative_h = negative_dict.get(dm) if dm in negative_dict else self.trig_dict.get(dm)
-                if np.isnan(positive_h) or np.isnan(negative_h):
+            if dm in intersection:
+                
+                positive_h = positive_dict.get(dm) 
+                negative_h = negative_dict.get(dm)
+                
+                if (not np.isnan(positive_h)) and (not np.isnan(negative_h)):
+                    mean = np.mean([float(positive_h),float(negative_h)])
+                elif (not np.isnan(positive_h)):
+                    mean = float(positive_h)
+                elif (not np.isnan(negative_h)):
+                    mean = float(negative_h)
+                else :
                     continue
-                mean = utils.round(np.mean([positive_h,negative_h]))
+                    
                 new_row = np.array([[ np.round(float(dm),3), mean]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
             
             # DM's with positive direction only
-            if dm in positive_dict and not(dm in self.trig_dict):
+            if dm in positive_dict:
                 positive_h = positive_dict.get(dm)
                 if np.isnan(positive_h):
                     continue
@@ -456,7 +493,7 @@ class Circuit :
                 continue
             
             # DM's with negative direction only
-            if dm in negative_dict and not(dm in self.trig_dict):
+            if dm in negative_dict:
                 negative_h = negative_dict.get(dm)
                 if np.isnan(negative_h):
                     continue
@@ -575,14 +612,14 @@ def parse_point (num, start, h0, string_matrix, num_matrix = None):
 
 def parser (filename1, filename2, trigonometric=""):
     
-    libreta_string_matrix = np.genfromtxt(filename1, delimiter=',', dtype=str, skip_header=0)
-    height_string_matrix = np.genfromtxt(filename2, delimiter=',', dtype=str, skip_header=0)
+    libreta_string_matrix = np.genfromtxt(filename1, delimiter=',', dtype=str, skip_header=0,invalid_raise=False)
+    height_string_matrix = np.genfromtxt(filename2, delimiter=',', dtype=str, skip_header=0,invalid_raise=False)
     
-    libreta_num_matrix = np.round(np.genfromtxt(filename1, delimiter=',', skip_header=0),3)
-    height_num_matrix =  np.round(np.genfromtxt(filename2, delimiter=',', skip_header=0),3)
+    libreta_num_matrix = np.round(np.genfromtxt(filename1, delimiter=',', skip_header=0,invalid_raise=False),3)
+    height_num_matrix =  np.round(np.genfromtxt(filename2, delimiter=',', skip_header=0,invalid_raise=False),3)
 
     if trigonometric:
-        trig_table = np.genfromtxt(trigonometric, delimiter=',', dtype=str, skip_header=0)
+        trig_table = np.genfromtxt(trigonometric, delimiter=',', dtype=str, skip_header=0,invalid_raise=False)
     else:
         trig_table = np.array([])
     

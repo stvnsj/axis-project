@@ -19,7 +19,7 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
     workbook = xlsxwriter.Workbook(output_file)
     wb = load_workbook(input_file)
     ws = wb.active
-    
+    scanner = annexUtils.Scanner(ws)
     column = 'B'
     
     polygones = []
@@ -99,8 +99,14 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx' , output_file = "te
     writer.merge("B9:C9","SECTOR", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge("B10:C10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge("B12:C12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.merge("Q12:T12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
-
+    writer.merge("N12:S12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    
+    writer.merge(f'D8:R8', scanner.PROYECTO,Format.SIZE(10))
+    writer.merge(f'D9:R9',scanner.SECTOR,Format.SIZE(10))
+    writer.merge(f'D10:R10', scanner.TRAMO,Format.SIZE(10))
+    writer.merge(f'D12:M12',scanner.REALIZADO,Format.SIZE(10))
+    
+    
     writer.merge("B14:B16", 'Punto', Format.SIZE(9), Format.CENTER,Format.VCENTER,Format.BORDER)
     writer.write("D14", 'Geodésicas   Ref.', Format.SIZE(9), Format.LEFT)
     writer.write("D15", 'SIRGAS', Format.SIZE(9), Format.LEFT)

@@ -1,7 +1,0 @@
-
-* Dependencies
-- numpy :: Mathematical library
-- openpyxl :: Reads XLSX Excel files.
-- xlsxwriter :: Writes XLSX excel files from python. `pip install xlsxwriter` to install.
-- pillow :: Image editing library
-  

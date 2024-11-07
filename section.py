@@ -38,12 +38,13 @@ class Section :
         self.vector = vector;
         self.km = km;
         self.matrix = matrix;
-        self.labels = labels;
+        #self.labels = labels;
         self.height = height;
         self.distance = self.compute_distance()
         self.adjustedHeight = self.adjustHeight(self.height);
         self.side = utils.parseLabelLetterArray(self.labels)[:,None];
         self.id = km;
+        self.new = True
  
     def compute_descriptor_sign (self):
         signs  = utils.parseLabelArray(self.labels);

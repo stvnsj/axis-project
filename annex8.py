@@ -142,35 +142,35 @@ def generate (input_file = 'anexos/anteproyecto/annex1.xlsx', output_file='test8
         writer.write("B12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
         writer.merge("Q12:V12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
         
-        # writer.merge(
-        #     'B14:Q14',
-        #     'POLIGONAL Nº: 6      Tipo: Principal',
-        #     Format.SIZE(9),
-        #     Format.BOLD,Format.BORDER,Format.CENTER,Format.VCENTER,
-        # )
+        writer.merge(f'D8:V8', scanner.PROYECTO,Format.SIZE(10))
+        writer.merge(f'D9:V9',scanner.SECTOR,Format.SIZE(10))
+        writer.merge(f'D10:V10', scanner.TRAMO,Format.SIZE(10))
+        writer.merge(f'D12:O12',scanner.REALIZADO,Format.SIZE(10))
         
         writer.merge(
             'B15:B18','Vértice',Format.SIZE(9),
             Format.BOLD,Format.CENTER,Format.VCENTER, Format.BORDER
         )
         
-        if len(scanner.PTL_N) == 1:
-            writer.merge( 'D15:I15','PTL',Format.SIZE(9),Format.BOLD,Format.CENTER)
-        else:
-            ROW = p.min_row + 1
-            for idx, C in enumerate(scanner.PTL_N):
-                LTM_N = ws.cell(column=scanner.PTL_N[idx],row=ROW).value
-                try:
-                    float(LTM_N)
+        ROW = p.min_row + 1
+        writer.merge(
+            'B14:Q14', f'POLIGONAL Nº: {scanner.get_poligonal_num(ROW)}      Tipo: Principal',
+            Format.SIZE(9),Format.BOLD,Format.BORDER,Format.CENTER,Format.VCENTER,
+        )
+        
+        for idx, C in enumerate(scanner.PTL_N):
+            LTM_N = ws.cell(column=scanner.PTL_N[idx],row=ROW).value
+            try:
+                float(LTM_N)
+                if len(scanner.PTL_N) == 1:
+                    writer.merge( 'D15:I15','PTL',Format.SIZE(9),Format.BOLD,Format.CENTER)
+                else:
                     writer.merge( 'D15:I15',f'PTL-{idx+1}',Format.SIZE(9),Format.BOLD,Format.CENTER)
-                    writer.merge('B14:Q14', f'POLIGONAL Nº: {scanner.get_poligonal_num(ROW)}      Tipo: Principal',
-                        Format.SIZE(9),Format.BOLD,Format.BORDER,Format.CENTER,Format.VCENTER,
-                    )
-                    writer.merge( 'F16:I16',scanner.MERIDIANO_CENTRAL[idx],Format.SIZE(9), Format.BOLD, Format.LEFT)
-                    writer.merge( 'F17:I17',scanner.FACTOR_ESCALA[idx],Format.SIZE(9), Format.BOLD, Format.LEFT)
-                    break
-                except:
-                    continue
+                writer.merge( 'F16:I16',scanner.MERIDIANO_CENTRAL[idx],Format.SIZE(9), Format.BOLD, Format.LEFT)
+                writer.merge( 'F17:I17',scanner.FACTOR_ESCALA[idx],Format.SIZE(9), Format.BOLD, Format.LEFT)
+                break
+            except:
+                continue
         
         
         writer.merge( 'D16:E16','MCL:',Format.SIZE(9), Format.BOLD, Format.LEFT)

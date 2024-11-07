@@ -3,6 +3,23 @@
 
 from PIL import Image, ImageDraw, ImageFont
 
+
+######################
+# ANNEX 2 ADJUSTMENT #
+######################
+def adjust_annex2_geo (filename, output_file, HEIGHT = 5.31, WIDTH=8.0, POINT="G241_g"):
+    adjust_img (filename, output_file, HEIGHT, WIDTH, GEO=True, POINT=POINT)
+
+def adjust_annex2_panoramic (filename, output_file, HEIGHT = 5.31, WIDTH  = 7.52) :
+    adjust_img (filename, output_file, HEIGHT, WIDTH )
+
+def adjust_annex2_detail (filename, output_file, HEIGHT=3.5, WIDTH=4.0) :
+    adjust_img (filename, output_file, HEIGHT , WIDTH)
+
+
+######################
+# ANNEX 5 ADJUSTMENT #
+######################
 def adjust_annex5_geo (filename, output_file, HEIGHT = 5.31, WIDTH= 8.122, POINT="T241_g"):
     adjust_img (filename, output_file, HEIGHT, WIDTH, GEO=True, POINT=POINT)
 
@@ -30,11 +47,16 @@ def zoom_img (image, factor):
 
 
 
-def create_annotation () :
+###################################################
+# Functions used the create the annotation images #
+# to be inserted in the georeferenced images of   #
+# Annex 2, 4, 5                                   #
+###################################################
+def create_annotation (PREFIX = "T") :
     
     font_size = 12
     font_path = "/usr/share/fonts/truetype/lato/Lato-Medium.ttf"
-    # Choose a font and font size
+
     try:
         font = ImageFont.truetype(font_path, font_size)  # Adjust font size as needed
     except IOError:
@@ -46,7 +68,7 @@ def create_annotation () :
         image = Image.new("RGB", (box_width, box_height), "white")
         draw = ImageDraw.Draw(image)
         
-        text = f"T-{i}"
+        text = f"{PREFIX}-{i}"
         text_height = font_size
         text_width = draw.textlength(text, font=font)
         border_thickness = 1
@@ -61,27 +83,27 @@ def create_annotation () :
         
         draw.text((text_x, text_y + 1), text, fill="black", font=font)
         
-        image.save(f"annotation/T{i}_g.png")
+        image.save(f"annotation/{PREFIX}{i}_g.png")
 
 
 def adjust_img (filename, output_file, HEIGHT , WIDTH, GEO=False, POINT = "T242_g"):
     
-    # TARGET PARAMETERS
-    W_RATIO  = WIDTH / HEIGHT
-    H_RATIO = HEIGHT / WIDTH
     
-    img = Image.open(filename)
+    W_RATIO  = WIDTH / HEIGHT  # Width Ratio to be obtained.
+    H_RATIO = HEIGHT / WIDTH   # Height Ratio to be obtained.
+    
+    img = Image.open(filename) # Input image 
  
-    dpi = 300 * 0.32
+    dpi = 300 * 0.32 
     
     cm_to_px = lambda cm: int((cm * dpi) / 2.54)
  
-    img_w_ratio = img.width  / img.height
-    img_h_ratio = img.height / img.width 
+    img_w_ratio = img.width  / img.height # Width ratio of input file.
+    img_h_ratio = img.height / img.width  # Height ratio of input file.
     
-    W_DIFF = W_RATIO - img_w_ratio
-    H_DIFF = H_RATIO - img_h_ratio
-
+    W_DIFF = W_RATIO - img_w_ratio # Width Ratio delta
+    H_DIFF = H_RATIO - img_h_ratio # Height Ratio delta
+    
     TOP = 0
     RIGHT = 0
     BOTTOM = 0
@@ -126,6 +148,7 @@ def adjust_img (filename, output_file, HEIGHT , WIDTH, GEO=False, POINT = "T242_
             outline="black",
             width=1
         )
+        
         resized_img.save(output_file, format="JPEG",quality=95)
         
         return
@@ -142,6 +165,6 @@ def adjust_img (filename, output_file, HEIGHT , WIDTH, GEO=False, POINT = "T242_
 
 if __name__ == "__main__":
     print("imgConverter")
-    create_annotation()
+    create_annotation(PREFIX="G")
 
 

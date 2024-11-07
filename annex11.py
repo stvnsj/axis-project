@@ -53,6 +53,10 @@ def generatePR (workbook,worksheet, input_file) :
     
     writer = Writer(workbook,worksheet)
     
+    wb = load_workbook(input_file)
+    ws = wb.active
+
+    
     # FIXED CONTENT
     writer.merge(f"B2:D6","",Format.BORDER)
     writer.merge(
@@ -80,6 +84,7 @@ def generatePR (workbook,worksheet, input_file) :
     writer.write(f"B10","TRAMO", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.write(f"B12","REALIZADO",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.merge(f"G12:I12",f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    
   
     writer.merge(
         f'B14:C14',
@@ -137,8 +142,7 @@ def generatePR (workbook,worksheet, input_file) :
     
     writer.merge(f'B17:I17','',Format.BORDER)
     
-    wb = load_workbook(input_file)
-    ws = wb.active
+
     
     max_row = ws.max_row
     first_row = True
@@ -222,7 +226,7 @@ def generatePR (workbook,worksheet, input_file) :
     formatter = Formatter(worksheet)
     col_width = {
         0:0.13, #A
-        1:0.79, #B
+        1:0.86, #B
         2:0.79, #C
         3:0.79, #D
         4:0.79, #E
@@ -255,7 +259,11 @@ def generateG (workbook,worksheet,input_file) :
     worksheet.set_margins(left=0.71, right=0.71, top=0.95, bottom=0.75)
     
     writer = Writer(workbook,worksheet)
+    
+    wb = load_workbook(input_file)
+    ws = wb.active
 
+    
     # FIXED CONTENT
     writer.merge(f"B2:D6","",Format.BORDER)
     writer.merge(
