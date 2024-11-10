@@ -16,9 +16,8 @@ from tkinter import filedialog
 from tkinter.filedialog import asksaveasfile
 
 class ButtonFrame(tk.Frame):
-        
-    def __init__ (self, parent, title="Load File", button_params = [],side="top"):
-        
+    
+    def __init__ (self, parent, title="Load File", button_params = [],side="top"):       
         super().__init__(parent,pady=3,padx=3,bd=3,relief="groove")
         self.row = 0
         self.pack(side=side,pady=5)
@@ -32,19 +31,14 @@ class ButtonFrame(tk.Frame):
     def insert_title(self, title):
         label_title = tk.Label(self, text = title,font='Helvetica 10 bold', pady=4,padx=4,bd=3, relief="ridge")
         label_title.pack(pady=3,padx=3)
- 
+    
     def insert_button (self, text, command=lambda:print("ButtonFrame button")):
         width = len(text) + 1
         label     = tk.Label(self.frame_grid,  text=text, font='Helvetica 10 italic', width=width, anchor="w")
-        button    = tk.Button(self.frame_grid, text="Generar", command=command,)
-        
+        button    = tk.Button(self.frame_grid, text="Generar", command=command,)    
         button.grid(row=self.row,column=0, sticky='w')        
         label.grid(row=self.row,column=1, sticky='w')
-        
-    
-    def load_file_command(self,stringvar) :
-        pass
-    
+   
     
 
 class LoadFileFrame(tk.Frame):

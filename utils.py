@@ -2,14 +2,18 @@ import numpy as np
 import re
 import os
 
-def normalize_pr (string) :
-    match = re.search(r'\d+', s)  # Find the first number in the string
+class CustomError(Exception):
+    pass
+
+def normalize_pr(string):
+    # Check if the string starts with "PR" (case-insensitive) followed by optional spaces/hyphens and an integer
+    match = re.match(r'(?i)^pr[\s-]*\d+$', string.strip())
     if match:
-        number = match.group(0)
+        # Extract the number part from the string
+        number = re.search(r'\d+', string).group(0)
         return f"PR{number}"
     else:
         raise CustomError(f"PR erróneo: {string}")
-    return s  # Return the original if no number is found
 
 class Reporter :
     
@@ -135,3 +139,7 @@ def round (x) :
     return np.round(x,3)
 
 
+if __name__ == "__main__":
+    assert(normalize_pr("Pr - 123") == "PR123")
+    assert(normalize_pr("Pr _ 123") == "PR123")
+    

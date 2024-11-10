@@ -38,7 +38,7 @@ class Point :
         self.point_corrected  = []
         self.instr_corrected  = 0.0
         self.size = len(dm) + 1
-        self.str_dm = utils.normalize_pr(str_dm)
+        self.str_dm = str_dm
         
         
     def __str__ (self):
@@ -578,7 +578,14 @@ def parse_segment (string_matrix, pr0, pr1, h0, h1, num_matrix=None, start_point
             continue 
  
     
-    return Segment(pr0, pr1, h0, h1, point_list, start_points=start_points, end_points=end_points)
+    return Segment(
+        utils.normalize_pr(pr0),
+        utils.normalize_pr(pr1),
+        h0, h1,
+        point_list,
+        start_points=start_points,
+        end_points=end_points
+    )
 
 
 def parse_point (num, start, h0, string_matrix, num_matrix = None):
@@ -594,7 +601,6 @@ def parse_point (num, start, h0, string_matrix, num_matrix = None):
     if len(string_matrix) > 1 :
         dm = num_matrix[1:,1]
         im = num_matrix[1:,4]
-    
     
     point = Point(
         num,

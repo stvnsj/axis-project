@@ -157,7 +157,10 @@ class Model :
                 self.sectionIndex.append(i)
     
     
-    
+    def get_km_index_dict (self):
+        d = {self.getSection(i).km : i for i in range(len(self.sectionIndex))}
+        return d 
+            
     
     def findHeight (self,km):
         

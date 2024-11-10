@@ -18,11 +18,18 @@ import annex4
 import annex8
 import annex11
 import annexLong
+import axisCommands as ax_com
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+
+
+
 
 # import only asksaveasfile from filedialog 
 # which is used to save file in any extension 
 from tkinter.filedialog import asksaveasfile
-
+trans_model = None
 
 def generate_annex_2 ():
     
@@ -73,16 +80,6 @@ def generate_annex_11 ():
         return 
     annex11.generate(level_annex.get(),filename)
 
-def generate_annex_long ():   
-    filename = filedialog.asksaveasfilename(
-        title="Nombre de Archivo",
-        filetypes=(("Excel", "*.xlsx"), ("All files", "*.*"))
-    )
-    
-    if filename == "":
-        return
-    
-    annexLong.generate(circuit_file.get(),height_pr_file.get(), trigonometric_file.get(), filename)
 
 def generate_report():
     
@@ -122,9 +119,6 @@ def generate_height_cad():
     
     cir = level.parser(circuit_file.get(),height_pr_file.get(),trigonometric_file.get())
     cir.plot(filename)
-    
-
-
 
 
 def generateCAD(inputs):
@@ -315,26 +309,23 @@ tab1 = ttk.Frame(notebook)
 tab2 = ttk.Frame(notebook)
 tab3 = ttk.Frame(notebook)
 tab4 = ttk.Frame(notebook)
+tab5 = ttk.Frame(notebook)
+tab6 = ttk.Frame(notebook)
 
 # Add tabs to the notebook (tabs container)
 notebook.add(tab1, text='CAD')
 notebook.add(tab2, text='NIVELACION')
 notebook.add(tab3, text='ANEXO (Ante.)')
 notebook.add(tab4, text='ANEXO (Def.)')
-
-# def greet(inputs):
-#     print("First input :" , inputs[0].get())
-#     print("Second Input :" , inputs[1].get())
-#     print("Third Input :" , inputs[2].get())
-
-# entry_params = [{"label":"uno"},{"label":"dos"},{"label":"tres"}]
-# component.InputFrame(tab3,entry_params=entry_params, command=greet)
+notebook.add(tab5, text='DM')
+notebook.add(tab6, text='PLOT')
 
 
-
-fileA = tk.StringVar()
-fileB = tk.StringVar()
+fileA = tk.StringVar() # TRANS DESCRIPTOR
+fileB = tk.StringVar() # TRANS COORDENADA
 fileC = tk.StringVar()
+
+eje_estaca_file = tk.StringVar() 
 
 img_dir = tk.StringVar()
 img_dir2 = tk.StringVar()
@@ -406,7 +397,7 @@ component.LoadFileFrame(tab2, title="Carga de Archivos", button_params = button_
 
 
 button_params = [
-    {"label":"Reporte","command":generate_report},
+    {"label":"Anexo 2.5.3 (CSV)","command":generate_report},
     {"label":"Longitudinal", "command":generate_longitudinal},
     {"label":"CAD" , "command":generate_height_cad}
 ]
@@ -435,14 +426,15 @@ component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_p
 
 
 button_params = [
-    {"label": "Cotas Topograficas", "stringvar": height_pr_file , "type":"file"},
-    {"label": "Circuito Nivelación", "stringvar": circuit_file , "type":"file"},
+    {"label": "Cotas PR", "stringvar": height_pr_file , "type":"file"},
+    {"label": "Libreta", "stringvar": circuit_file , "type":"file"},
     {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
 ]
 component.LoadFileFrame(tab4, title="Carga de Archivos Nivelación", button_params = button_params)
 
 button_params = [
-    {"label":"3 - Nivelación Longitudinal del Eje Estacado (2.5.3)", "command":generate_annex_long},
+    {"label":"3 - Nivelación Longitudinal del Eje Estacado (2.5.3)",
+     "command": ax_com.generate_annex_long(circuit_file, height_pr_file, trigonometric_file)},
 ]
 component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
 
@@ -472,8 +464,122 @@ button_params = [
 component.ButtonFrame(tab3, title="Generación de Anexos (ANTEPROYECTO)", button_params=button_params)
 
 
+###############
+# DM ANALYSIS #
+###############
+button_params = [
+    {"label":"Eje Estaca", "stringvar": eje_estaca_file, "type":"file"},
+    {"label": "Estacado con Descriptor", "stringvar": fileA, "type":"file" },
+    {"label": "Estacado con Coordenadas", "stringvar": fileB , "type":"file"},
+    {"label": "Libreta", "stringvar": circuit_file , "type":"file"},
+    {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
+    
+]  
+component.LoadFileFrame(tab5, title='Carga de Archivos', button_params=button_params)
+
+button_params = [
+    {"label":"Analisis DM", "command":ax_com.get_dm_analysis(eje_estaca_file,fileA,fileB,circuit_file,trigonometric_file)},
+]
+component.ButtonFrame(tab5, title="Análisis", button_params=button_params)
 
 
+
+
+
+
+################################
+#  _____  _      ____ _______  #
+# |  __ \| |    / __ \__   __| #
+# | |__) | |   | |  | | | |    #
+# |  ___/| |   | |  | | | |    #
+# | |    | |___| |__| | | |    #
+# |_|    |______\____/  |_|    #
+################################
+
+
+fig, ax = plt.subplots(figsize=(13, 13))
+
+
+canvasFrame = tk.Frame(tab6,bd=3,relief='groove',bg='#AAAAAA')
+
+canvas = FigureCanvasTkAgg(fig, master=canvasFrame)
+
+
+toolbar = NavigationToolbar2Tk(canvas, canvasFrame)
+
+
+
+
+
+
+
+plot_frame = tk.Frame(tab6)
+combobox_frame = ttk.LabelFrame(plot_frame, text="Perfil Transversal")
+combobox = ttk.Combobox(combobox_frame, values=[])
+
+navigation_frame = ttk.LabelFrame(plot_frame, text="Navegar Perfiles")
+
+next_button = tk.Button(navigation_frame, text="siguiente", command=lambda: ax_com.next_section_index(fig,ax,canvas))
+prev_button = tk.Button(navigation_frame, text="previo", command=lambda: ax_com.prev_section_index(fig,ax,canvas))
+examine_button = tk.Button(navigation_frame, text="examinar", command=lambda: ax_com.prev_section_index(fig,ax,canvas))
+
+
+
+
+
+
+def on_combobox_select(event):
+    dm = combobox.get()
+    i  = ax_com.km_idx_dict.get(dm)
+    ax_com.update_section_index(i)
+    ax_com.plot_test(fig,ax,canvas)
+    
+
+combobox.bind("<<ComboboxSelected>>", on_combobox_select)
+
+
+button_params = [
+    {"label": "Estacado con Descriptor", "stringvar": fileA, "type":"file" },
+    {"label": "Estacado con Coordenadas", "stringvar": fileB , "type":"file"},
+    {"label": "Longitudinal", "stringvar": fileC , "type":"file"}
+]
+
+component.LoadFileFrame(tab6, title="Carga de Archivos", button_params = button_params)
+
+
+button_params = [
+    {"label":"Generar Modelo", "command":  lambda : ax_com.generate_model(fileA, fileB, fileC, combobox,fig, ax, canvas)},
+#    {"label":"Graficar",       "command":  lambda : ax_com.plot_test(fig,ax,canvas)}
+]
+component.ButtonFrame(tab6, title="Generar Modelo", button_params=button_params)
+
+combobox_frame.grid(column=0,row=0, padx=10, pady=10,)
+navigation_frame.grid(column=1,row=0, padx=10, pady=10)
+
+# canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+
+combobox.pack(padx = 5, pady = 5)
+plot_frame.pack()
+
+
+
+#canvas.get_tk_widget().pack()
+prev_button.grid(column=0,row=0)
+next_button.grid(column=1,row=0)
+canvas.get_tk_widget().pack(fill='both' , expand=True)
+toolbar.pack()
+canvasFrame.pack(fill='both',expand=True)
+
+
+
+
+def on_closing():
+    plt.close("all")  # Close all Matplotlib figures
+    root.quit()       # Quit the Tkinter main loop
+    root.destroy()    # Destroy the Tkinter root window
+
+root.protocol("WM_DELETE_WINDOW", on_closing)  # Bind the close button to `on_closing`
 
 # Main loop
 root.mainloop()

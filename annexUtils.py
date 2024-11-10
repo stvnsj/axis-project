@@ -83,6 +83,9 @@ class Format :
     RIGHT = {"align":"right"}
     CENTER = {"align":"center"}
     VCENTER = {"valign":"vcenter"}
+    COLOR_RED = {'bg_color': '#ff5034'}
+    COLOR_GREEN = {'bg_color': '#61df6d'}
+    
 
 
 
