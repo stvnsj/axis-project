@@ -511,13 +511,13 @@ combobox = ttk.Combobox(combobox_frame, values=[])
 # Contains the "siguiente" and "previo" buttons.
 navigation_frame = ttk.LabelFrame(plot_frame, text="Navegar Perfiles")
 # Plots the next cross section.
-next_button = tk.Button(navigation_frame, text="siguiente", command=lambda: ax_com.next_section_index(fig,ax,canvas))
+next_button = tk.Button(navigation_frame, text="siguiente", command=lambda: ax_com.next_section_index(fig,ax,canvas,PLOT_DM))
 # Plots the previous cross section
-prev_button = tk.Button(navigation_frame, text="previo", command=lambda: ax_com.prev_section_index(fig,ax,canvas))
+prev_button = tk.Button(navigation_frame, text="previo", command=lambda: ax_com.prev_section_index(fig,ax,canvas, PLOT_DM))
 
 # DM Frame.
 dm_frame   = ttk.LabelFrame(plot_frame, text="DM")
-dm_display = tk.Label(dm_frame, textvariable=PLOT_DM, bg='white', bd=1, relief="solid", width=50,anchor="w")
+dm_display = tk.Label(dm_frame, textvariable=PLOT_DM, bg='white', bd=1, relief="solid", width=10,anchor="w")
 
 
 # Contains the PLOT and the Matplotlib Navigation Bar
@@ -532,7 +532,7 @@ def on_combobox_select(event):
     i  = ax_com.km_idx_dict.get(dm)
     ax_com.update_section_index(i)
     ax_com.plot_test(fig,ax,canvas)
-    
+    PLOT_DM.set(dm)
 
 combobox.bind("<<ComboboxSelected>>", on_combobox_select)
 
@@ -563,6 +563,7 @@ combobox.pack(padx = 5, pady = 5)
 #canvas.get_tk_widget().pack()
 prev_button.grid(column=0,row=0)
 next_button.grid(column=1,row=0)
+dm_display.pack()
 canvas.get_tk_widget().pack(fill='both' , expand=True)
 toolbar.pack()
 canvasFrame.pack(fill='both',expand=True)

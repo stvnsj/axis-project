@@ -60,7 +60,7 @@ def get_plot_dm (PLOT_DM) :
         PLOT_DM.set(trans_model.getSection(i).km)
     
 
-def next_section_index (fig,ax,canvas):
+def next_section_index (fig,ax,canvas, plot_dm):
     global trans_model
     global section_index
     global max_index
@@ -68,8 +68,9 @@ def next_section_index (fig,ax,canvas):
         return
     section_index += 1
     plot_test(fig,ax,canvas)
+    plot_dm.set(trans_model.getSection(section_index).km)
 
-def prev_section_index (fig,ax,canvas) :
+def prev_section_index (fig,ax,canvas,plot_dm) :
     global trans_model
     global section_index
     global min_index
@@ -77,6 +78,7 @@ def prev_section_index (fig,ax,canvas) :
         return
     section_index -= 1
     plot_test(fig,ax,canvas)
+    plot_dm.set(trans_model.getSection(section_index).km)
 
 def generate_model (fileA,fileB,fileC,combobox, fig, ax, canvas):
     global max_index
