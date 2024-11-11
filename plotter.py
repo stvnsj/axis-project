@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import reader as rd
 import model as md
 import numpy as np
+# import mplcursors
 
 
 class Plotter :
@@ -77,8 +78,7 @@ class Plotter :
         DIST = section.distance[indexList]
         HEIGHT = section.adjustedHeight[indexList]
         
-        # SEA LINE
-        ax.plot([DIST[0],DIST[-1]],[0,0], color='#e8e33f',linewidth=1)
+
         
         for i in range(len(DIST)):
             
@@ -94,7 +94,10 @@ class Plotter :
             
             
         # GROUND LINE 
-        ax.plot(DIST , (HEIGHT - delta_z), color = "#ff5050",linewidth=1)
+        groundline = ax.plot(DIST , (HEIGHT - delta_z), color = "#ff5050",linewidth=1)
+        # SEA LINE
+        ax.plot([DIST[0],DIST[-1]],[0,0], color='#e8e33f',linewidth=1)
+        
         ax = plt.gca()
         y_positions = np.arange(0, max_z-delta_z + 1, 1)
         y_labels = [f'{x + delta_z}' for x in y_positions]
@@ -103,12 +106,14 @@ class Plotter :
         ax.set_yticklabels(y_labels)
         fig.patch.set_facecolor('#2e2e2e')
         ax.set_facecolor('#2e2e2e')  # Sets the axes background color
-        ax.tick_params(axis='both', colors='white', labelsize=10)  # Change x-axis tick labels color to red
+        ax.tick_params(axis='both', labelsize=9)  # Change x-axis tick labels color to red
+        ax.tick_params(axis='x', colors='#e8e33f')  # Change x-axis tick labels color to red
+        ax.tick_params(axis='y', colors='#1f77b4')  # Change x-axis tick labels color to red
         ax.spines['left'].set_color('white')   # Change left axis line color to blue
         ax.spines['right'].set_color('white')  # Change right axis line color to green
         ax.spines['top'].set_color('white')   # Change top axis line color to orange
         ax.spines['bottom'].set_color('white')   # Change top axis line color to orange
-        ax.set_title(f"DM: {section.km}" , color="white")
+        # ax.set_title(f"DM: {section.km}" , color="white")
         ax.grid(True, color='#5c5c5c', linestyle='--', linewidth=0.5)
         ax.set_xticks(DIST)
         ax.tick_params(axis='x', labelrotation=90)
@@ -123,7 +128,17 @@ class Plotter :
         top_labels    = [f'{z[0]}' for z in HEIGHT]  # Custom labels for top
         top_ax.set_xticks(DIST)
         top_ax.set_xticklabels(top_labels)
+        top_ax.tick_params(colors='#ff5050', labelsize=9)
         
+        # # Add mplcursors for hover annotation
+        # cursor = mplcursors.cursor(groundline, hover=True)
+        # cursor.remove_on_exit = True 
+        
+        # def on_add(sel):
+        #     index = sel.index
+        #     # Customize as per the DIST or HEIGHT, here using HEIGHT as example
+        #     sel.annotation.set(text=f"Height: {HEIGHT[index][0] - delta_z}, Distance: {DIST[index]}")
+            
         canvas.draw()
         
 

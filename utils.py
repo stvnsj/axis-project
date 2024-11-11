@@ -15,6 +15,8 @@ def normalize_pr(string):
     else:
         raise CustomError(f"PR erróneo: {string}")
 
+
+
 class Reporter :
     
     def __init__ (self, filename):
@@ -116,9 +118,10 @@ def label_num(s):
 
 
 def normalize_fstring(s):
-    """Converts a string decimal"""
+    """Converts a string decimal number to the
+    normal representation, like 13.300"""
     try:
-        return f"{float(s):.3f}"
+        return f"{float(s.strip()):.3f}"
     except:
         return s
 

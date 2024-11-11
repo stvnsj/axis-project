@@ -323,7 +323,9 @@ notebook.add(tab6, text='PLOT')
 
 fileA = tk.StringVar() # TRANS DESCRIPTOR
 fileB = tk.StringVar() # TRANS COORDENADA
-fileC = tk.StringVar()
+fileC = tk.StringVar() # Longitudinal FILE
+
+PLOT_DM = tk.StringVar() # Current 
 
 eje_estaca_file = tk.StringVar() 
 
@@ -497,36 +499,33 @@ component.ButtonFrame(tab5, title="Análisis", button_params=button_params)
 ################################
 
 
-fig, ax = plt.subplots(figsize=(13, 13))
+fig, ax = plt.subplots(figsize=(11, 11))
 
 
-canvasFrame = tk.Frame(tab6,bd=3,relief='groove',bg='#AAAAAA')
-
-canvas = FigureCanvasTkAgg(fig, master=canvasFrame)
-
-
-toolbar = NavigationToolbar2Tk(canvas, canvasFrame)
-
-
-
-
-
-
-
+# Contains the PLOT buttons and menus.
 plot_frame = tk.Frame(tab6)
+# Contains the combobox menu.
 combobox_frame = ttk.LabelFrame(plot_frame, text="Perfil Transversal")
+# Combox menu to select a cross section DM.
 combobox = ttk.Combobox(combobox_frame, values=[])
-
+# Contains the "siguiente" and "previo" buttons.
 navigation_frame = ttk.LabelFrame(plot_frame, text="Navegar Perfiles")
-
+# Plots the next cross section.
 next_button = tk.Button(navigation_frame, text="siguiente", command=lambda: ax_com.next_section_index(fig,ax,canvas))
+# Plots the previous cross section
 prev_button = tk.Button(navigation_frame, text="previo", command=lambda: ax_com.prev_section_index(fig,ax,canvas))
-examine_button = tk.Button(navigation_frame, text="examinar", command=lambda: ax_com.prev_section_index(fig,ax,canvas))
+
+# DM Frame.
+dm_frame   = ttk.LabelFrame(plot_frame, text="DM")
+dm_display = tk.Label(dm_frame, textvariable=PLOT_DM, bg='white', bd=1, relief="solid", width=50,anchor="w")
 
 
-
-
-
+# Contains the PLOT and the Matplotlib Navigation Bar
+canvasFrame = tk.Frame(tab6,bd=5,relief='groove',bg='#BBBBBB')
+# This frame contains the PLOT
+canvas = FigureCanvasTkAgg(fig, master=canvasFrame)
+# Contains the Navigation BAR
+toolbar = NavigationToolbar2Tk(canvas, canvasFrame)
 
 def on_combobox_select(event):
     dm = combobox.get()
@@ -537,15 +536,12 @@ def on_combobox_select(event):
 
 combobox.bind("<<ComboboxSelected>>", on_combobox_select)
 
-
 button_params = [
     {"label": "Estacado con Descriptor", "stringvar": fileA, "type":"file" },
     {"label": "Estacado con Coordenadas", "stringvar": fileB , "type":"file"},
     {"label": "Longitudinal", "stringvar": fileC , "type":"file"}
 ]
-
 component.LoadFileFrame(tab6, title="Carga de Archivos", button_params = button_params)
-
 
 button_params = [
     {"label":"Generar Modelo", "command":  lambda : ax_com.generate_model(fileA, fileB, fileC, combobox,fig, ax, canvas)},
@@ -555,24 +551,21 @@ component.ButtonFrame(tab6, title="Generar Modelo", button_params=button_params)
 
 combobox_frame.grid(column=0,row=0, padx=10, pady=10,)
 navigation_frame.grid(column=1,row=0, padx=10, pady=10)
+dm_frame.grid(column=2, row=0, padx = 10, pady=10)
 
 # canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
 
-combobox.pack(padx = 5, pady = 5)
 plot_frame.pack()
 
 
-
+combobox.pack(padx = 5, pady = 5)
 #canvas.get_tk_widget().pack()
 prev_button.grid(column=0,row=0)
 next_button.grid(column=1,row=0)
 canvas.get_tk_widget().pack(fill='both' , expand=True)
 toolbar.pack()
 canvasFrame.pack(fill='both',expand=True)
-
-
-
 
 def on_closing():
     plt.close("all")  # Close all Matplotlib figures

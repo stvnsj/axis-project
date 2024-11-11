@@ -1,5 +1,6 @@
 import numpy as np
 import section as sec
+import utils
 
 
 class ModelIterator :
@@ -162,34 +163,68 @@ class Model :
         return d 
             
     
+    
+    def guessHeight (self,km):
+        dm2 = km[:-1]
+        for i in range(0,10):
+            dm3 = dm2 + f'{i}'
+            if dm3 in self.heights:
+                print(f"Cambio de dm's sugerido:\n{km} --> {dm3}\n")
+    
+    # NEW NEW NEW NEW
     def findHeight (self,km):
         
+        normalized_dm = utils.normalize_fstring(km)
+        # Check if the Dict contains the normalized dm.
         try:
-            
-            height = self.heights[km]
-            try:
-                floatHeight = np.float64(height)
-                return floatHeight
-            except ValueError:
-                print(f'> Error {self.errNum}: Altura erronea para el km {km}')
-                self.errNum = self.errNum + 1 
-                return np.float64(0)
-        
+            height = self.heights[normalized_dm]
         except KeyError:
-            try:
-                floatKm = np.float64(km)
-                for i in range(0,10):
-                    newKm = "{:.2f}".format(np.trunc(floatKm * 100) / 100) + str(i)
-                    if newKm in self.heights:
-                        print(f'> Advertencia {self.errNum}: Cota de {newKm} usada para {km}')
-                        self.errNum += 1
-                        return  np.float64(self.heights[newKm])
-                raise ValueError("Not in dict")
+            print(f'> DM {normalized_dm} no se encuentra en el archivo Longitudinal')
+            self.guessHeight(normalized_dm)
+            return np.float64(0)
+        
+        try:
+            return np.float64(height)
+        except:
+            print(f'> DM {normalized_dm} presenta un error en el archivo longitudinal')
+            return np.float64(0)
+        
+    #--------------------- FUN END : findHeight ------------------------
+    
+    # This is the function that returns an adjusted height
+    # for a given dm. All queried km are to be normalized
+    # before being queried. A normalized dm is a string
+    # representation of a decimal with 3 decimal digits
+    # at the end, whatever the value. 
+    # def findHeight (self,km):
+        
+    #     normalized_dm = utils.normalize_fstring(km)
+        
+    #     try:
+    #         height = self.heights[km]
+    #         try:
+    #             floatHeight = np.float64(height)
+    #             return floatHeight
+    #         except ValueError:
+    #             print(f'> Error {self.errNum}: Altura erronea para el km {km}')
+    #             self.errNum = self.errNum + 1 
+    #             return np.float64(0)
+        
+    #     except KeyError:
+    #         try:
+    #             floatKm = np.float64(km)
+    #             for i in range(0,10):
+    #                 newKm = "{:.2f}".format(np.trunc(floatKm * 100) / 100) + str(i)
+    #                 if newKm in self.heights:
+    #                     print(f'> Advertencia {self.errNum}: Cota de {newKm} usada para {km}')
+    #                     self.errNum += 1
+    #                     return  np.float64(self.heights[newKm])
+    #             raise ValueError("Not in dict")
                 
-            except:
-                print(f'> Error {self.errNum}: Altura de {km} no encontrada')
-                self.errNum = self.errNum + 1
-                return np.float64(0)
+    #         except:
+    #             print(f'> Error {self.errNum}: Altura de {km} no encontrada')
+    #             self.errNum = self.errNum + 1
+    #             return np.float64(0)
     
     
     def build_descriptor (self,matrix,labels):
