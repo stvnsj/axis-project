@@ -2,6 +2,7 @@ import level
 import component 
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import PhotoImage,Label
 import numpy as np
 import reader as rd
 import cad
@@ -10,25 +11,24 @@ import model as md
 import command as cmd
 import annex 
 from tkinter import ttk
+from tkinter.ttk import Style
 from tkinter import messagebox
 from tkinter import filedialog
 import annex2
 import annex5
 import annex4
 import annex8
+import annex9
 import annex11
 import annexLong
 import axisCommands as ax_com
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-
-
-
-
-# import only asksaveasfile from filedialog 
-# which is used to save file in any extension 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk 
 from tkinter.filedialog import asksaveasfile
+
+
+
 trans_model = None
 
 def generate_annex_2 ():
@@ -40,7 +40,7 @@ def generate_annex_2 ():
     if filename == "":
         return 
     
-    annex2.generate(master_table.get(),filename,src_dir=img_dir.get(), src_dir2=img_dir2.get())
+    annex2.generate(master_table_file.get(),filename,src_dir=img_dir1.get(), src_dir2=img_dir2.get())
 
 
 def generate_annex_4 ():
@@ -50,7 +50,7 @@ def generate_annex_4 ():
     )
     if filename == "":
         return 
-    annex4.generate(master_table.get(),filename)
+    annex4.generate(master_table_file.get(),filename)
 
 
 def generate_annex_5 ():
@@ -60,7 +60,7 @@ def generate_annex_5 ():
     )
     if filename == "":
         return 
-    annex5.generate(master_table.get(),filename,src_dir=img_dir.get(), src_dir2=img_dir2.get())
+    annex5.generate(master_table_file.get(),filename,src_dir=img_dir1.get(), src_dir2=img_dir2.get())
 
 def generate_annex_8 ():
     filename = filedialog.asksaveasfilename(
@@ -69,7 +69,16 @@ def generate_annex_8 ():
     )
     if filename == "":
         return 
-    annex8.generate(master_table.get(),filename)
+    annex8.generate(master_table_file.get(),filename)
+
+def generate_annex_9 ():
+    filename = filedialog.asksaveasfilename(
+        title="Nombre de Archivo",
+        filetypes=(("Text files", "*.xlsx"), ("All files", "*.*"))
+    )
+    if filename == "":
+        return 
+    annex9.generate(master_table_file.get(),filename)
 
 def generate_annex_11 ():
     filename = filedialog.asksaveasfilename(
@@ -78,7 +87,7 @@ def generate_annex_11 ():
     )
     if filename == "":
         return 
-    annex11.generate(level_annex.get(),filename)
+    annex11.generate(pr_level_file.get(),filename)
 
 
 def generate_report():
@@ -91,7 +100,7 @@ def generate_report():
     if filename == "":
         return 
     
-    cir = level.parser(circuit_file.get(),height_pr_file.get(),trigonometric_file.get())
+    cir = level.parser(libreta_file.get(),pr_height_file.get(),trigonometric_file.get())
     cir.write_circuit_table(filename)
     
 def generate_longitudinal():
@@ -104,7 +113,7 @@ def generate_longitudinal():
     if filename == "":
         return 
     
-    cir = level.parser(circuit_file.get(),height_pr_file.get(), trigonometric_file.get())
+    cir = level.parser(libreta_file.get(),pr_height_file.get(), trigonometric_file.get())
     cir.write_longitudinal(filename)
 
 def generate_height_cad():
@@ -117,7 +126,7 @@ def generate_height_cad():
     if filename == "":
         return 
     
-    cir = level.parser(circuit_file.get(),height_pr_file.get(),trigonometric_file.get())
+    cir = level.parser(libreta_file.get(),pr_height_file.get(),trigonometric_file.get())
     cir.plot(filename)
 
 
@@ -155,7 +164,7 @@ def generateCAD(inputs):
     if file_path == "":
         return 
     
-    reader = rd.Reader (fileA.get(), fileB.get(), fileC.get())
+    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
     matrix, labels, om, ol, heights = reader.getData()
     model = md.Model(heights,matrix,labels, om, ol)
     
@@ -189,7 +198,7 @@ def complete_cad(inputs):
         return 
     
     
-    reader = rd.Reader (fileA.get(), fileB.get(), fileC.get())
+    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
     matrix, labels, om, ol, heights = reader.getData()
     model = md.Model(heights,matrix,labels, om, ol)
     
@@ -215,7 +224,7 @@ def generateMOP ():
         return
     
     
-    reader = rd.Reader (fileA.get(), fileB.get(), fileC.get())
+    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
     matrix, labels, om, ol, heights = reader.getData()
     model = md.Model(heights,matrix,labels, om, ol)
     
@@ -237,7 +246,7 @@ def generateAnchos() :
     
     
     
-    reader = rd.Reader (fileA.get(), fileB.get(), fileC.get())
+    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
     matrix, labels, om, ol, heights = reader.getData()
     model = md.Model(heights,matrix,labels, om, ol)
     
@@ -255,7 +264,7 @@ def generate_anexo_trans() :
     if file_path == "":
         return 
     
-    reader = rd.Reader (fileA.get(), fileB.get(), fileC.get())
+    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
     matrix, labels, om, ol, heights = reader.getData()
     model = md.Model(heights,matrix,labels, om, ol)
     
@@ -286,7 +295,7 @@ def generateFullCAD(inputs):
     if directory == "":
         return 
     
-    reader = rd.Reader (fileA.get(), fileB.get(), fileC.get())
+    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
     matrix, labels, om, ol, heights = reader.getData()
     model = md.Model(heights,matrix,labels, om, ol)
     
@@ -304,6 +313,10 @@ root.geometry("1200x950")
 notebook = ttk.Notebook(root)
 notebook.pack(expand=True, fill='both')
 
+#s = Style()
+#s.configure('My.TFrame', background='#111111')
+
+
 # Create frames for each tab
 tab1 = ttk.Frame(notebook)
 tab2 = ttk.Frame(notebook)
@@ -320,28 +333,44 @@ notebook.add(tab4, text='ANEXO (Def.)')
 notebook.add(tab5, text='DM')
 notebook.add(tab6, text='PLOT')
 
+# bg = PhotoImage(file = "G94_g.png")
+# bg_image = Label( tab1, image = bg) 
+# bg_image.place(x = 0, y = 0) 
 
-fileA = tk.StringVar() # TRANS DESCRIPTOR
-fileB = tk.StringVar() # TRANS COORDENADA
-fileC = tk.StringVar() # Longitudinal FILE
 
-PLOT_DM = tk.StringVar() # Current 
+descriptor_file = tk.StringVar() # TRANS DESCRIPTOR
+coordinate_file = tk.StringVar() # TRANS COORDENADA
+longitudinal_file = tk.StringVar() # Longitudinal FILE
+
+plot_index = tk.StringVar() # Current 
 
 eje_estaca_file = tk.StringVar() 
 
-img_dir = tk.StringVar()
+img_dir1 = tk.StringVar()
 img_dir2 = tk.StringVar()
 
-master_table = tk.StringVar()
-level_annex  = tk.StringVar() 
+master_table_file = tk.StringVar()
+pr_level_file  = tk.StringVar() 
 
-height_pr_file = tk.StringVar()
-circuit_file   = tk.StringVar()
+pr_height_file = tk.StringVar()
+libreta_file   = tk.StringVar()
 trigonometric_file = tk.StringVar()
 
 meter0 = tk.StringVar()
 meter1 = tk.StringVar()
 
+
+descriptor_file_param = {"label": "Estacado con Descriptor", "stringvar": descriptor_file, "type":"file" , "field": 'estacado-descriptor'}
+coordinate_file_param = {"label": "Estacado con Coordenadas", "stringvar": coordinate_file , "type":"file", 'field': "estacado-coordenadas"}
+longitudinal_file_param = {"label": "Longitudinal", "stringvar": longitudinal_file , "type":"file", 'field': 'longitudinal'}
+pr_height_file_param = {"label": "Cotas Topograficas", "stringvar": pr_height_file , "type":"file", 'field':'cotas-pr'}
+libreta_file_param = {"label": "Circuito Nivelación", "stringvar": libreta_file , "type":"file", 'field':'libreta'}
+trigonometric_file_param = {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file", 'field':'trigonometrica'}
+master_table_file_param = {"label":"Anexo 1 (Tabla Maestra)", "stringvar": master_table_file ,  "type":"file", "field":"anexo-1"}
+pr_level_file_param = {"label":"Anexo 10 (Nivelación)"  , "stringvar": pr_level_file , "type":"file", "field":"anexo-10"}
+img_dir1_param = {"label":"Imagenes (Pan. Det.)"   , "stringvar": img_dir1 , "type":"dir", "field":'fotos'}
+img_dir2_param = {"label":"Imagenes (Geo.)"        , "stringvar": img_dir2 , "type":"dir", "field":'georef'}
+eje_estaca_file_param = {"label":"Eje Estaca", "stringvar": eje_estaca_file, "type":"file", "field":'eje-estaca'}
 
 ################
 # ############ #
@@ -350,9 +379,9 @@ meter1 = tk.StringVar()
 ################
 
 button_params = [
-    {"label": "Estacado con Descriptor", "stringvar": fileA, "type":"file" },
-    {"label": "Estacado con Coordenadas", "stringvar": fileB , "type":"file"},
-    {"label": "Longitudinal", "stringvar": fileC , "type":"file"}
+    descriptor_file_param,
+    coordinate_file_param,
+    longitudinal_file_param
 ]
 component.LoadFileFrame(tab1, title="Carga de Archivos", button_params = button_params)
 
@@ -391,9 +420,9 @@ component.ButtonFrame(tab1, title="Planillas", button_params=button_params)
 #######################
 
 button_params = [
-    {"label": "Cotas Topograficas", "stringvar": height_pr_file , "type":"file"},
-    {"label": "Circuito Nivelación", "stringvar": circuit_file , "type":"file"},
-    {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
+    pr_height_file_param,
+    libreta_file_param,
+    trigonometric_file_param,
 ]
 component.LoadFileFrame(tab2, title="Carga de Archivos", button_params = button_params)
 
@@ -413,11 +442,7 @@ component.ButtonFrame(tab2, title="Planillas", button_params=button_params)
 # ################ #
 ####################
 
-button_params = [
-    {"label": "Estacado con Descriptor", "stringvar": fileA , "type":"file"},
-    {"label": "Estacado con Coordenadas", "stringvar": fileB, "type":"file" },
-    {"label": "Longitudinal", "stringvar": fileC, "type":"file"}
-]
+button_params = [descriptor_file_param, coordinate_file_param, longitudinal_file_param]
 component.LoadFileFrame(tab4, title="Carga de Archivos Estacado", button_params = button_params)
 
 
@@ -427,19 +452,14 @@ button_params = [
 component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
 
 
-button_params = [
-    {"label": "Cotas PR", "stringvar": height_pr_file , "type":"file"},
-    {"label": "Libreta", "stringvar": circuit_file , "type":"file"},
-    {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
-]
+button_params = [pr_height_file_param,libreta_file_param,trigonometric_file_param]
 component.LoadFileFrame(tab4, title="Carga de Archivos Nivelación", button_params = button_params)
 
 button_params = [
     {"label":"3 - Nivelación Longitudinal del Eje Estacado (2.5.3)",
-     "command": ax_com.generate_annex_long(circuit_file, height_pr_file, trigonometric_file)},
+     "command": ax_com.generate_annex_long(libreta_file, pr_height_file, trigonometric_file)},
 ]
 component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
-
 
 
 
@@ -447,10 +467,10 @@ component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_p
 # ANEXO ANTEPROYECTO   #
 ########################
 button_params = [
-    {"label":"Anexo 1 (Tabla Maestra)", "stringvar": master_table ,  "type":"file"},
-    {"label":"Anexo 10 (Nivelación)"  , "stringvar": level_annex , "type":"file"},
-    {"label":"Imagenes (Pan. Det.)"   , "stringvar": img_dir , "type":"dir"},
-    {"label":"Imagenes (Geo.)"        , "stringvar": img_dir2 , "type":"dir"},
+    master_table_file_param,
+    pr_level_file_param,
+    img_dir1_param,
+    img_dir2_param,
 ]
 
 component.LoadFileFrame(tab3, title='Carga de Anexos', button_params=button_params)
@@ -461,6 +481,7 @@ button_params = [
     {"label":"4 - Resumen de Coordenadas de la Red de Referencia Principal (2.903.3.G)", "command":generate_annex_4},
     {"label":"5 - Formulario de Ubicación de Vértices del STC (2.303.104.A)", "command":generate_annex_5},
     {"label":"8 - Coordenadas de Vértices del STC (2.303.104.B)", "command":generate_annex_8},
+    {"label":"9 - Monografías de PR", "command":generate_annex_9},
     {"label":"11 - Cotas de PR (2.903.3.I)", "command":generate_annex_11},
 ]
 component.ButtonFrame(tab3, title="Generación de Anexos (ANTEPROYECTO)", button_params=button_params)
@@ -469,18 +490,20 @@ component.ButtonFrame(tab3, title="Generación de Anexos (ANTEPROYECTO)", button
 ###############
 # DM ANALYSIS #
 ###############
+
+
+
 button_params = [
-    {"label":"Eje Estaca", "stringvar": eje_estaca_file, "type":"file"},
-    {"label": "Estacado con Descriptor", "stringvar": fileA, "type":"file" },
-    {"label": "Estacado con Coordenadas", "stringvar": fileB , "type":"file"},
-    {"label": "Libreta", "stringvar": circuit_file , "type":"file"},
-    {"label": "Alturas Trigonométricas", "stringvar": trigonometric_file, "type":"file"}
-    
+    eje_estaca_file_param,
+    descriptor_file_param,
+    coordinate_file_param,
+    libreta_file_param,
+    trigonometric_file_param,
 ]  
 component.LoadFileFrame(tab5, title='Carga de Archivos', button_params=button_params)
 
 button_params = [
-    {"label":"Analisis DM", "command":ax_com.get_dm_analysis(eje_estaca_file,fileA,fileB,circuit_file,trigonometric_file)},
+    {"label":"Analisis DM", "command":ax_com.get_dm_analysis(eje_estaca_file,descriptor_file,coordinate_file,libreta_file,trigonometric_file)},
 ]
 component.ButtonFrame(tab5, title="Análisis", button_params=button_params)
 
@@ -500,8 +523,6 @@ component.ButtonFrame(tab5, title="Análisis", button_params=button_params)
 
 
 fig, ax = plt.subplots(figsize=(11, 11))
-
-
 # Contains the PLOT buttons and menus.
 plot_frame = tk.Frame(tab6)
 # Contains the combobox menu.
@@ -511,13 +532,13 @@ combobox = ttk.Combobox(combobox_frame, values=[])
 # Contains the "siguiente" and "previo" buttons.
 navigation_frame = ttk.LabelFrame(plot_frame, text="Navegar Perfiles")
 # Plots the next cross section.
-next_button = tk.Button(navigation_frame, text="siguiente", command=lambda: ax_com.next_section_index(fig,ax,canvas,PLOT_DM))
+next_button = tk.Button(navigation_frame, text="siguiente", command=lambda: ax_com.next_section_index(fig,ax,canvas,plot_index))
 # Plots the previous cross section
-prev_button = tk.Button(navigation_frame, text="previo", command=lambda: ax_com.prev_section_index(fig,ax,canvas, PLOT_DM))
+prev_button = tk.Button(navigation_frame, text="previo", command=lambda: ax_com.prev_section_index(fig,ax,canvas, plot_index))
 
 # DM Frame.
 dm_frame   = ttk.LabelFrame(plot_frame, text="DM")
-dm_display = tk.Label(dm_frame, textvariable=PLOT_DM, bg='white', bd=1, relief="solid", width=10,anchor="w")
+dm_display = tk.Label(dm_frame, textvariable=plot_index, bg='white', bd=1, relief="solid", width=10,anchor="w")
 
 
 # Contains the PLOT and the Matplotlib Navigation Bar
@@ -532,19 +553,19 @@ def on_combobox_select(event):
     i  = ax_com.km_idx_dict.get(dm)
     ax_com.update_section_index(i)
     ax_com.plot_test(fig,ax,canvas)
-    PLOT_DM.set(dm)
+    plot_index.set(dm)
 
 combobox.bind("<<ComboboxSelected>>", on_combobox_select)
 
 button_params = [
-    {"label": "Estacado con Descriptor", "stringvar": fileA, "type":"file" },
-    {"label": "Estacado con Coordenadas", "stringvar": fileB , "type":"file"},
-    {"label": "Longitudinal", "stringvar": fileC , "type":"file"}
+    descriptor_file_param,
+    coordinate_file_param,
+    longitudinal_file_param,
 ]
 component.LoadFileFrame(tab6, title="Carga de Archivos", button_params = button_params)
 
 button_params = [
-    {"label":"Generar Modelo", "command":  lambda : ax_com.generate_model(fileA, fileB, fileC, combobox,fig, ax, canvas)},
+    {"label":"Generar Modelo", "command":  lambda : ax_com.generate_model(descriptor_file, coordinate_file, longitudinal_file, combobox,fig, ax, canvas)},
 #    {"label":"Graficar",       "command":  lambda : ax_com.plot_test(fig,ax,canvas)}
 ]
 component.ButtonFrame(tab6, title="Generar Modelo", button_params=button_params)

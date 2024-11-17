@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-
+import utils
 
 class Reader :
     
@@ -22,7 +22,7 @@ class Reader :
             self.oriented_labels = None
             
         if path3 : 
-            self.heights = np.genfromtxt(path3, delimiter=',', skip_header=0, dtype=str,invalid_raise=False)
+            self.heights = utils.normalize_fstring_array(np.genfromtxt(path3, delimiter=',', skip_header=0, dtype=str,invalid_raise=False))
             
         else :
             self.heights = None

@@ -3,6 +3,8 @@ import model as md
 import reader as rd
 import sys
 import spreadsheet as ss
+import gui.test as test
+
 
 
 def main():
@@ -25,4 +27,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    test.X = 3
+    test.print_x()
