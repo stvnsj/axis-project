@@ -17,7 +17,7 @@ import os
 import glob
 import annexImg
 
-OFFSET   = 38
+OFFSET   = 30
 PAGEBREAKS = []
 
 def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xlsx", src_dir="img", src_dir2="img_geo") :
@@ -181,7 +181,7 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
         
         writer.write(
             f'U{17 + i * OFFSET}',
-            "N:"
+            "E:"
         )
         
         
@@ -192,19 +192,12 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
             Format.SIZE(11), Format.BOTTOM, Format.CENTER
         )
         
-        writer.merge(
-            f"N{25 + i * OFFSET}:P{25 + i * OFFSET}",
-            CELL_altura,
-            Format.NUM
-        )
-        
         
         writer.merge(f"M{15 + i * OFFSET}:P{15 + i * OFFSET}", CELL_dm,Format.CENTER,Format.SIZE(10),Format.BOTTOM,Format.NUM2)
         writer.write(f"U{15 + i * OFFSET}", "D", Format.CENTER, Format.BBOTTOM)
         writer.write(f"W{15 + i * OFFSET}","FECHA:",Format.SIZE(10))
         writer.merge(f"Y{15 + i * OFFSET}:Z{15 + i * OFFSET}", annexUtils.curr_date(1),Format.BOTTOM,Format.CENTER,Format.SIZE(10))
         
-        writer.merge(f"N{18 + i * OFFSET}:S{19 + i * OFFSET}", "UTM",Format.SIZE(11),Format.CENTER,Format.VCENTER)
         
         
         
@@ -219,18 +212,18 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
             match_p = glob.glob(img_path_p)
             
             if match_a:
-                worksheet.insert_image(f'B{41 + i * OFFSET}', match_a[0] , {'object_position': 1})
+                worksheet.insert_image(f'B{33 + i * OFFSET}', match_a[0] , {'object_position': 1})
             else :
                 writer.merge(
-                    f"B{41 + i * OFFSET}:F{48 + i * OFFSET}","Fotografía\nDetalle",
+                    f"B{33 + i * OFFSET}:F{40 + i * OFFSET}","Fotografía\nDetalle",
                     Format.BORDER,
                     Format.CENTER,Format.VCENTER)
             
             if match_p:
-                worksheet.insert_image(f'B{27 + i * OFFSET}', match_p[0],  {'object_position': 1})
+                worksheet.insert_image(f'B{19 + i * OFFSET}', match_p[0],  {'object_position': 1})
             else:
                 writer.merge(
-                    f"B{27 + i * OFFSET}:L{39 + i * OFFSET}","Fotografía\nPanorámica",
+                    f"B{19 + i * OFFSET}:L{31 + i * OFFSET}","Fotografía\nPanorámica",
                     Format.BORDER,
                     Format.CENTER,Format.VCENTER)
         
@@ -241,39 +234,39 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
             match_g = glob.glob(img_path_g)
             
             if match_g:
-                worksheet.insert_image(f'N{27 + i * OFFSET}', match_g[0] , {'object_position': 1})
+                worksheet.insert_image(f'N{19 + i * OFFSET}', match_g[0] , {'object_position': 1})
             else:
                 writer.merge(
-                    f"N{27 + i * OFFSET}:Z{39 + i * OFFSET}","Vista\nAérea",
+                    f"N{19 + i * OFFSET}:Z{31 + i * OFFSET}","Vista\nAérea",
                     Format.BORDER,
                     Format.CENTER,Format.VCENTER)
         
         
-        writer.merge(f"H{41 + i * OFFSET}:Z{41 + i * OFFSET}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
+        writer.merge(f"H{41-8 + i * OFFSET}:Z{41-8 + i * OFFSET}","Descripción",Format.BOTTOM,Format.LEFT,Format.SIZE(10))
         
-        writer.write(f'I{43 + i * OFFSET}', "Materialidad:",Format.SIZE(9))
-        writer.write(f'I{44 + i * OFFSET}', "Dimensiones:",Format.SIZE(9))
-        writer.merge(f'I{45 + i * OFFSET}:N{45 + i * OFFSET}', "Distancia a la Ruta:",Format.SIZE(9))
-        writer.merge(f'O{45 + i * OFFSET}:Q{45 + i * OFFSET}', CELL_dist, Format.SIZE(9), Format.NUM2)
-        writer.write(f'R{45 + i * OFFSET}', "m.", Format.SIZE(9), Format.LEFT)
+        writer.write(f'I{43-8 + i * OFFSET}', "Materialidad:",Format.SIZE(9))
+        writer.write(f'I{44-8 + i * OFFSET}', "Dimensiones:",Format.SIZE(9))
+        writer.merge(f'I{45-8 + i * OFFSET}:N{45-8 + i * OFFSET}', "Distancia a la Ruta:",Format.SIZE(9))
+        writer.merge(f'O{45-8 + i * OFFSET}:Q{45-8 + i * OFFSET}', CELL_dist, Format.SIZE(9), Format.NUM2)
+        writer.write(f'R{45-8 + i * OFFSET}', "m.", Format.SIZE(9), Format.LEFT)
         
-        writer.write(f'L{43 + i * OFFSET}', "MONOLITO DE HORMIGÓN, PINTADO DE AMARILLO", Format.SIZE(9))
-        writer.write(f'L{44 + i * OFFSET}', "D: 15 cm. FIERRO ESTRIADO 12 mm.", Format.SIZE(9))
+        writer.write(f'L{43-8 + i * OFFSET}', "MONOLITO DE HORMIGÓN, PINTADO DE AMARILLO", Format.SIZE(9))
+        writer.write(f'L{44-8 + i * OFFSET}', "D: 15 cm. FIERRO ESTRIADO 12 mm.", Format.SIZE(9))
         
-        writer.merge(f"G{42 + i * OFFSET}:G{48 + i * OFFSET}","",Format.BRIGHT)
-        writer.merge(f"AA{42 + i * OFFSET}:AA{48 + i * OFFSET}","",Format.BLEFT)
-        writer.merge(f"H{49 + i * OFFSET}:Z{49 + i * OFFSET}","",Format.TOP)
-        writer.merge(f"A{50 + i * OFFSET}:AA{50 + i * OFFSET}","",{})
+        writer.merge(f"G{42-8 + i * OFFSET}:G{48-8 + i * OFFSET}","",Format.BRIGHT)
+        writer.merge(f"AA{42-8 + i * OFFSET}:AA{48-8 + i * OFFSET}","",Format.BLEFT)
+        writer.merge(f"H{49-8 + i * OFFSET}:Z{49-8 + i * OFFSET}","",Format.TOP)
+        writer.merge(f"A{50-8 + i * OFFSET}:AA{50-8 + i * OFFSET}","",{})
         
         # ROW_DICT.update({15 + i * OFFSET : 0.25})
         # ROW_DICT.update({16 + i * OFFSET : 0.45})
         # ROW_DICT.update({17 + i * OFFSET : 0.14})
         # ROW_DICT.update({18 + i * OFFSET : 0.14})
         
-        ROW_DICT.update({key:0.16 for key in range(27 + i*OFFSET , 39 + i*OFFSET)})  
-        ROW_DICT.update({key:0.175 for key in range(41 + i*OFFSET , 48 + i*OFFSET)})  
+        ROW_DICT.update({key:0.16 for key in range(19 + i*OFFSET , 31 + i*OFFSET)})  # - 8
+        ROW_DICT.update({key:0.175 for key in range(33 + i*OFFSET , 40 + i*OFFSET)})  
         
-        PAGEBREAKS.append(50 + i * OFFSET)
+        PAGEBREAKS.append(50-8 + i * OFFSET)
         
         i += 1
     
@@ -289,4 +282,4 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
 
 
 if __name__ == "__main__":
-    generate(src_dir = '', src_dir2= '')
+    generate(input_file='/home/jstvns/axis/axis/anexos/anteproyecto/anexo1.xlsx',output_file="../test9.xlsx", src_dir = '', src_dir2= '')

@@ -69,7 +69,7 @@ class LoadFileFrame(tk.Frame):
  
     def insert_button (self, label, stringvar, typ = "file", field="cotas-pr"):
         
-        stringvar.set(config.read_loaded_files(field))
+
         
         if typ == "file":
             button    = tk.Button(self.frame_grid, text="Cargar", command=lambda:self.load_file_command(stringvar,field))
@@ -81,13 +81,12 @@ class LoadFileFrame(tk.Frame):
         
         text_area = tk.Text(self.frame_grid, wrap="word", state="disabled",height=1)
         #text_area.pack(expand=True, fill="both")
-        filelabel = tk.Label(self.frame_grid,  textvariable=stringvar, bg='white', bd=1, relief="solid", width=65,anchor="w")
         button.grid(row=self.row,column = 0)
         del_button.grid(row=self.row, column=1)
         text_area.grid(row=self.row,column=2, padx=13)
         label.grid(row=self.row,column=3)
-        
         stringvar.trace_add("write", lambda var_name, index, operation : update_text_from_stringvar(text_area ,stringvar,var_name, index, operation))
+        stringvar.set(config.read_loaded_files(field))
     
     def load_file_command(self,stringvar,field) :
         path = filedialog.askopenfilename(
