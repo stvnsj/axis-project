@@ -13,6 +13,7 @@ from annexUtils import Writer
 from annexUtils import Formatter
 import annexUtils
 from openpyxl import load_workbook
+
 import os
 import glob
 import annexImg
@@ -29,7 +30,7 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
     writer = Writer(workbook,worksheet)
     wb = load_workbook(input_file)
     ws = wb.active
-    scanner = annexUtils.Scanner(ws)
+    scanner = annexUtils.PRScanner(ws)
     dst_dir = None
     dst_dir2 = None
     
@@ -109,9 +110,9 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
     writer.merge(f'D10:Y10', scanner.TRAMO,Format.SIZE(10))
     writer.merge(f'D12:R12',scanner.REALIZADO,Format.SIZE(10))
     
-    
+    min_data_row = scanner.MIN_DATA_ROW
+    max_data_row = scanner.MAX_DATA_ROW
   
-    t_rows = scanner.get_t_rows()
     i = 0
     
     if src_dir:
@@ -122,79 +123,49 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
     
     
     # LOOP THE FOLLOWING CELLS 
-    for r in t_rows :
-        
-        #CELL_nombre = ws[f'C{r}'].value # DONE
-        POINT = scanner.get_est(r)
-        
-        CELL_f      = scanner.get_geo_s(r)
-        CELL_l      = scanner.get_geo_w(r)
-        CELL_h      = scanner.get_elip(r)
-        
-        POLY_NUM    = scanner.get_poligonal_num(r)
-        
-        CELL_X      = scanner.get_geo_x(r)
-        CELL_Y      = scanner.get_geo_y(r)
-        CELL_Z      = scanner.get_geo_z(r)
-        
-        CELL_N      = scanner.get_utm_n(r)
-        CELL_E      = scanner.get_utm_e(r)
-        
-        CELL_altura = scanner.get_cota_orto(r)
-        CELL_cota   = scanner.get_cota_geo(r)
-        
-        CELL_dm     = scanner.get_dm(r)
-        CELL_dist   = scanner.get_dist(r)
-        
-        
-        # CELL_NL     = ws[f'K{r}'].value
-        # CELL_EL     = ws[f'L{r}'].value
-        # CELL_MCL    = ws['H9'].value
-        # CELL_Ko     = ws['H12'].value
-        
-        
+    for r in range(min_data_row, max_data_row) :
+        pr_punto = scanner.get_punto(r)
+        pr_dm    = scanner.get_dm(r)
+        pr_lado  = scanner.get_lado(r)
+        pr_dist  = scanner.get_dist(r)
+        pr_n     = scanner.get_n(r)
+        pr_e     = scanner.get_e(r)
+        pr_cota  = scanner.get_cota(r)
         
         writer.write(f"B{15 + i * OFFSET}","Identificación del Punto",Format.BOLD, Format.ITALIC, Format.SIZE(10))
         writer.write(f"F{15 + i * OFFSET}", "PR:", Format.SIZE(10))
         writer.write(f"K{15 + i * OFFSET}", "Dm. Ref.:",Format.SIZE(10))
         writer.write(f"R{15 + i * OFFSET}", "Lado:")
         
-        writer.write(
-            f'F{16 + i * OFFSET}',
-            "Cota:",
-            Format.SIZE(10)
-        )
         
-        writer.merge(f"H{16 + i * OFFSET}:I{16 + i * OFFSET}", "23.43", Format.NUM)
-        writer.write(f"J{16 + i * OFFSET}", "m")
+        writer.write(f'F{16 + i * OFFSET}', "Cota:",Format.SIZE(10))
+        writer.merge(f"H{16 + i * OFFSET}:J{16 + i * OFFSET}", pr_cota, Format.NUM)
+        writer.write(f"K{16 + i * OFFSET}", "m")
         
         writer.write(
-            f'L{16 + i * OFFSET}',
+            f'M{16 + i * OFFSET}',
             "Coordenadas de Navegación UTM:",
             Format.SIZE(10)
         )
         
-        writer.write(
-            f'U{16 + i * OFFSET}',
-            "N:"
-        )
+        writer.write(f'V{16 + i * OFFSET}', "N:")
+        writer.write(f'V{17 + i * OFFSET}', "E:")
         
-        writer.write(
-            f'U{17 + i * OFFSET}',
-            "E:"
-        )
+        writer.merge(f'W{16 + i * OFFSET}:Z{16 + i * OFFSET}', pr_n, Format.NUM)
+        writer.merge(f'W{17 + i * OFFSET}:Z{17 + i * OFFSET}', pr_e, Format.NUM)
+        
         
         
         
         writer.merge(
             f"H{15 + i * OFFSET}:I{15 + i * OFFSET}",
-            POINT,
+            pr_punto,
             Format.SIZE(11), Format.BOTTOM, Format.CENTER
         )
         
         
-        writer.merge(f"M{15 + i * OFFSET}:P{15 + i * OFFSET}", CELL_dm,Format.CENTER,Format.SIZE(10),Format.BOTTOM,Format.NUM2)
-        writer.write(f"U{15 + i * OFFSET}", "D", Format.CENTER, Format.BBOTTOM)
+        writer.merge(f"M{15 + i * OFFSET}:P{15 + i * OFFSET}",pr_dm,Format.CENTER,Format.SIZE(10),Format.BOTTOM,Format.NUM2)
+        writer.merge(f"T{15 + i * OFFSET}:U{15 + i * OFFSET}", pr_lado, Format.CENTER, Format.BBOTTOM)
         writer.write(f"W{15 + i * OFFSET}","FECHA:",Format.SIZE(10))
         writer.merge(f"Y{15 + i * OFFSET}:Z{15 + i * OFFSET}", annexUtils.curr_date(1),Format.BOTTOM,Format.CENTER,Format.SIZE(10))
         
@@ -203,10 +174,9 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
         
         
         if src_dir:
-            cleaned_point = POINT.replace("-", "")
             
-            img_path_a = os.path.join(dst_dir, f'{POINT}*', f'{cleaned_point}_a.*')
-            img_path_p = os.path.join(dst_dir, f'{POINT}*', f'{cleaned_point}_p.*')
+            img_path_a = os.path.join(dst_dir, f'{pr_punto}*', f'{pr_punto}_a.*')
+            img_path_p = os.path.join(dst_dir, f'{pr_punto}*', f'{pr_punto}_p.*')
             
             match_a = glob.glob(img_path_a)
             match_p = glob.glob(img_path_p)
@@ -226,11 +196,9 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
                     f"B{19 + i * OFFSET}:L{31 + i * OFFSET}","Fotografía\nPanorámica",
                     Format.BORDER,
                     Format.CENTER,Format.VCENTER)
-        
      
         if src_dir2 :
-            cleaned_point = POINT.replace("-", "")
-            img_path_g = os.path.join(dst_dir2, f'{cleaned_point}_g.*')
+            img_path_g = os.path.join(dst_dir2, f'{pr_punto}_g.*')
             match_g = glob.glob(img_path_g)
             
             if match_g:
@@ -247,21 +215,19 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
         writer.write(f'I{43-8 + i * OFFSET}', "Materialidad:",Format.SIZE(9))
         writer.write(f'I{44-8 + i * OFFSET}', "Dimensiones:",Format.SIZE(9))
         writer.merge(f'I{45-8 + i * OFFSET}:N{45-8 + i * OFFSET}', "Distancia a la Ruta:",Format.SIZE(9))
-        writer.merge(f'O{45-8 + i * OFFSET}:Q{45-8 + i * OFFSET}', CELL_dist, Format.SIZE(9), Format.NUM2)
+        writer.merge(f'O{45-8 + i * OFFSET}:Q{45-8 + i * OFFSET}', pr_dist, Format.SIZE(9), Format.NUM2)
         writer.write(f'R{45-8 + i * OFFSET}', "m.", Format.SIZE(9), Format.LEFT)
         
         writer.write(f'L{43-8 + i * OFFSET}', "MONOLITO DE HORMIGÓN, PINTADO DE AMARILLO", Format.SIZE(9))
-        writer.write(f'L{44-8 + i * OFFSET}', "D: 15 cm. FIERRO ESTRIADO 12 mm.", Format.SIZE(9))
+        writer.write(f'L{44-8 + i * OFFSET}', "30,0 X 30,0 X 50,0 cm.", Format.SIZE(9))
         
         writer.merge(f"G{42-8 + i * OFFSET}:G{48-8 + i * OFFSET}","",Format.BRIGHT)
         writer.merge(f"AA{42-8 + i * OFFSET}:AA{48-8 + i * OFFSET}","",Format.BLEFT)
         writer.merge(f"H{49-8 + i * OFFSET}:Z{49-8 + i * OFFSET}","",Format.TOP)
         writer.merge(f"A{50-8 + i * OFFSET}:AA{50-8 + i * OFFSET}","",{})
         
-        # ROW_DICT.update({15 + i * OFFSET : 0.25})
-        # ROW_DICT.update({16 + i * OFFSET : 0.45})
-        # ROW_DICT.update({17 + i * OFFSET : 0.14})
-        # ROW_DICT.update({18 + i * OFFSET : 0.14})
+        ROW_DICT.update({15 : 0.33})
+        
         
         ROW_DICT.update({key:0.16 for key in range(19 + i*OFFSET , 31 + i*OFFSET)})  # - 8
         ROW_DICT.update({key:0.175 for key in range(33 + i*OFFSET , 40 + i*OFFSET)})  
@@ -282,4 +248,4 @@ def generate (input_file='anexos/anteproyecto/anexo1.xlsx',output_file="test5.xl
 
 
 if __name__ == "__main__":
-    generate(input_file='/home/jstvns/axis/axis/anexos/anteproyecto/anexo1.xlsx',output_file="../test9.xlsx", src_dir = '', src_dir2= '')
+    generate(input_file='/home/jstvns/axis/axis/anexos/anteproyecto/anexo0.xlsx', output_file="../test9.xlsx", src_dir = '../img', src_dir2= '../geo')

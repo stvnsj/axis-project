@@ -3,6 +3,13 @@
 
 from PIL import Image, ImageDraw, ImageFont
 
+def adjust_annex9_geo (filename, output_file, HEIGHT = 5.31, WIDTH = 8.122, POINT = "PR31_g"):
+    adjust_img(filename, output_file, HEIGHT, WIDTH, GEO=True, POINT=POINT)
+def adjust_annex9_panoramic (filename, output_file, HEIGHT = 5.31, WIDTH  = 7.45) :
+    adjust_img (filename, output_file, HEIGHT, WIDTH )
+def adjust_annex9_detail (filename, output_file, HEIGHT=3.5, WIDTH=4.05) :
+    adjust_img (filename, output_file, HEIGHT , WIDTH)
+
 
 ######################
 # ANNEX 2 ADJUSTMENT #
@@ -29,22 +36,6 @@ def adjust_annex5_panoramic (filename, output_file, HEIGHT = 5.31, WIDTH  = 7.45
 def adjust_annex5_detail (filename, output_file, HEIGHT=3.5, WIDTH=4.05) :
     adjust_img (filename, output_file, HEIGHT , WIDTH)
 
-def zoom_img (image, factor):
-
-    width, height = image.size
-    
-    # Calculate crop box for center zoom
-    crop_width = int(width / factor)
-    crop_height = int(height / factor)
-    left = (width - crop_width) // 2
-    top = (height - crop_height) // 2
-    right = left + crop_width
-    bottom = top + crop_height
-    
-    # Crop and resize back to original size
-    cropped_image = image.crop((left, top, right, bottom))
-    return cropped_image
-
 
 
 ###################################################
@@ -52,7 +43,7 @@ def zoom_img (image, factor):
 # to be inserted in the georeferenced images of   #
 # Annex 2, 4, 5                                   #
 ###################################################
-def create_annotation (PREFIX = "T") :
+def create_annotation (PREFIX = "R") :
     
     font_size = 12
     font_path = "/usr/share/fonts/truetype/lato/Lato-Medium.ttf"
@@ -130,7 +121,6 @@ def adjust_img (filename, output_file, HEIGHT , WIDTH, GEO=False, POINT = "T242_
    
     
     if GEO:
-        
         overlay = Image.open("annotation/NORTH.png")
         annot   = Image.open(f"annotation/{POINT}.png")
         annot_x =  resized_img.width - annot.width - 3
@@ -149,7 +139,7 @@ def adjust_img (filename, output_file, HEIGHT , WIDTH, GEO=False, POINT = "T242_
             width=1
         )
         
-        resized_img.save(output_file, format="JPEG",quality=95)
+        resized_img.save(output_file, format="PNG",quality=95)
         
         return
     
@@ -165,6 +155,6 @@ def adjust_img (filename, output_file, HEIGHT , WIDTH, GEO=False, POINT = "T242_
 
 if __name__ == "__main__":
     print("imgConverter")
-    create_annotation(PREFIX="G")
+    create_annotation(PREFIX="PR")
 
 

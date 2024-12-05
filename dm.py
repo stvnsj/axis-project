@@ -84,7 +84,7 @@ def process_dm (
         f4="",   #Archivo de Libreta
         f5="",   #Archivo de Parche Trigonometrico
         filename = ""
-): 
+):
     
     master_set  = DM (f1) 
     
@@ -95,8 +95,8 @@ def process_dm (
     trig_set    = DM (f5)
     
     
-    total_dm_set   = trans_coor_set.get_dm_set() | trans_desc_set.get_dm_set() | libreta_set.get_dm_set() | master_set.get_dm_set() | trig_set.get_dm_set()
-    total_dm_list  = sorted(list(total_dm_set), key=lambda s : strToFltKey(s))
+    total_dm_set   = libreta_set.get_dm_set() | master_set.get_dm_set() | trig_set.get_dm_set()
+    total_dm_list  = sorted(list(total_dm_set), key=lambda s : strToFltKey(utils.normalize_fstring(s)))
     
     
     workbook = xlsxwriter.Workbook(filename)

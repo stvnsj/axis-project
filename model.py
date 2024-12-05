@@ -24,17 +24,20 @@ class ModelIterator :
 
 
 class Model :
-    """Represents an order set of cross sections."""
+    """Represents an ordered sequence of cross sections."""
     
     def __init__ (self,
                   heights, # String Matrix (dm,h) file "longitudinal"
                   matrix = None, # Data with descriptors
-                  labels= None , # Label with descriptors
-                  orientedMatrix = None, # Data with Coordinates
-                  orientedLabels = None):  # Labels with coordinates
+                  labels= None,  # Label with descriptors
+                  orientedMatrix = None,  # Data with Coordinates
+                  orientedLabels = None): # Labels with coordinates
         
         # String Matrix (dm,h) file "longitudinal"
         self.heights = dict(heights) if heights is not None else {}
+        
+        if heights is None:
+            print(">> Advertencia: No se cargó un archivo longitudinal")
         
         # Kilometers of this model. It is not clear to me if I
         # have yet used this list. TODO: should be renamed to self.dms
@@ -171,60 +174,23 @@ class Model :
             if dm3 in self.heights:
                 print(f"Cambio de dm's sugerido:\n{km} --> {dm3}\n")
     
-    # NEW NEW NEW NEW
-    def findHeight (self,km):
+    
+    def findHeight (self,km,default=0):
         
         normalized_dm = utils.normalize_fstring(km)
         # Check if the Dict contains the normalized dm.
         try:
             height = self.heights[normalized_dm]
         except KeyError:
-            print(f'> DM {normalized_dm} no se encuentra en el archivo Longitudinal')
+            print(f'>> Advertencia: DM {normalized_dm} no se encuentra en el archivo Longitudinal')
             self.guessHeight(normalized_dm)
-            return np.float64(0)
+            return default
         
         try:
             return np.float64(height)
         except:
-            print(f'> DM {normalized_dm} presenta un error en el archivo longitudinal')
-            return np.float64(0)
-        
-    #--------------------- FUN END : findHeight ------------------------
-    
-    # This is the function that returns an adjusted height
-    # for a given dm. All queried km are to be normalized
-    # before being queried. A normalized dm is a string
-    # representation of a decimal with 3 decimal digits
-    # at the end, whatever the value. 
-    # def findHeight (self,km):
-        
-    #     normalized_dm = utils.normalize_fstring(km)
-        
-    #     try:
-    #         height = self.heights[km]
-    #         try:
-    #             floatHeight = np.float64(height)
-    #             return floatHeight
-    #         except ValueError:
-    #             print(f'> Error {self.errNum}: Altura erronea para el km {km}')
-    #             self.errNum = self.errNum + 1 
-    #             return np.float64(0)
-        
-    #     except KeyError:
-    #         try:
-    #             floatKm = np.float64(km)
-    #             for i in range(0,10):
-    #                 newKm = "{:.2f}".format(np.trunc(floatKm * 100) / 100) + str(i)
-    #                 if newKm in self.heights:
-    #                     print(f'> Advertencia {self.errNum}: Cota de {newKm} usada para {km}')
-    #                     self.errNum += 1
-    #                     return  np.float64(self.heights[newKm])
-    #             raise ValueError("Not in dict")
-                
-    #         except:
-    #             print(f'> Error {self.errNum}: Altura de {km} no encontrada')
-    #             self.errNum = self.errNum + 1
-    #             return np.float64(0)
+            print(f'>> Advertencia: DM {normalized_dm} presenta un error en el archivo longitudinal')
+            return default
     
     
     def build_descriptor (self,matrix,labels):
@@ -244,7 +210,10 @@ class Model :
                 
                 if(i == length):
                     
-                    height = self.findHeight(labels[start])
+                    if self.heights:
+                        height = self.findHeight(labels[start],default=matrix[start][3])
+                    else:
+                        height = matrix[start][3]
                     
                     section = sec.Section(
                         labels[start], matrix[start:end+1], labels[start:end+1],
@@ -259,7 +228,10 @@ class Model :
             elif (not np.isnan(matrix[i][0])):
                 end = end + 1;
                 
-                height = self.findHeight(labels[start])
+                if self.heights :
+                    height = self.findHeight(labels[start],default=matrix[start][3])
+                else:
+                    height = matrix[start][3]
                 
                 section = sec.Section(
                     labels[start], matrix[start:end], labels[start:end],
@@ -295,7 +267,10 @@ class Model :
                 
                 if(i == length):
                     
-                    height = self.findHeight(labels[start])
+                    if self.heights:
+                        height = self.findHeight(labels[start],default=matrix[start][3])
+                    else:
+                        height = matrix[matrix][3]
                     
                     section = sec.Section(
                         labels[start], matrix[start:end+1], labels[start:end+1],
@@ -309,8 +284,10 @@ class Model :
             
             elif (not np.isnan(matrix[i][0])):
                 end = end + 1;
-                
-                height = self.findHeight(labels[start])
+                if self.heights:
+                    height = self.findHeight(labels[start],default=matrix[start][3])
+                else:
+                    height = matrix[start][3]
                 
                 section = sec.Section(
                     labels[start], matrix[start:end], labels[start:end],
@@ -328,7 +305,6 @@ class Model :
  
     def __iter__ (self):
         return self
- 
  
     def __next__ (self):
         if self.currSection >= self.size:

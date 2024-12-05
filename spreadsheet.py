@@ -14,6 +14,8 @@ class Spreadsheet :
         
         ascendingIndex = np.argsort(section.distance[1:])
         section.distance[1:] = section.distance[1:][ascendingIndex]
+        section.coor_x[1:] = section.coor_x[1:][ascendingIndex]
+        section.coor_y[1:] = section.coor_y[1:][ascendingIndex]
         
         descendingIndex = np.argsort(np.where(section.distance[1:]<0)[0])[::-1]
         
@@ -22,6 +24,8 @@ class Spreadsheet :
         
         # reversed ordered on negative part of distance
         section.distance[1:neg+1] = section.distance[1:][descendingIndex]
+        section.coor_x[1:neg+1]   = section.coor_x[1:][descendingIndex]
+        section.coor_y[1:neg+1]   = section.coor_y[1:][descendingIndex]
         
         section.adjustedHeight[1:] = section.adjustedHeight[1:][ascendingIndex]
         section.adjustedHeight[1:neg+1] = section.adjustedHeight[1:][descendingIndex]
@@ -34,15 +38,16 @@ class Spreadsheet :
         section.side[1:] = section.side[1:][ascendingIndex]
         section.side[1:neg+1] = section.side[1:][descendingIndex]
         
+        full_table = np.empty((0, 6))
         
         content = np.hstack((
-            
-            np.where(np.isnan(section.matrix[:,[0]]), '' , section.matrix[:,[0]].astype(str) ),
+            np.where(np.isnan(section.matrix[:,[0]]),'',section.matrix[:,[0]].astype(str)),
+            utils.format_float_array (section.coor_x),
+            utils.format_float_array (section.coor_y),
             utils.format_float_array (section.distance[:,None]),
             utils.format_float_array (section.adjustedHeight),
             section.labels[:,None],
-            section.side))
-        
+        ))
         np.savetxt(f,content,delimiter=',',fmt='%s')
     
     
@@ -62,7 +67,7 @@ class Spreadsheet :
             utils.format_float_array(minDistance),
             utils.format_float_array(maxDistance),
             leftLabel,
-            rightLabel ]])
+            rightLabel]])
         
         np.savetxt(f, content, delimiter=',', fmt='%s')
     
@@ -74,6 +79,7 @@ class Spreadsheet :
         sections = mdl.ModelIterator(self.__model,0,END+1)
         
         with open(filename, "w") as f:
+            np.savetxt(f, np.array([["DM","X","Y","DIST","Z","DESCR"]]), delimiter=',', fmt='%s')
             for section in sections :
                 self.writeSectionMOP(section,f)
     

@@ -1,11 +1,15 @@
 import re
 from datetime import datetime
 from openpyxl.utils import column_index_from_string, get_column_letter
+from openpyxl import load_workbook
+import numpy as np
 
 INCH_COL = 10
 INCH_ROW = 72
 OFFSET   = 38
 PAGEBREAKS = []
+
+
 
 def letter_of_int (i) :
     return get_column_letter(i)
@@ -58,7 +62,9 @@ class Writer :
             )
             
 
-
+# This is the way to encapsulate functions and
+# variables in a module or class. Can be helpful
+# to make code more name-consistent.
 class Format :
     
     # Functions
@@ -84,8 +90,7 @@ class Format :
     CENTER = {"align":"center"}
     VCENTER = {"valign":"vcenter"}
     COLOR_RED = {'bg_color': '#ff5034'}
-    COLOR_GREEN = {'bg_color': '#61df6d'}
-    
+    COLOR_GREEN = {'bg_color': '#61df6d'}   
 
 
 
@@ -167,6 +172,125 @@ def curr_date (opt=0) :
             11 : "NOV"
         }
         return f'{MES[datetime.now().month]} {datetime.now().year}'
+
+
+class PRScanner :
+    def __init__ (self, ws):
+        
+        self.ws = ws
+        
+        # Project data.
+        self.PUNTO = None
+        self.DM    = None
+        self.LADO  = None
+        self.DIST  = None
+        self.N     = None
+        self.E     = None
+        self.COTA  = None
+        
+        # Col letters of the data table.
+        self.PROYECTO = None
+        self.SECTOR   = None
+        self.TRAMO    = None
+        self.REALIZADO = None
+        self.FECHA     = None
+        
+
+        self.HEADER_ROW   = None
+        self.MIN_DATA_ROW = None
+        self.MAX_DATA_ROW = None
+        
+        self.__init_row__()
+        self.__init_cols__()
+        self.__init_project_data__()
+    
+    
+    def __init_row__ (self) :
+        self.__init_header_row__()
+        self.MIN_DATA_ROW = self.HEADER_ROW + 1
+        self.__init_max_data_row__()
+        
+        
+    
+    # Initialize MIN_DATA_ROW variable
+    def __init_header_row__ (self) :
+        for col in self.ws.iter_cols(min_row = 0):
+            for cell in col:
+                r = cell.row
+                if bool(re.match(r"^punto", str(cell.value), re.I)):
+                    self.HEADER_ROW = r
+                    return
+    
+    def __init_max_data_row__ (self):
+        i = self.MIN_DATA_ROW
+        for col in self.ws.iter_cols(min_col=0, min_row = i):
+            for cell in col:
+                i += 1
+            self.MAX_DATA_ROW = i - 1
+            return
+    
+    def __init_cols__ (self):
+        for row in self.ws.iter_rows(min_col = 0, min_row = self.HEADER_ROW, max_row = self.HEADER_ROW):
+            for cell in row:
+                if bool(re.match(r"^punto", str(cell.value), re.I)):
+                    self.PUNTO = cell.column
+                    continue
+                if bool(re.match(r"^dm", str(cell.value), re.I)):
+                    self.DM = cell.column
+                    continue
+                if bool(re.match(r"^lado", str(cell.value), re.I)):
+                    self.LADO = cell.column
+                    continue
+                if bool(re.match(r"^dist", str(cell.value), re.I)):
+                    self.DIST = cell.column
+                    continue
+                if bool(re.match(r"^n", str(cell.value), re.I)):
+                    self.N = cell.column
+                    continue
+                if bool(re.match(r"^e", str(cell.value), re.I)):
+                    self.E = cell.column
+                    continue
+                if bool(re.match(r"^cota", str(cell.value), re.I)):
+                    self.COTA = cell.column
+                    break
+
+    def __init_project_data__ (self) :
+        for col in self.ws.iter_cols(min_col = 0, max_col = 0):
+            for cell in col:
+                r = cell.row
+                c = cell.column
+                if bool(re.match(r"^proyecto", str(cell.value), re.I)):
+                    self.PROYECTO = self.ws.cell(row=r,column=c+1).value
+                    continue
+                if bool(re.match(r"^sector", str(cell.value), re.I)):
+                    self.SECTOR = self.ws.cell(row=r,column=c+1).value
+                    continue
+                if bool(re.match(r"^tramo", str(cell.value), re.I)):
+                    self.TRAMO = self.ws.cell(row=r,column=c+1).value
+                    continue
+                if bool(re.match(r"^realizado", str(cell.value), re.I)):
+                    self.REALIZADO = self.ws.cell(row=r,column=c+1).value
+                    continue
+                if bool(re.match(r"^fecha", str(cell.value), re.I)):
+                    self.FECHA = self.ws.cell(row=r,column=c+1).value
+                    continue
+    
+    def get_punto(self,row):
+        return self.ws.cell(column=self.PUNTO,row=row).value
+    def get_dm(self,row):
+        return self.ws.cell(column=self.DM,row=row).value
+    def get_lado(self,row):
+        return self.ws.cell(column=self.LADO,row=row).value
+    def get_dist(self,row):
+        return self.ws.cell(column=self.DIST,row=row).value
+    def get_n(self,row):
+        return self.ws.cell(column=self.N,row=row).value
+    def get_e(self,row):
+        return self.ws.cell(column=self.E,row=row).value
+    def get_cota(self,row):
+        return self.ws.cell(column=self.COTA,row=row).value  
+
+
 
 class Scanner :
     
@@ -412,4 +536,8 @@ class Scanner10 :
 
 
 if __name__ == "__main__":
-    print(curr_date())
+    wb = load_workbook("/home/jstvns/axis/axis/anexos/anteproyecto/anexo0.xlsx")
+    ws = wb.active
+    scanner = PRScanner(ws)
+    print(scanner.get_cota(12))
+    

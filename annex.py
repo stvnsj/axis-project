@@ -7,36 +7,13 @@ from annexUtils import Format
 import sys
 import reader as rd
 import re 
-
-class Writer :
-    
-    def __init__ (self,workbook,worksheet):
-        self.workbook = workbook
-        self.worksheet = worksheet
-        
-    def set_worksheet (self,ws):
-        self.worksheet = ws
-        
- 
-    def merge (self,ran,dat,dic):
-        self.worksheet.merge_range(
-            ran,
-            dat,
-            self.workbook.add_format(dic)
-        )
- 
-    def write (self,cell,dat,dic={}):
-        self.worksheet.write(
-            cell,
-            dat,
-            self.workbook.add_format(dic)
-        )
+import annexUtils
 
 def trans (model,filename="annex_trans.xlsx") :
     
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet("PERFILES")
-    writer = Writer(workbook,worksheet)
+    writer = annexUtils.Writer(workbook,worksheet)
     worksheet.hide_gridlines(2)  # 2 hides both the printed and visible gridlines
     worksheet.set_portrait()
     worksheet.set_page_view(2)

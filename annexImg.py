@@ -16,6 +16,37 @@ def create_empty_structure(src_dir, appendix = "_copy"):
     return dest_dir
 
 
+
+
+def annex9_process_geo (input_dir):
+    dest_directory = create_empty_structure(input_dir, appendix="copy_g")
+    src_directory  = input_dir
+    for root, dirs, files in os.walk(src_directory):
+        for file in files:
+            src_file_path = os.path.join(root, file)
+            relative_path = os.path.relpath(src_file_path, src_directory)
+            dest_file_path = os.path.join(dest_directory, relative_path)
+            POINT, ext = os.path.splitext(file)
+            if "_g." in src_file_path:
+                imgConverter.adjust_annex9_geo(src_file_path,dest_file_path, POINT = POINT)
+    return dest_directory
+
+def annex9_process (input_dir):
+    dest_directory = create_empty_structure(input_dir)
+    src_directory = input_dir
+    for root, dirs, files in os.walk(src_directory):
+        for file in files:
+            src_file_path = os.path.join(root, file)
+            relative_path = os.path.relpath(src_file_path, src_directory)
+            dest_file_path = os.path.join(dest_directory, relative_path)
+            if "p." in src_file_path:
+                imgConverter.adjust_annex9_panoramic(src_file_path,dest_file_path)
+            if "a." in src_file_path:
+                imgConverter.adjust_annex9_detail(src_file_path,dest_file_path)
+    return dest_directory
+
+
+
 def annex2_process_geo (input_dir):
     dest_directory = create_empty_structure(input_dir, appendix="copy_g")
     src_directory  = input_dir

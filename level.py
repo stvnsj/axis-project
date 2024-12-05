@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import utils
 import levelCad
+from pprint import pprint
 
 def strToFltKey (string) :
     try:
@@ -92,27 +93,16 @@ class Point :
 
 class Segment :
     
-    def __init__ (self, pr0, pr1, first_height, last_height, cplst=[], start_points = [], end_points=[]):
+    def __init__ (self, pr0, pr1, first_height, last_height, cplst=[], start_points = [], end_points=[], end_points_list = []):
         self.pr0 = pr0 # string name of pr0
         self.pr1 = pr1 # string name of pr1
         self.pr_dict = {}
         
-        if pr1 in start_points and pr0 in end_points:
-            self.positive = False
-            start_points.append(pr0)
-            end_points.append(pr1)
-        
-        elif pr0 in start_points and pr1 in end_points:
-            self.positive = False
-            end_points.append(pr0)
-            start_points.append(pr1)
-        
-        else:
+        if ((pr0, pr1) not in end_points_list) and ((pr1, pr0) not in end_points_list):
             self.positive = True
-            start_points.append(pr0)
-            end_points.append(pr1)
-        
-        
+            end_points_list.append((pr0,pr1))
+        else:
+            self.positive = False
         
         self.pr = (utils.pr_number(pr0),self.positive)
         
@@ -132,6 +122,7 @@ class Segment :
         self.size = 0
         
         self.__build()
+
  
     def __build (self):
         
@@ -161,7 +152,9 @@ class Segment :
             for p in self.points:
                 self.pr_dict.update({dm:(self.pr1,self.pr0) for dm in p.str_dm})
                 
-                
+    def __str__ (self):
+        return f'Punto A : {self.pr0} , Punto B: {self.pr1}, positive : {self.positive}'
+    
         
     def get_pr_dict(self):
         return self.pr_dict
@@ -171,7 +164,6 @@ class Segment :
         lst = [p.get_table() for p in self.points]
         dm_list, pnt_list = list(zip(*lst))
         return (np.concatenate(dm_list),np.concatenate(pnt_list))
-
 
 class Circuit :
     
@@ -212,24 +204,21 @@ class Circuit :
  
     
     # This is used for the REPORT
+    #
+    # Trig: All DM not in the "libreta" and in the trig table
+    # must be incorporated into the report.
     def write_circuit_table(self, filename):
         
         reporter = utils.Reporter(filename)
-        
-        
         pos_dm, pos_pnt = self.get_positive_table()
         neg_dm, neg_pnt = self.get_negative_table()
-        
         intersection    = np.intersect1d(pos_dm, neg_dm)
         union           = np.union1d(pos_dm, neg_dm)
-        
         positive_dict   = dict (zip(pos_dm,pos_pnt))
         negative_dict   = dict (zip(neg_dm,neg_pnt))
-        
         full_table = np.empty((0, 8))
+
         
-        notFound = []
-        patches  = []
         
         
         for dm in union:
@@ -264,7 +253,7 @@ class Circuit :
                     utils.format_float(mean),
                     self.pr_dict.get(dm)[0],
                     self.pr_dict.get(dm)[1],
-                    "FT" if dif >= 0.01 else ""
+                    "FT" if dif > 0.01 else ""
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
@@ -304,7 +293,31 @@ class Circuit :
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
-      
+        
+        for dm in self.trig_dict:
+            if dm in union:
+                print(f'dm={dm} ya se encuentra en la libreta')
+                continue
+            
+            if not utils.is_float(self.trig_dict.get(dm)):
+                print(f'Cota de {dm} no es un valor numérico')
+                continue
+            
+            trig_height = self.trig_dict.get(dm)
+            
+            new_row = np.array([[
+                dm,
+                utils.format_float(trig_height),
+                utils.format_float(trig_height),
+                utils.format_float(0.000),
+                utils.format_float(trig_height),
+                '',
+                '',
+                "TRIG"
+            ]])
+            
+            full_table = np.append(full_table, new_row, axis=0)
+        
         
         num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
         str_index = np.where([not utils.is_float(x) for x in full_table[:,0]])
@@ -312,12 +325,14 @@ class Circuit :
         
         output = np.vstack((
             np.array([["DM", "IDA","VUELTA","DIF","MEDIA","PR-A","PR-B","TOLERANCIA"]]),
-            full_table[ordered_num_index] ,
+            full_table[num_index][ordered_num_index], # Use the ordered_num_index over the num_index indexed full table.
             full_table[str_index]
         ))
         
         with open(filename, "w") as f:
             np.savetxt(f,output,delimiter=',',fmt='%s')
+        
+        print("OPERACION EXITOSA")
  
  
     # This is the table used for the longitudinal ANNEX 3
@@ -332,43 +347,64 @@ class Circuit :
         positive_dict   = dict (zip(pos_dm,pos_pnt))
         negative_dict   = dict (zip(neg_dm,neg_pnt))
         
-        full_table = np.empty((0, 5))
+        full_table = np.empty((0, 6))
         
-        for dm in union:
-            
+        for dm in intersection:
             if dm == "" or not utils.is_float(dm):
                 continue
-            
-            if dm in intersection:
                 
-                positive_h = utils.round(positive_dict.get(dm))
-                negative_h = utils.round(negative_dict.get(dm))
+            positive_h = utils.round(positive_dict.get(dm))
+            negative_h = utils.round(negative_dict.get(dm))
                 
-                if np.isnan(positive_h):
-                    continue
-                    
-                if np.isnan(negative_h):
-                    continue
-                
-                dif        = np.absolute(positive_h - negative_h)
-                mean       = np.mean([positive_h,negative_h])
-                
-                new_row = np.array([[
-                    utils.round(float(dm)),
-                    positive_h,
-                    negative_h,
-                    dif,
-                    utils.round(mean),
-                ]])
-                full_table = np.append(full_table, new_row, axis=0)
+            if np.isnan(positive_h):
+                print(f'Revisar dm={dm}')
                 continue
+                    
+            if np.isnan(negative_h):
+                print(f'Revisar dm={dm}')
+                continue
+                
+            dif        = np.absolute(positive_h - negative_h)
+            mean       = np.mean([positive_h,negative_h])
+                
+            new_row = np.array([[
+                utils.round(float(dm)),
+                positive_h,
+                negative_h,
+                dif,
+                utils.round(mean),
+                -1 # Trig field
+            ]])
+            full_table = np.append(full_table, new_row, axis=0)
         
+        
+        for dm in self.trig_dict:
+            
+            if dm in union:
+                print(f'dm={dm} ya se encuentra en la libreta')
+                continue
+            
+            if not utils.is_float(self.trig_dict.get(dm)):
+                print(f'Cota de {dm} no es un valor numérico')
+                continue
+            
+            trig_height = self.trig_dict.get(dm)
+            
+            new_row = np.array([[
+                utils.round(float(dm)),
+                utils.round(float(trig_height)),
+                utils.round(float(trig_height)),
+                utils.round(0.000),
+                utils.round(float(trig_height)),
+                1                
+            ]])
+            
+            full_table = np.append(full_table, new_row, axis=0)
         
         num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
-        str_index = np.where([not utils.is_float(x) for x in full_table[:,0]])
         ordered_num_index = np.argsort(full_table[num_index][:,0].astype(float))
         
-        output = np.vstack((full_table[ordered_num_index]))
+        output = np.vstack((full_table[num_index][ordered_num_index]))
         
         return output
  
@@ -404,7 +440,7 @@ class Circuit :
                 new_row = np.array([[
                     dm,
                     utils.format_float(mean),
-                    "FT" if dif >= 0.01 else ""
+                    "FT" if dif > 0.01 else ""
                 ]])
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
@@ -437,11 +473,31 @@ class Circuit :
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
         
+        for dm in self.trig_dict:
+            
+            if dm in union:
+                print(f'dm={dm} ya se encuentra en la libreta')
+                continue
+            
+            if not utils.is_float(self.trig_dict.get(dm)):
+                print(f'Cota de {dm} no es un valor numérico')
+                continue
+            
+            trig_height = self.trig_dict.get(dm)
+            
+            new_row = np.array([[
+                dm,
+                utils.format_float(trig_height),
+                "TRIG"
+            ]])
+            
+            full_table = np.append(full_table, new_row, axis=0)
+        
         num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
         ordered_num_index = np.argsort(full_table[num_index][:,0].astype(float))
          
         with open(filename, "w") as f:
-            np.savetxt(f,full_table[ordered_num_index],delimiter=',',fmt='%s')
+            np.savetxt(f,full_table[num_index][ordered_num_index],delimiter=',',fmt='%s')
     
  
     
@@ -502,11 +558,31 @@ class Circuit :
                 full_table = np.append(full_table, new_row, axis=0)
                 continue
         
+        for dm in self.trig_dict:
+            
+            if dm in union:
+                print(f'dm={dm} ya se encuentra en la libreta')
+                continue
+            
+            if not utils.is_float(self.trig_dict.get(dm)):
+                print(f'Cota de {dm} no es un valor numérico')
+                continue
+            
+            trig_height = self.trig_dict.get(dm)
+            
+            new_row = np.array([[
+                utils.round(float(dm)),
+                utils.round(float(trig_height)),
+            ]])
+            
+            full_table = np.append(full_table, new_row, axis=0)
+        
+        
         num_index = np.where([utils.is_float(x) for x in full_table[:,0]])
         ordered_num_index = np.argsort(full_table[num_index][:,0].astype(float))
         
         with open(filename, "w") as f:
-            cad = levelCad.LevelCad(full_table[ordered_num_index])
+            cad = levelCad.LevelCad(full_table[num_index][ordered_num_index])
             cad.write(f)
 
 
@@ -520,6 +596,7 @@ def parse_circuit (circuit_matrix, height_matrix, circuit_num_matrix = None, pr_
     
     start_points = []
     end_points   = []
+    end_points_list = []
     
     height_dict = dict(zip (height_matrix[:,0], pr_num_matrix[:,1]))
     segment_list = []
@@ -540,13 +617,13 @@ def parse_circuit (circuit_matrix, height_matrix, circuit_num_matrix = None, pr_
             h1  = height_dict[pr1]
            
             seg = parse_segment(circuit_matrix[start:end+1], pr0, pr1, h0, h1, num_matrix=circuit_num_matrix[start:end+1],
-                                start_points = start_points, end_points=end_points)
+                                start_points = start_points, end_points=end_points, end_points_list=end_points_list)
             segment_list.append(seg)
     
     return segment_list
 
 
-def parse_segment (string_matrix, pr0, pr1, h0, h1, num_matrix=None, start_points= [], end_points= [] ):
+def parse_segment (string_matrix, pr0, pr1, h0, h1, num_matrix=None, start_points= [], end_points= [], end_points_list=[] ):
     POINT_NUM = 0
     START = 0
     END   = 0
@@ -584,7 +661,8 @@ def parse_segment (string_matrix, pr0, pr1, h0, h1, num_matrix=None, start_point
         h0, h1,
         point_list,
         start_points=start_points,
-        end_points=end_points
+        end_points=end_points,
+        end_points_list=end_points_list
     )
 
 
@@ -618,14 +696,24 @@ def parse_point (num, start, h0, string_matrix, num_matrix = None):
 
 def parser (filename1, filename2, trigonometric=""):
     
+    
+    
     libreta_string_matrix = np.genfromtxt(filename1, delimiter=',', dtype=str, skip_header=0,invalid_raise=False)
-    height_string_matrix = np.genfromtxt(filename2, delimiter=',', dtype=str, skip_header=0,invalid_raise=False)
+    height_string_matrix  = np.genfromtxt(filename2, delimiter=',', dtype=str, skip_header=0,invalid_raise=False)
     
     libreta_num_matrix = np.round(np.genfromtxt(filename1, delimiter=',', skip_header=0,invalid_raise=False),3)
     height_num_matrix =  np.round(np.genfromtxt(filename2, delimiter=',', skip_header=0,invalid_raise=False),3)
 
     if trigonometric:
-        trig_table = np.genfromtxt(trigonometric, delimiter=',', dtype=str, skip_header=0,invalid_raise=False)
+        trig_table = utils.normalize_fstring_array ( # Trig table is normalized
+            np.genfromtxt(
+                trigonometric,
+                delimiter=',',
+                dtype=str,
+                skip_header=0,
+                invalid_raise=False
+            )
+        )
     else:
         trig_table = np.array([])
     
@@ -655,4 +743,11 @@ if __name__ == "__main__":
     f3 = sys.argv[2]
     cir = parser(f1,f2,f3)
     cir.write_circuit_table("REPORT.csv")
+
+
+# Punto A : PR14 , Punto B: PR13
+# Punto A : PR14 , Punto B: PR13
+# Punto A : PR13 , Punto B: PR12
+# Punto A : PR12 , Punto B: PR13
+
 

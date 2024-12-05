@@ -96,12 +96,16 @@ def generate (
         V_VUELTA = ROW[2]
         V_DIF  = ROW[3]
         V_MEAN = ROW[4]
+        V_TRIG = ROW[5]
         
         writer.write(f'C{curr_row}', V_DM,     Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
         writer.write(f'D{curr_row}', V_IDA,    Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
         writer.write(f'E{curr_row}', V_VUELTA, Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
         writer.write(f'F{curr_row}', V_DIF,    Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
         writer.write(f'G{curr_row}', V_MEAN,   Format.CENTER, Format.SIZE(10), Format.BORDER, Format.VCENTER, Format.NUM)
+        if V_TRIG > 0:
+            writer.write(f'H{curr_row}', "* COTA TRIG", Format.CENTER, Format.ITALIC, Format.SIZE(9))
+        
         
         curr_row += 1
     

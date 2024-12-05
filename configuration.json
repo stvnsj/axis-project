@@ -1,15 +1,16 @@
 {
     "loaded-files": {
-        "cotas-pr": null,
-        "trigonometrica": null,
-        "libreta": null,
-        "estacado-descriptor": "/home/jstvns/axis/axis/dat-et.txt",
-        "estacado-coordenadas": null,
-        "longitudinal": "/home/jstvns/axis/axis/longitudinal.txt",
+        "master-pr": "/home/jstvns/axis/axis/anexos/anteproyecto/anexo0.xlsx",
+        "cotas-pr": "/home/jstvns/axis/axis/documentos/COTASPR_ASTILLEROS.csv",
+        "trigonometrica": "",
+        "libreta": "/home/jstvns/axis/axis/documentos/LIBRETAcompleta.csv",
+        "estacado-descriptor": "/home/jstvns/axis/ARCHIVOS PARA TRABAJAR ANDRES_DBASE/archivos input al dbase/dat-et.csv",
+        "estacado-coordenadas": "",
+        "longitudinal": "/home/jstvns/axis/ARCHIVOS PARA TRABAJAR ANDRES_DBASE/archivos input al dbase/longitudinal.txt",
         "anexo-1": "/home/jstvns/axis/axis/anexos/anteproyecto/anexo1.xlsx",
-        "anexo-10": null,
-        "fotos": null,
-        "georef": null,
-        "eje-estaca": null
+        "anexo-10": "",
+        "fotos": "",
+        "georef": "",
+        "eje-estaca": ""
     }
 }

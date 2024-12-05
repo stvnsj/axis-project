@@ -17,7 +17,7 @@ def read_loaded_files (field) :
         data = json.load(file)
     
     val = data['loaded-files'][field]
-    return val if val is not None else ""
+    return "" if val is None else val
 
 
 
@@ -25,7 +25,7 @@ def write_loaded_files (field,newpath):
     with open("configuration.json", "r") as file:
         data = json.load(file)
     
-    data['loaded-files'][field] = str(Path(newpath))
+    data['loaded-files'][field] = str(Path(newpath)) if newpath else ""
     
     # Write the updated data back to the file
     with open("configuration.json", "w") as file:
