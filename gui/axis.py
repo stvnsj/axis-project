@@ -1,7 +1,6 @@
 ################
 # AXIS IMPORTS #
 ################
-
 import level
 import cad
 import spreadsheet
@@ -19,9 +18,6 @@ import reader as rd
 from .rootFrame import root
 from . import component
 from .stringvar import *
-
-
-
 
 
 ####################
@@ -46,7 +42,7 @@ trans_model = None
 
 # Create main window
 
-root.title("Proyecto AXIS")
+root.title("Sistema de Procesamiento Topográfico")
 root.geometry("1200x950")
 
 
@@ -65,6 +61,8 @@ tab3 = ttk.Frame(notebook)
 tab4 = ttk.Frame(notebook)
 tab5 = ttk.Frame(notebook)
 tab6 = ttk.Frame(notebook)
+tab7 = ttk.Frame(notebook)
+
 
 # Add tabs to the notebook (tabs container)
 notebook.add(tab1, text='CAD')
@@ -73,6 +71,7 @@ notebook.add(tab3, text='ANEXO (Ante.)')
 notebook.add(tab4, text='ANEXO (Def.)')
 notebook.add(tab5, text='DM')
 notebook.add(tab6, text='PLOT')
+notebook.add(tab7, text='CONTROL')
 
 
 
@@ -101,6 +100,7 @@ button_params = [
     coordinate_file_param,
     longitudinal_file_param
 ]
+
 component.LoadFileFrame(tab1, title="Carga de Archivos", button_params = button_params)
 
 entry_params = [

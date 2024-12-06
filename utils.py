@@ -2,6 +2,24 @@ import numpy as np
 import re
 import os
 
+class AxisError(Exception):
+    """Custom exception with an optional message."""
+    def __init__(self, message="An error occurred"):
+        self.message = message
+        super().__init__(self.message)
+
+
+def str_to_flt(s):
+    try:
+        return np.round(float(s),3)
+    except:
+        raise AxisError(f'El valor {s} no puede convertirse en número')
+    
+
+def str_to_flt_arr (s) :
+    return np.round(s.astype(float), 3)
+    
+
 class CustomError(Exception):
     pass
 
