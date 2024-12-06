@@ -168,7 +168,7 @@ def read_csv (input_file):
     """normalizes string decimal numbers into the format 23.120 (three decimals).
     Other strings are left as they are. It returns a string matrix."""
     matrix = np.genfromtxt(input_file, delimiter=',', dtype=str, skip_header=0, invalid_raise=False)
-    return normalize_fstring_array(matrix)
+    return normalize_fstring_array(normalize_fstring_array(matrix))
 
 
 def round (x) :
