@@ -16,9 +16,11 @@ class ModelIterator :
         return self
     
     def __next__ (self) :
+        """In this model of iteration, the upper index is included in
+        the iteration"""
         if self._index >= self._model.size or self._index > self._end:
             raise StopIteration
-        section = self._model.sections[self._model.sectionIndex[self._index]]
+        section = self._model.getSection(self._index)
         self._index += 1
         return section
 
@@ -51,23 +53,35 @@ class Model :
         self.heights = dict(matrix_height) if filename3 else {}
         
         # list of cross sections of this model
-        self.sections = []
-        self.sectionIndex = []
+        self.sections = [] # [Section]
+        self.sectionIndex = [] # [Int]
         
         # oriented cross sections are build and oriented
         if matrix_coor is not None:
-            self.build_oriented(matrix_coor)
+            self.build_section(matrix_coor,oriented=True, true_z=True if filename3 else False)
             self.sections.sort()
             self.reference_vector()
         
         if matrix_descr is not None:
-            self.build_descriptor(matrix_descr)
+            self.build_section(matrix_descr,oriented=False, true_z = True if filename3 else False)
             
         self.distance_sign()
         self.sections.sort()
         self.deduplicate()
         self.currSection = 0
         self.size = len(self.sectionIndex)
+        self.dm_index = {}
+        self.dms = []
+        self.__init_dms__()
+        self.__init_dm_index__()
+    
+ 
+    def __init_dms__ (self):
+        for i in range(self.size):
+            self.dms.append(self.getSection(i).km)
+    
+    def __init_dm_index__ (self) :
+        self.dm_index = {self.getSection(i).km : i for i in range(self.size)}
     
     def deduplicate (self) :
         
@@ -154,11 +168,9 @@ class Model :
         "Get a section by its index number"
         i = self.sectionIndex[index]
         return self.sections[i]
-    
-    
-    
-    def build_descriptor (self,matrix):
-        
+
+
+    def build_section (self,matrix,oriented=True,true_z = True): 
         start = 0 # start index of matrix chunk copied
         end = 0 # end index of matrix chunk copied
         i = 1 # pointer to traverse the matrix 
@@ -174,7 +186,7 @@ class Model :
                 
                 if(i == length):
                     
-                    height = self.findHeight(matrix[start][0],default=matrix[start][3])
+                    height = self.findHeight(matrix[start][0],default=matrix[start][3]) if true_z else matrix[start][3]
                     
                     section = Section(
                         matrix[start][0],
@@ -182,7 +194,7 @@ class Model :
                         matrix[start:end+1,4],
                         height,
                         axis = matrix[start,1:3],
-                        oriented = False
+                        oriented = oriented
                     )
                     
                     self.sections.append(section)
@@ -191,88 +203,42 @@ class Model :
             elif matrix[i][0] != "" :
                 
                 end = end + 1;
-                height = self.findHeight(matrix[start][0],default=matrix[start][3])
+                height = self.findHeight(matrix[start][0],default=matrix[start][3]) if true_z else matrix[start][3]
                 section = Section(
                     matrix[start][0],
                     matrix[start:end],
                     matrix[start:end,4],
                     height,
                     axis = matrix[start, 1:3],
-                    oriented = False
-                )
-                
+                    oriented = oriented
+                )  
                 self.sections.append(section)
                 start = i
                 end = i
                 i = i + 1
+    
+    
  
-    
-    
-    
-    def build_oriented (self,matrix):
-        start = 0 # start index of matrix chunk copied
-        end = 0 # end index of matrix chunk copied
-        i = 1 # pointer to traverse the matrix 
-        length = matrix.shape[0] # vertical size of matrix
-        
-        while i < length :
-            # If the value of km is nan, then keep stacking more
-            # points to the current section
-            if matrix[i][0] == "":
-                
-                end = end + 1;
-                i   = i + 1;
-                
-                if(i == length):
-                    height = self.findHeight(matrix[start][0],default=matrix[start][3])
-                    
-                    section = Section(
-                        matrix[start][0],
-                        matrix[start:end+1],
-                        matrix[start:end+1,4],
-                        height,
-                        axis = matrix[start,1:3],
-                        oriented = True
-                    )
-                    
-                    self.sections.append(section)
-            
-            
-            
-            elif matrix[i][0] != "":
-                end = end + 1
-                height = self.findHeight(matrix[start][0],default=matrix[start][3])
-                
-                
-                section = Section(
-                    matrix[start][0],
-                    matrix[start:end],
-                    matrix[start:end,4],
-                    height,
-                    axis = matrix[start, 1:3],
-                    oriented = True
-                )
-                
-                self.sections.append(section)
-                start = i
-                end = i
-                i = i + 1
-  
- 
-    def get_lower_dm_index(self, dm):
-        """Returns the minumum index with a dm greater than or equal to the argument"""        
-        for j in self.sectionIndex:
-            if float(self.sections[j].km) >= float(dm):
+    def get_lower_dm_index(self, dm = "0.000"):
+        """Returns the minumum index with a dm greater than or equal to the argument"""
+        N = len(self.sectionIndex)
+        if dm == "0.000":
+            return 0
+        for j in range(N):
+            if float(self.getSection(j).km) >= float(dm):
                 return j
             j += 1
         return 0
     
-    def get_upper_dm_index(self,dm):
-        for j in self.sectionIndex:
-            if float(self.sections[j].km) > float(dm):
+    def get_upper_dm_index(self,dm = "0.000"):
+        N = len(self.sectionIndex)
+        if dm == "0.000":
+            return N - 1
+        for j in range (N):
+            if float(self.getSection(j).km) > float(dm):
                 return j-1
             j += 1
-        return self.sectionIndex[-1]
+        return N - 1
  
     def getKmRange(self,dm0,dm1):
         """Translates a range of dm's to a range of sectionIndex indices"""
@@ -319,18 +285,17 @@ class Model :
 def main ():
     
     filename1 = "/home/jstvns/eqc-input/dbase-input/dat-et-descr.csv"
-    filename2 = "/home/jstvns/eqc-input/dbase-input/dat-et-coord.csv"
+    filename2 = "/home/jstvns/eqc-input/auto-control/coor-ctrl.csv"
     filename3 = "/home/jstvns/eqc-input/dbase-input/longitudinal.csv"
     
     model = Model(
-        filename1 = filename1, # DESCR
+        filename1 = "", # DESCR
         filename2 = filename2, # COOR
-        filename3 = filename3, # LONG
+        filename3 = "", # LONG
     )
-
+    
     i0 = model.get_lower_dm_index(3400)
     i1 = model.get_upper_dm_index(5500)
-    print(f'The indices are {i0} - {i1}')
 
 
 

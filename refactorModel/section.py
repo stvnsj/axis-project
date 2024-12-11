@@ -14,19 +14,19 @@ class Section :
             oriented=True   
     ):
     
-        self.oriented = oriented # : Bool
-        self.labels = matrix[:,4] # : [Str]
-        self.vector = None # : [Flt , Flt]
-        self.axis = axis
-        self.km = km
-        self.matrix = matrix
-        self.height = height
-        self.distance = self.compute_distance()
-        self.adjustedHeight = self.adjustHeight(self.height)
-        self.id = km
-        self.side = utils.parseLabelLetterArray(self.labels)
-        self.coor_x = self.matrix[:,[1]]
-        self.coor_y = self.matrix[:,[2]]
+        self.oriented = oriented # Bool
+        self.labels = matrix[:,4] # [Str]
+        self.vector = None # [Float,Float]
+        self.axis = axis # [Float, Float]
+        self.km = km # Str
+        self.matrix = matrix # [Str, Str, Str, Str, Str]
+        self.height = height # Str
+        self.distance = self.compute_distance() # [Float]
+        self.adjustedHeight = self.adjustHeight(self.height) # [Float]
+        self.id = km # Str
+        self.side = utils.parseLabelLetterArray(self.labels) # [Str]
+        self.coor_x = self.matrix[:,[1]] # [Str]
+        self.coor_y = self.matrix[:,[2]] # [Str]
  
  
     def merge (self, section):

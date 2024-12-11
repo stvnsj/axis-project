@@ -19,6 +19,12 @@ def str_to_flt(s):
 def str_to_flt_arr (s) :
     return np.round(s.astype(float), 3)
     
+    
+    # try:
+    #     return np.round(s.astype(float), 3)
+    # except:
+    #     print(s)
+    
 
 class CustomError(Exception):
     pass
@@ -174,6 +180,18 @@ def read_csv (input_file):
 def round (x) :
     return np.round(x,3)
 
+
+def clean_descriptor(s):
+    # Strip trailing whitespace
+    s = s.rstrip()
+    
+    # Check for and remove the specific trailing substrings
+    for suffix in ["-i", "-I", "-d", "-D"]:
+        if s.endswith(suffix):
+            s = s[: -len(suffix)]
+            break  # Exit the loop since we found and removed the suffix
+    
+    return s.strip()  # Final strip to handle any leftover whitespace
 
 if __name__ == "__main__":
     assert(normalize_pr("Pr - 123") == "PR123")
