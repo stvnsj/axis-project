@@ -3,6 +3,7 @@ import refactorModel.model as mdl
 import numpy as np
 import utils
 from pprint import pprint
+from control.tolerance import within_tol
 
 
 class ModelIterator :
@@ -24,16 +25,25 @@ class ModelIterator :
         return section
 
 class Line :
+    
     def __init__(self,x0,y0,x1,y1):
+        # PUNTOS DE PROYECTO
         self.x0 = x0
         self.x1 = x1
         self.y0 = y0
         self.y1 = y1
+        # PENDIENTE DE LA RECTA
         self.slope = (y1-y0) / (x1-x0)
     
     def get_y (self,x) :
-        # y = np.round(self.slope * (x - self.x0) + self.y0, 3)
-        y = self.slope * (x - self.x0) + self.y0
+        
+        # x es el distancia en perfil de control
+        
+        # y es cota de intersección
+        
+        # y = np.round(self.slope * (x - self.x0) + self.y0, 3) # Redondeado
+        y = self.slope * (x - self.x0) + self.y0 # Sin redondear
+        
         return y
     
     def contains_x (self,x) :
@@ -112,7 +122,7 @@ class ControlModel :
         
         self.sections = []
         
-        self.fieldNumber = 7
+        self.fieldNumber = 8
         
         
         for section in mdl.ModelIterator(model_topo):
@@ -146,15 +156,17 @@ class ControlModel :
                         HEIGHT_INTER = utils.formatFloat(line.get_y(x))
                         DIFFERENCE   = utils.formatFloat(y - line.get_y(x))
                         IS_CTRL      = "1"
+                        OK           = "DT" if within_tol(DESCRIPTOR, y, line.get_y(x)) else "FT"
                         is_control.append(True)
                         
                     else:
                         HEIGHT_INTER = ""
                         DIFFERENCE   = ""
                         IS_CTRL      = "0"
+                        OK           = ""
                         is_control.append(False)
                         
-                    new_row = np.array([DM,DIST_CTRL,HEIGHT_CTRL,DESCRIPTOR ,HEIGHT_INTER,DIFFERENCE,IS_CTRL])
+                    new_row = np.array([DM,DIST_CTRL,HEIGHT_CTRL,DESCRIPTOR ,HEIGHT_INTER,DIFFERENCE,IS_CTRL,OK])
                     matrix  = np.vstack((matrix, new_row))
                     
                 self.sections.append(
