@@ -126,6 +126,7 @@ component.InputFrame(tab1,entry_params=entry_params, command=ax_com.generateCAD,
 
 button_params = [
     {"label":"MOP", "command":ax_com.generateMOP},
+    {"label":"Coordenadas (cota ajustada)", "command":ax_com.action_coordinate_z},
     {"label":"Anchos", "command":ax_com.generateAnchos}
 ]
 component.ButtonFrame(tab1, title="Planillas", button_params=button_params)
@@ -195,7 +196,7 @@ button_params = [
 
 component.LoadFileFrame(tab3, title='Carga de Anexos', button_params=button_params)
 
-# 2 , 4 , 8 , 11
+
 button_params = [
     {"label":"2 - Puntos de la Red de Referencia Principal (2.903.3.F)", "command":ax_com.generate_annex_2},
     {"label":"4 - Resumen de Coordenadas de la Red de Referencia Principal (2.903.3.G)", "command":ax_com.generate_annex_4},

@@ -25,8 +25,8 @@ class Section :
         self.adjustedHeight = self.adjustHeight(self.height) # [Float]
         self.id = km # Str
         self.side = utils.parseLabelLetterArray(self.labels) # [Str]
-        self.coor_x = self.matrix[:,[1]] # [Str]
-        self.coor_y = self.matrix[:,[2]] # [Str]
+        self.coor_x = self.matrix[:,1] # [Str]
+        self.coor_y = self.matrix[:,2] # [Str]
  
  
     def merge (self, section):

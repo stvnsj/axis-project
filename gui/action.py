@@ -14,6 +14,9 @@ import config
 import level
 import dm
 
+import refactorModel.model as model
+import spreadsheet.coordinates as coor
+
 ################
 # GUI IMPORTS  #
 ################
@@ -107,6 +110,49 @@ def save_action_factory (filetype='Text', extension='csv'):
 def delete_load_file(field,stringvar):
     stringvar.set("")
     config.write_loaded_files(field, "")
+
+
+
+
+
+
+
+
+#################################
+#  _______       ____    __     #
+# |__   __|/\   |  _ \  /_ |    #
+#    | |  /  \  | |_) |  | |    #
+#    | | / /\ \ |  _ <   | |    #
+#    | |/ ____ \| |_) |  | |    #
+#    |_/_/    \_\____/   |_|    #
+#################################
+
+@save_action_factory("Text",'csv')
+@notify_action
+def action_coordinate_z() :
+    "Generates the input coordinate file, with adjusted heights of the longitudinal file"
+    
+    model1 = model.Model(
+        filename1 = descriptor_file.get(),   # DESCR
+        filename2 = coordinate_file.get(),   # COOR
+        filename3 = longitudinal_file.get(), # LONG
+    )
+    
+    coordinate_model = coor.AdjustedCoordinateModel(model1)
+    coordinate_model.writeCsv(SAVE_FILENAME['fullname'])
+
+
+####################################
+#  _______       ____    ____      #
+# |__   __|/\   |  _ \  |___ \     #
+#    | |  /  \  | |_) |   __) |    #
+#    | | / /\ \ |  _ <   |__ <     #
+#    | |/ ____ \| |_) |  ___) |    #
+#    |_/_/    \_\____/  |____/     #
+####################################
+
+
+
 
 
 ################################
