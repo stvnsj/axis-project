@@ -43,12 +43,9 @@ class StackElement:
         # -17.1, ... , 0 , +15.24
         self.indexList = np.argsort(section.distance);
         
-        
-        
         ##################
         # Element Layout #
         ##################
-        
         self.y_km                  = 0.5 + self.y0  #DONE
         self.y_distUnderline       = 2.0 + self.y_km #DONE
         self.y_distNum             = 2.1 + self.y_distUnderline #DONE
@@ -81,7 +78,8 @@ class StackElement:
         
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         height   = utils.format_float_array(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));
-        content = np.array([d + "," + h for d, h in zip(distance, height)])[:, None]
+        
+        content = np.array([d + "," + h for d, h in zip(distance, height)])
         f.write("PLINE\n")
         np.savetxt(f, content ,fmt='%s')
         f.write("\n")
@@ -94,9 +92,8 @@ class StackElement:
         height   = utils.format_float_array(self.y_figure + (self.section.adjustedHeight[self.indexList] - self.h0));        
         content = np.array([
             "LINE " + d + "," + f'{utils.formatFloat(self.y_figure)} ' + d + "," + h + "\n"
-            for d, h in zip(distance, height)])[:, None]
+            for d, h in zip(distance, height)])
         np.savetxt(self.f, content ,fmt='%s')
-        
  
  
     def axisLines (self,f):
@@ -156,7 +153,7 @@ class StackElement:
         
         content = np.array([
             "LINE " + a + "," +  b + " " + c + "," + d + "\n"
-            for a, b, c, d in zip(x1, y1, x2, y2)])[:, None]
+            for a, b, c, d in zip(x1, y1, x2, y2)])
         np.savetxt(self.f, content ,fmt='%s')
     
     
@@ -249,19 +246,19 @@ class Stack:
         self.currX = self.x0
         self.km0 = ""
         self.km1 = ""
-        self.model = model
+        self.model1 = model
     
     # i (initial sectionIndex)
     # j (end sectionIndex)
     # K 
     def write (self, f, i, j):
         
-        if i >= self.model.size:    
+        if i >= self.model1.size:    
             return ""
         
-        self.km0 = self.model.getSection(i).id;
+        self.km0 = self.model1.getSection(i).id;
         
-        iterator = mdl.ModelIterator(self.model,i,j)
+        iterator = mdl.ModelIterator(self.model1,i,j)
         
         self.currX += 85
         
@@ -283,8 +280,8 @@ class Stack:
 
 class CadScript:
     
-    def __init__ (self, model):
-        self.model = model;
+    def __init__ (self, model1):
+        self.model1 = model1;
     
     # i : Initial index of iteration
     # j : End index of iteration
@@ -302,28 +299,34 @@ class CadScript:
                 # 0 + 5 - 1 < 14 ===> 
                 # i = 5 ; j = 13 ; stacksize = 5
                 if  i + stackSize - 1 < j :
-                    stack = Stack(self.model, y0)
+                    stack = Stack(self.model1, y0)
                     y0 = stack.write(f, i, i + stackSize - 1)
                     i += stackSize;
                 
                 
                 else:
-                    stack = Stack(self.model, y0)
+                    stack = Stack(self.model1, y0)
                     stack.write(f, i, j)
                     break
     
     
-    def writeKm (self,dm0="",dm1="", stackSize=5, fn="testcadkm.SCR"):
+    def writeCompleteProject(self, filename, stackSize=5):
+        print("Running new version of cad.writeCompleteProject")
+        N = self.model1.get_size()
+        self.write(0, N , stackSize=stackSize, filename=filename)
         
-        i = self.model.get_lower_dm_index(dm0)
-        j = self.model.get_upper_dm_index(dm1)
+    
+    def writeKm (self,dm0="",dm1="", stackSize=5, fn="testcadkm.SCR"):
+        print("Running new version of cad.writeKm")
+        i = self.model1.get_lower_dm_index(dm0)
+        j = self.model1.get_upper_dm_index(dm1)
         self.write(i,j, stackSize, fn)
     
     
     # fileSize is the number of cross sections per file
     def writeFull (self, path, project_name, fileSize = 30, stackSize = 5):
-        
-        N = self.model.size
+        print("Running new version of cad.writeFull")
+        N = self.model1.size
         directory = os.path.join(path,project_name)
         os.makedirs(directory, exist_ok=True)
         
@@ -331,7 +334,7 @@ class CadScript:
             
             if k < N:
                 
-                km = self.model.getSection(k).km
+                km = self.model1.getSection(k).km
                 
                 file_path = os.path.join(directory, f"{project_name}-{km}.scr")
                 
@@ -344,10 +347,6 @@ class CadScript:
             
             else:
                 break
-    
-    def writeCompleteProject(self, filename, stackSize=5):
-        N = self.model.get_size()
-        self.write(0, N , stackSize=stackSize, filename=filename)
 
 
 def main():
@@ -364,7 +363,8 @@ def main():
     
     scr = CadScript(model)
     # scr.writeCompleteProject("test.scr")
-    scr.writeKm (dm0="5000",dm1="5789.800",stackSize=3,fn="test.scr")
+    # scr.writeCompleteProject ("test.scr", stackSize=3)
+    scr.writeKm(dm0='30',dm1='3000', stackSize=5, fn="testcadkm.SCR")
     
 
 

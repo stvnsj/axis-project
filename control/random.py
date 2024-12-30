@@ -20,6 +20,9 @@ def assign_weight (row, positive = True):
         return 0
     if not positive and distance >= 0.000:
         return 0
+
+
+    #######################################
     if np.abs(distance) < 0.001:
         return 0
     if np.abs(distance) < 6.000:
@@ -71,7 +74,7 @@ class RandomModel :
                 print(f">> Advertencia: No se pudo seleccionar puntos aleatorios para dm {sec.dm}")
     
     def write_random_control (self, filename="TestControl.csv"):
-        with open("output.csv", mode="w") as file:
+        with open(filename, mode="w") as file:
             for sec in self.sections:
                 np.savetxt(file, sec.matrix, delimiter=",", fmt="%s")  # Specify format as needed
 

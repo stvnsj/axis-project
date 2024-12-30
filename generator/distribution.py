@@ -1,5 +1,26 @@
+"""
+
+Brief description:
+This module has functions that take a file a return a smaller randomly altered
+file for control comparison purposes.
+
+Detailed Description:
+
+"""
 import numpy as np
 import utils
+from control.range import ControlRangeList
+from control.mop   import MopMatrixIterator
+
+
+
+def random_sign ():
+    choice = np.random.choice([1,-1], size=1, p=[0.5,0.5])
+    return choice[0]
+
+def binary_choice ():
+    choice = np.random.choice([True,False], size=1, p=[0.5,0.5])
+    return choice[0]
 
 def choose_random_atom (choices, weights) :
     choice  = np.random.choice(choices, size=1, replace=True, p=weights)
@@ -13,13 +34,39 @@ def choose_random_array (choices, weights=None, size=1) :
 
 
 
-def alter_trans_file (filename, output_filename) :
+def mop_ctrl_file (mop_file, ranges_file, output_proj_file, output_ctrl_file) :
     """Returns a randomly modified version of the provided eje-estaca file."""
     
-    matrix = utils.read_csv(filename)
-    N = len(matrix)
+    matrix = utils.read_csv(mop_file)
+
+    proj_matrix = np.empty((0,4))
+    ctrl_matrix = np.empty((0,4))
+
+    # List of dm indices
+    mask   = matrix[:,0] != ''
     
-    pass
+    # List of dm's to be controlled
+    control_dm_list = ControlRangeList(ranges_file).filter_dm_list(matrix[mask,0])
+    
+    for section in MopMatrixIterator(matrix):
+        section_dm = section[0][0]
+        
+        if not (section_dm in control_dm_list):
+            proj_matrix = np.vstack((proj_matrix, section))
+            continue
+        
+        
+        proj_matrix = np.vstack((proj_matrix, section[0]))
+        ctrl_matrix = np.vstack((ctrl_matrix, section[0]))
+        
+        for row in section[1:]:
+            if binary_choice() :
+                proj_matrix = np.vstack((proj_matrix, row))
+            else:
+                ctrl_matrix = np.vstack((ctrl_matrix, row)) 
+ 
+    utils.write_csv(output_proj_file, proj_matrix)
+    utils.write_csv(output_ctrl_file, ctrl_matrix)
 
 
 
@@ -61,4 +108,9 @@ def main1 (filename, output_filename) :
 
 
 if __name__ == '__main__':
-    pass
+    mop_ctrl_file(
+        "/home/jstvns/axis/eqc-input/control-mop/mop.csv",
+        "/home/jstvns/axis/eqc-input/control-mop/tramos.csv",
+        "/home/jstvns/axis/eqc-input/control-mop/mop-proj.csv",
+        "/home/jstvns/axis/eqc-input/control-mop/mop-ctrl.csv"
+    )

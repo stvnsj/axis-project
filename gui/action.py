@@ -1,21 +1,30 @@
 import model as md
-import cad
 import spreadsheet
 import plotter
 import reader as rd
-import annex 
-import annex2
-import annex4
-import annex5
-import annex8
-import annex11
-import annexLong
+
+# ANNEX
+import annex.annex2    as annex2
+import annex.annex4    as annex4
+import annex.annex5    as annex5
+import annex.annex8    as annex8
+import annex.annex11   as annex11
+import annex.annexAxis as annexAxis
+import annex.annex     as annex
+import annex.annexLong as annexLong
+
+
 import config
 import level
 import dm
 
+
 import refactorModel.model as model
+import refactorCad.cad as cad
+
 import spreadsheet.coordinates as coor
+import spreadsheet.mop as mop
+import spreadsheet.width as width
 
 ################
 # GUI IMPORTS  #
@@ -103,10 +112,6 @@ def save_action_factory (filetype='Text', extension='csv'):
     return action
 
 
-
-
-
-
 def delete_load_file(field,stringvar):
     stringvar.set("")
     config.write_loaded_files(field, "")
@@ -114,18 +119,132 @@ def delete_load_file(field,stringvar):
 
 
 
+######################################################
+#  _______       ____      _____          _____      #
+# |__   __|/\   |  _ \    / ____|   /\   |  __ \     #
+#    | |  /  \  | |_) |  | |       /  \  | |  | |    #
+#    | | / /\ \ |  _ <   | |      / /\ \ | |  | |    #
+#    | |/ ____ \| |_) |  | |____ / ____ \| |__| |    #
+#    |_/_/    \_\____/    \_____/_/    \_\_____/     #
+######################################################
+@save_action_factory("CAD Script" , 'scr')
+@notify_action
+def complete_cad():
+    
+    sl = stackLength.get()
+    
+    try:
+        assert int(sl) > 0
+    except:
+        messagebox.showinfo("Alert", "El número de perfiles por fila debe ser un número >= 1")
+        return
+    
+    model1 = model.Model(
+        descriptor_file.get(),
+        coordinate_file.get(),
+        longitudinal_file.get()
+    )
+    
+    cadScript = cad.CadScript(model1)
+    cadScript.writeCompleteProject(
+        SAVE_FILENAME['fullname'],
+        stackSize=int(sl)
+    )
+
+@save_action_factory("CAD Script" , 'scr')
+@notify_action
+def generateCAD():
+    
+    m0 = meter0.get()
+    m1 = meter1.get()
+    sl = stackLength.get()
+    
+    try:
+        assert int(sl) > 0
+    except:
+        messagebox.showinfo("Alert", "El número de perfiles por fila debe ser un número >= 1")
+        return
+ 
+    try:
+        assert float (m0) >= 0
+    except:
+        messagebox.showinfo("Alert", "Metros Inicio debe ser un número real >= 0")
+        return
+    
+    try:
+        assert float (m1) >= 0 and float (m0) < float(m1)
+    except:
+        messagebox.showinfo("Alert", "Metros Final debe ser un número real >=0 y > Metros Incio")
+        return
+    
+    
+    model1 = model.Model(
+        filename1 = descriptor_file.get(),   # DESCR
+        filename2 = coordinate_file.get(),   # COOR
+        filename3 = longitudinal_file.get(), # LONG
+    )
+    
+    cadScript = cad.CadScript(model1)
+    cadScript.writeKm(
+        dm0 = m0,
+        dm1 = m1,
+        stackSize=int(sl),
+        fn=SAVE_FILENAME['fullname']
+    )
+
+
+def generateFullCAD():
+    
+    try:
+        assert int(stackLength.get()) >0
+    except:
+        messagebox.showinfo("Alert", "\'Perfiles por fila\' debe ser un entero >0")
+        return
+    
+    
+    try:
+        assert int(chunkSize.get()) >0
+    except:
+        messagebox.showinfo("Alert", "\'Perfiles por Archivo\' debe ser un entero >0")
+        return
+    
+    
+    try:
+        assert projectName.get() != ""
+    except:
+        messagebox.showinfo("Alert", "Debe ingresar un nombre de proyecto")
+        return
+    
+    directory = filedialog.askdirectory()
+    
+    if directory == "":
+        return 
+    
+    model1 = model.Model(
+        descriptor_file.get(),
+        coordinate_file.get(),
+        longitudinal_file.get(),
+    )
+    
+    cadScript = cad.CadScript(model1)
+    cadScript.writeFull (directory, projectName.get(), fileSize = int(chunkSize.get()), stackSize = int(stackLength.get()))
 
 
 
 
-#################################
-#  _______       ____    __     #
-# |__   __|/\   |  _ \  /_ |    #
-#    | |  /  \  | |_) |  | |    #
-#    | | / /\ \ |  _ <   | |    #
-#    | |/ ____ \| |_) |  | |    #
-#    |_/_/    \_\____/   |_|    #
-#################################
+@save_action_factory("Text",'csv')
+@notify_action
+def generateMOP ():
+    "Generates the csv version of the 5.2.2 (MOP) annex."
+    
+    model1 = model.Model(
+        filename1 = descriptor_file.get(),   # DESCR
+        filename2 = coordinate_file.get(),   # COOR
+        filename3 = longitudinal_file.get(), # LONG
+    )
+    
+    coordinate_model = mop.MopFormat(model1)
+    coordinate_model.write(SAVE_FILENAME['fullname'])
 
 @save_action_factory("Text",'csv')
 @notify_action
@@ -141,15 +260,65 @@ def action_coordinate_z() :
     coordinate_model = coor.AdjustedCoordinateModel(model1)
     coordinate_model.writeCsv(SAVE_FILENAME['fullname'])
 
+@save_action_factory("Text",'csv')
+@notify_action
+def generateAnchos() :
+    
+    model1 = model.Model(
+        filename1 = descriptor_file.get(),   # DESCR
+        filename2 = coordinate_file.get(),   # COOR
+        filename3 = longitudinal_file.get(), # LONG
+    )
+    
+    width_model = width.ModelWidth(model1)
+    width_model.write(SAVE_FILENAME['fullname'])
 
-####################################
-#  _______       ____    ____      #
-# |__   __|/\   |  _ \  |___ \     #
-#    | |  /  \  | |_) |   __) |    #
-#    | | / /\ \ |  _ <   |__ <     #
-#    | |/ ____ \| |_) |  ___) |    #
-#    |_/_/    \_\____/  |____/     #
-####################################
+
+
+####################################################################
+#  _______       ____     _      ________      ________ _          #
+# |__   __|/\   |  _ \   | |    |  ____\ \    / /  ____| |         #
+#    | |  /  \  | |_) |  | |    | |__   \ \  / /| |__  | |         #
+#    | | / /\ \ |  _ <   | |    |  __|   \ \/ / |  __| | |         #
+#    | |/ ____ \| |_) |  | |____| |____   \  /  | |____| |____     #
+#    |_/_/    \_\____/   |______|______|   \/   |______|______|    #
+####################################################################
+
+@save_action_factory("Text",'csv')
+@notify_action
+def generate_report():
+    cir = level.parser(
+        libreta_file.get(),
+        pr_height_file.get(),
+        trigonometric_file.get()
+    )
+    cir.write_circuit_table(SAVE_FILENAME['fullname'])
+
+@save_action_factory("Text",'csv')
+@notify_action
+def generate_longitudinal(): 
+    cir = level.parser(
+        libreta_file.get(),
+        pr_height_file.get(),
+        trigonometric_file.get()
+    )
+    cir.write_longitudinal(SAVE_FILENAME['fullname'])
+
+@save_action_factory("CAD Script",'scr')
+@notify_action
+def generate_height_cad():    
+    cir = level.parser(
+        libreta_file.get(),
+        pr_height_file.get(),
+        trigonometric_file.get()
+    )
+    cir.plot(SAVE_FILENAME['fullname'])
+
+
+
+
+
+
 
 
 
@@ -187,7 +356,6 @@ def get_plot_dm (PLOT_DM) :
     global section_index
     if trans_model is not None:
         PLOT_DM.set(trans_model.getSection(i).km)
-    
 
 def next_section_index (fig,ax,canvas, plot_dm):
     global trans_model
@@ -264,6 +432,29 @@ def get_dm_analysis ():
     )  
 
 
+
+#################################################################
+#  _______       ____              _   _ _   _ ________   __    #
+# |__   __|/\   |  _ \       /\   | \ | | \ | |  ____\ \ / /    #
+#    | |  /  \  | |_) |     /  \  |  \| |  \| | |__   \ V /     #
+#    | | / /\ \ |  _ <     / /\ \ | . ` | . ` |  __|   > <      #
+#    | |/ ____ \| |_) |   / ____ \| |\  | |\  | |____ / . \     #
+#    |_/_/    \_\____/   /_/    \_\_| \_|_| \_|______/_/ \_\    #
+#################################################################
+
+@save_action_factory("Excel",'xlsx')
+@notify_action
+def generate_eje_estaca():
+    annexAxis.generate(eje_estaca_file.get(), SAVE_FILENAME['fullname'])
+
+@save_action_factory("Excel",'xlsx')
+@notify_action
+def generate_anexo_trans() :
+    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
+    matrix, labels, om, ol, heights = reader.getData()
+    model = md.Model(heights,matrix,labels, om, ol)
+    annex.trans(model,SAVE_FILENAME['fullname'])
+    
 @save_action_factory('Excel','xlsx')
 @notify_action
 def generate_annex_long ():
@@ -274,7 +465,6 @@ def generate_annex_long ():
         trigonometric_file.get(),
         SAVE_FILENAME['fullname']
     )
-
 
 @save_action_factory("Excel",'xlsx')
 @notify_action
@@ -328,159 +518,3 @@ def generate_annex_11 ():
         SAVE_FILENAME['fullname']
     )
 
-
-@save_action_factory("Text",'csv')
-@notify_action
-def generate_report():
-    cir = level.parser(
-        libreta_file.get(),
-        pr_height_file.get(),
-        trigonometric_file.get()
-    )
-    cir.write_circuit_table(SAVE_FILENAME['fullname'])
-
-
-@save_action_factory("Text",'csv')
-@notify_action
-def generate_longitudinal(): 
-    cir = level.parser(
-        libreta_file.get(),
-        pr_height_file.get(),
-        trigonometric_file.get()
-    )
-    cir.write_longitudinal(SAVE_FILENAME['fullname'])
-
-@save_action_factory("CAD Script",'scr')
-@notify_action
-def generate_height_cad():    
-    cir = level.parser(
-        libreta_file.get(),
-        pr_height_file.get(),
-        trigonometric_file.get()
-    )
-    cir.plot(SAVE_FILENAME['fullname'])
-
-@save_action_factory("CAD Script" , 'scr')
-@notify_action
-def generateCAD():
-    
-    m0 = meter0.get()
-    m1 = meter1.get()
-    sl = stackLength.get()
-    
-    try:
-        assert int(sl) > 0
-    except:
-        messagebox.showinfo("Alert", "El número de perfiles por fila debe ser un número >= 1")
-        return
- 
-    try:
-        assert float (m0) >= 0
-    except:
-        messagebox.showinfo("Alert", "Metros Inicio debe ser un número real >= 0")
-        return
-    
-    try:
-        assert float (m1) >= 0 and float (m0) < float(m1)
-    except:
-        messagebox.showinfo("Alert", "Metros Final debe ser un número real >=0 y > Metros Incio")
-        return
-    
-    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
-    matrix, labels, om, ol, heights = reader.getData()
-    model = md.Model(heights,matrix,labels, om, ol)
-    cadScript = cad.CadScript(model)
-    cadScript.writeKm(
-        km0 = m0,
-        km1 = m1,
-        stackSize=int(sl),
-        fn=SAVE_FILENAME['fullname']
-    )
-
-@save_action_factory("CAD Script" , 'scr')
-@notify_action
-def complete_cad():
-    
-    sl = stackLength.get()
-    
-    try:
-        assert int(sl) > 0
-    except:
-        messagebox.showinfo("Alert", "El número de perfiles por fila debe ser un número >= 1")
-        return
-    
-    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
-    matrix, labels, om, ol, heights = reader.getData()
-    model = md.Model(heights,matrix,labels, om, ol)
-    
-    cadScript = cad.CadScript(model)
-    cadScript.writeCompleteProject(
-        SAVE_FILENAME['fullname'],
-        stackSize=int(sl)
-    )
-
-
-
-
-@save_action_factory("Text",'csv')
-@notify_action
-def generateMOP ():
-    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
-    matrix, labels, om, ol, heights = reader.getData()
-    model = md.Model(heights,matrix,labels, om, ol)
-    ss = spreadsheet.Spreadsheet(model)
-    ss.writeKmMOP(fn=SAVE_FILENAME['fullname'])
-
-
-@save_action_factory("Text",'csv')
-@notify_action
-def generateAnchos() :
-    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
-    matrix, labels, om, ol, heights = reader.getData()
-    model = md.Model(heights,matrix,labels, om, ol)
-    ss = spreadsheet.Spreadsheet(model)
-    ss.writeKmWidth(fn=SAVE_FILENAME['fullname'])
-
-
-@save_action_factory("Excel",'xlsx')
-@notify_action
-def generate_anexo_trans() :
-    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
-    matrix, labels, om, ol, heights = reader.getData()
-    model = md.Model(heights,matrix,labels, om, ol)
-    annex.trans(model,SAVE_FILENAME['fullname'])
-
-
-
-
-def generateFullCAD():
-    
-    try:
-        assert int(stackLength.get()) >0
-    except:
-        messagebox.showinfo("Alert", "\'Perfiles por fila\' debe ser un entero >0")
-        return
-    
-    try:
-        assert int(chunkSize.get()) >0
-    except:
-        messagebox.showinfo("Alert", "\'Perfiles por Archivo\' debe ser un entero >0")
-        return
-    
-    try:
-        assert projectName.get() != ""
-    except:
-        messagebox.showinfo("Alert", "Debe ingresar un nombre de proyecto")
-        return
-    
-    directory = filedialog.askdirectory()
-    
-    if directory == "":
-        return 
-    
-    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
-    matrix, labels, om, ol, heights = reader.getData()
-    model = md.Model(heights,matrix,labels, om, ol)
-    
-    cadScript = cad.CadScript(model)
-    cadScript.writeFull (directory, projectName.get(), fileSize = int(chunkSize.get()), stackSize = int(stackLength.get()))

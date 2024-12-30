@@ -25,11 +25,12 @@ from tkinter.filedialog import asksaveasfile
 
 class ButtonFrame(tk.Frame):
     
-    def __init__ (self, parent, title="Load File", button_params = [],side="top"):       
+    def __init__ (self, parent, title="", button_params = [],side="top"):       
         super().__init__(parent,pady=3,padx=3,bd=3,relief="groove")
         self.row = 0
         self.pack(side=side,pady=5)
-        self.insert_title(title)
+        if title:
+            self.insert_title(title)
         self.frame_grid = tk.Frame(self)
         self.frame_grid.pack()
         for param in button_params:
@@ -52,7 +53,6 @@ class ButtonFrame(tk.Frame):
 class LoadFileFrame(tk.Frame):
     
     def __init__ (self, parent, title="Load File", button_params = [], pady = 3):
-        
         super().__init__(parent,pady=pady,padx=3,bd=3,relief="groove")
         self.row = 0
         self.pack(pady=5)
@@ -83,7 +83,6 @@ class LoadFileFrame(tk.Frame):
         label.grid(row=self.row,column=3)
         
         # bind the stringvar to the command
-
         # Initial state
         stringvar.set(config.read_loaded_files(field))
     
@@ -94,14 +93,12 @@ class LoadFileFrame(tk.Frame):
         )
         config.write_loaded_files(field,path)
         stringvar.set(path)
-        
  
     def load_dir_command(self,stringvar,field) :
         path = filedialog.askdirectory(title="Seleccionar Directorio")
         config.write_loaded_files(field,path)
         stringvar.set(path)
-    
-    
+
 
 class InputFrame(tk.Frame):
     

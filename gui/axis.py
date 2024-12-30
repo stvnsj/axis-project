@@ -1,20 +1,8 @@
 ################
 # AXIS IMPORTS #
 ################
-import level
-import cad
-import spreadsheet
 import model as md
-import annex 
-import annex2
-import annex5
-import annex4
-import annex8
-import annex9
-import annex11
-import annexLong
 from . import action as ax_com
-import reader as rd
 from .rootFrame import root
 from . import component
 from .stringvar import *
@@ -156,30 +144,60 @@ component.ButtonFrame(tab2, title="Planillas", button_params=button_params)
 
 
 
-####################
-# ################ #
-# # ANEXOS TAB 3 # #
-# ################ #
-####################
+############################################################################
+#              _   _ _   _ ________   __                                   #
+#        /\   | \ | | \ | |  ____\ \ / /                                   #
+#       /  \  |  \| |  \| | |__   \ V /                                    #
+#      / /\ \ | . ` | . ` |  __|   > <                                     #
+#     / ____ \| |\  | |\  | |____ / . \                                    #
+#    /_/    \_\_| \_|_| \_|______/_/ \_\                                   #
+#                                                                          #
+#                                                                          #
+#  _____  ______ ______ _____ _   _ _____ _______ _______      ______      #
+# |  __ \|  ____|  ____|_   _| \ | |_   _|__   __|_   _\ \    / / __ \     #
+# | |  | | |__  | |__    | | |  \| | | |    | |    | |  \ \  / / |  | |    #
+# | |  | |  __| |  __|   | | | . ` | | |    | |    | |   \ \/ /| |  | |    #
+# | |__| | |____| |     _| |_| |\  |_| |_   | |   _| |_   \  / | |__| |    #
+# |_____/|______|_|    |_____|_| \_|_____|  |_|  |_____|   \/   \____/     #
+############################################################################
+
+annex250_frame = tk.Frame(tab4, padx=3, pady=3, bd=3, relief="raised")
+
+button_params = [eje_estaca_file_param]
+component.LoadFileFrame(annex250_frame, title="Carga de Archivos Eje Estaca", button_params = button_params)
+
+
+button_params = [
+    {"label":"Eje Estaca (3.5.0)", "command":ax_com.generate_eje_estaca},
+]
+component.ButtonFrame(annex250_frame,button_params=button_params)
+annex250_frame.pack()
+
+
+annex252_frame = tk.Frame(tab4, padx=3, pady=3, bd=3, relief="raised")
 
 button_params = [descriptor_file_param, coordinate_file_param, longitudinal_file_param]
-component.LoadFileFrame(tab4, title="Carga de Archivos Estacado", button_params = button_params)
+component.LoadFileFrame(annex252_frame, title="Carga de Archivos Estacado", button_params = button_params)
 
 
 button_params = [
-    {"label":"2 - Perfiles Transversales (2.5.2)", "command":ax_com.generate_anexo_trans},
+    {"label":"Perfiles Transversales (2.5.2)", "command":ax_com.generate_anexo_trans},
 ]
-component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
+component.ButtonFrame(annex252_frame,button_params=button_params)
+annex252_frame.pack()
 
+annex253_frame = tk.Frame(tab4, padx=3, pady=3, bd=3, relief="raised")
 
 button_params = [pr_height_file_param,libreta_file_param,trigonometric_file_param]
-component.LoadFileFrame(tab4, title="Carga de Archivos Nivelación", button_params = button_params)
+component.LoadFileFrame(annex253_frame, title="Carga de Archivos Nivelación", button_params = button_params)
 
 button_params = [
-    {"label":"3 - Nivelación Longitudinal del Eje Estacado (2.5.3)",
+    {"label":"Nivelación Longitudinal del Eje Estacado (2.5.3)",
      "command": ax_com.generate_annex_long},
 ]
-component.ButtonFrame(tab4, title="Generación de Anexos (DEFINITIVO)", button_params=button_params)
+component.ButtonFrame(annex253_frame,button_params=button_params)
+
+annex253_frame.pack()
 
 
 

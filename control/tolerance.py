@@ -5,7 +5,7 @@ descr_tol = {
     "P-s" : 0.010,
     "ll"  : 0.010,}
 
-
+# DENTRO DE TOLERANCIA ?
 def within_tol (descr, y_ctrl, y_proj) :
 
     try:

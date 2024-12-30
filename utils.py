@@ -11,7 +11,7 @@ class AxisError(Exception):
 
 def str_to_flt(s):
     try:
-        return np.round(float(s),3)
+        return np.round(np.float64(s),3)
     except:
         raise AxisError(f'El valor {s} no puede convertirse en número')
     
@@ -71,7 +71,7 @@ class Reporter :
 
 
 
-formatFloat = lambda x : f'{np.round(x,3)}'
+formatFloat      = lambda x : f'{np.round(x,3)}'
 formatFloatArray = lambda array : np.vectorize(formatFloat)(array)
 
 # RESTORE THE CORRECT DIRECTION
@@ -150,7 +150,7 @@ def normalize_fstring(s):
         # It is converted to a float, which succeeds if representation is valid.
         # It is rounded to the the third decimal.
         # It is returned as a decimal representation with three decimals.
-        number = np.round(float(s.strip()),3)
+        number = np.round(np.float64(s.strip()),3)
         return f"{number:.3f}"
     except:
         # If string does not represents a valid number, it is returned
@@ -170,11 +170,16 @@ def is_float(s):
 def normalize_fstring_array(arr):
     return np.vectorize(normalize_fstring)(arr)
 
-def read_csv (input_file):
+def read_csv (input_file, cols=None):
     """normalizes string decimal numbers into the format 23.120 (three decimals).
     Other strings are left as they are. It returns a string matrix."""
-    matrix = np.genfromtxt(input_file, delimiter=',', dtype=str, skip_header=0, invalid_raise=False)
-    return normalize_fstring_array(normalize_fstring_array(matrix))
+    matrix = np.genfromtxt(input_file, delimiter=',', dtype=str, skip_header=0, invalid_raise=False, usecols=cols)
+    return normalize_fstring_array(matrix)
+
+def write_csv(filename, matrix, mode = 'w'):
+    """writes a numpy array into a csv file"""
+    with open(filename, mode=mode) as file:
+        np.savetxt(file, matrix, delimiter=",", fmt="%s")
 
 
 def round (x) :
@@ -194,5 +199,9 @@ def clean_descriptor(s):
     return s.strip()  # Final strip to handle any leftover whitespace
 
 if __name__ == "__main__":
-    assert(normalize_pr("Pr - 123") == "PR123")
-    assert(normalize_pr("Pr _ 123") == "PR123")   
+    arr = np.array([
+        [1,2,34],
+        [3,2,1],
+        [0,0,0]
+    ])
+    write_csv('csv_test.csv', arr)

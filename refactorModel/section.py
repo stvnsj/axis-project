@@ -21,6 +21,7 @@ class Section :
         self.km = km # Str
         self.matrix = matrix # [Str, Str, Str, Str, Str]
         self.height = height # Str
+        
         self.distance = self.compute_distance() # [Float]
         self.adjustedHeight = self.adjustHeight(self.height) # [Float]
         self.id = km # Str

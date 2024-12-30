@@ -5,12 +5,12 @@
         "trigonometrica": "",
         "libreta": "/home/jstvns/axis/axis/documentos/LIBRETAcompleta.csv",
         "estacado-descriptor": "",
-        "estacado-coordenadas": "/home/jstvns/eqc-input/dbase-input/dat-et-coord.csv",
+        "estacado-coordenadas": "/home/jstvns/eqc-input/dbase-input/dat-et.csv",
         "longitudinal": "/home/jstvns/eqc-input/dbase-input/longitudinal.csv",
         "anexo-1": "/home/jstvns/axis/axis/anexos/anteproyecto/anexo1.xlsx",
         "anexo-10": "",
         "fotos": "",
         "georef": "",
-        "eje-estaca": ""
+        "eje-estaca": "/home/jstvns/eje-estaca.csv"
     }
 }

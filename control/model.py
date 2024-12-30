@@ -6,6 +6,9 @@ from pprint import pprint
 from control.tolerance import within_tol
 
 
+# Incorporate a range table to the distance control.
+
+
 class ModelIterator :
     def __init__ (self, model, start=0, end=0):
         self._model = model
@@ -36,14 +39,8 @@ class Line :
         self.slope = (y1-y0) / (x1-x0)
     
     def get_y (self,x) :
-        
-        # x es el distancia en perfil de control
-        
-        # y es cota de intersección
-        
-        # y = np.round(self.slope * (x - self.x0) + self.y0, 3) # Redondeado
-        y = self.slope * (x - self.x0) + self.y0 # Sin redondear
-        
+        y = np.round(self.slope * (x - self.x0) + self.y0, 3) # Redondeado
+        # y = self.slope * (x - self.x0) + self.y0 # Sin redondear
         return y
     
     def contains_x (self,x) :
@@ -56,7 +53,7 @@ class Line :
     
 class ControlSection :
     """This is a section of the control model. It contains info about
-    the control and topographic measurements. It is used by the control.cad
+    the control and projec measurements. It is used by the control.cad
     module"""
     def __init__ (
             self,
@@ -107,15 +104,18 @@ class TopoSection :
         return None
 
 
-
-
+# KOKOMAT 
 class ControlModel :
     
-    
-    def __init__ (self, model_topo, model_ctrl):
+    def __init__ (self, filename_proj, filename_ctrl, filename_range = ""):
         
+        f1 = "/home/jstvns/eqc-input/auto-control/coor-topo.csv"
+        f2 = "/home/jstvns/eqc-input/auto-control/coor-ctrl.csv"
         
-        self.model_topo = model_topo
+        model_topo = mdl.Model(filename2 = f1)
+        model_ctrl = mdl.Model(filename2 = f2)
+        
+        self.model_topo = model_proj
         self.model_ctrl = model_ctrl
         self.topo_sections = []
         self.ctrl_sections = []
@@ -125,7 +125,7 @@ class ControlModel :
         self.fieldNumber = 8
         
         
-        for section in mdl.ModelIterator(model_topo):
+        for section in mdl.ModelIterator(model_proj):
             dist = np.copy (section.distance)
             height   = np.copy (section.adjustedHeight)
             sorted_indices = np.argsort(dist)

@@ -153,7 +153,8 @@ def curr_date (opt=0) :
             8 : "AGOSTO",
             9 : "SEPTIEMBRE",
             10 : "OCTUBRE",
-            11 : "NOVIEMBRE"
+            11 : "NOVIEMBRE",
+            12 : "DICIEMBRE",
         }
         return f'{MES[datetime.now().month]} {datetime.now().year}'
     
@@ -169,7 +170,8 @@ def curr_date (opt=0) :
             8 : "AGO",
             9 : "SEP",
             10 : "OCT",
-            11 : "NOV"
+            11 : "NOV",
+            12 : "DEC",
         }
         return f'{MES[datetime.now().month]} {datetime.now().year}'
 

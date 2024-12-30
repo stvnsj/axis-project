@@ -1,5 +1,5 @@
 import numpy as np
-from .section import Section
+from refactorModel.section import Section
 import utils
 import sys
 import os
@@ -25,6 +25,23 @@ class ModelIterator :
         return section
 
 
+class Iterator :
+    
+    def __init__ (self, model):
+        self.__model__ = model
+        self.__index__ = 0
+    
+    def __iter__ (self) :
+        return self
+    
+    def __next__ (self) :
+        if self.__index__ >= self.__model__.size:
+            raise StopIteration
+        section = self.__model__.getSection(self.__index__)
+        self.__index__ += 1
+        return section
+        
+
 class Model :
     def __init__ (
             self,
@@ -32,6 +49,7 @@ class Model :
             filename2 = "", # Coordinate File
             filename3 = "", # Longitudinal File
     ):
+        print('refactorModel')
         
         matrix_descr  = utils.read_csv(filename1) if filename1 != "" else None
         matrix_coor   = utils.read_csv(filename2) if filename2 != "" else None 
