@@ -1,9 +1,35 @@
+"""
+Los campos del control de línea de tierra transversal son:
+- dm
+- lado
+- distancia
+- cota control
+- cota estudio
+- tipo terreno
+- tolerancia
+- diferencia
+- cumple
+"""
+
+
 
 import numpy as np
 import utils
 import bisect
 
 from control.range import ControlRangeList
+
+
+
+tolerance = {
+    1 : 0.01,
+    2 : 0.05,
+    3 : 0.10,
+    4 : 0.25,
+    -1: 0
+}
+
+
 
 class Line :
     
@@ -133,12 +159,13 @@ class MOPSection:
 
 class MOPControlPoint :
     
-    def __init__ (self, dist, height, descr, delta_y):
+    def __init__ (self, dist, proj_height, ctrl_height, descr, delta_y):
         
-        self.distance   = dist
-        self.height     = height
-        self.descriptor = descr
-        self.delta      = delta_y
+        self.distance     = dist
+        self.proj_height  = proj_height 
+        self.ctrl_height  = ctrl_height
+        self.descriptor   = descr
+        self.delta        = delta_y
         
         if delta_y is None:
             self.weight = 0
@@ -158,7 +185,23 @@ class MOPControlPoint :
     def __le__ (self, point):
         return self.distance <= point.distance
     def __str__ (self) :
-        return f'POINT d={self.distance} {type(self.distance)}'
+        return f'POINT d={self.distance}'
+    
+    def get_ground_type(self):
+        # Use regular expression to find the number in the string
+        match = re.search(r'\d+', self.descriptor)
+        if match:
+            return int(match.group())
+        return -1
+    
+    def is_within_tolerance (self) :
+        ground_type = self.get_ground_type()
+        tol = tolerance[ground_type]
+        if np.abs (self.delta) > tol:
+            return False
+        return True
+        
+        
 
 
 
@@ -169,7 +212,7 @@ class MOPControlSection :
         self.point_list = point_list
     
     def select_random_points (self):
-        zero_point = MOPControlPoint(0,0,'',0)
+        zero_point = MOPControlPoint(0,0,0,'',0)
         index = bisect.bisect_left (self.point_list, zero_point)
         
         neg_distr = np.array([p.weight for p in self.point_list[0:index]])
@@ -188,11 +231,10 @@ class MOPControlSection :
             print(f"No se pueden seleccionar 3 puntos positivos de DM {self.dm} !")
         
         random_points = np.sort(np.concatenate(( pointsA , pointsB )))
-        for p in random_points:
-            print(p)
-        input("NEXT SAMPLE\n")
+        #for p in random_points:
+        #    print(p)
+        #print(random_points)
         return random_points
-        
 
 class MOP :
     
@@ -242,7 +284,7 @@ class MOPControl :
         
         self.control_section_list = []
         
-        self.control_matrix = np.empty((0,4))
+        self.control_matrix = np.empty((0,8))
         #self.__control__()
     
     def __check_completeness__ (self) :
@@ -259,6 +301,7 @@ class MOPControl :
             
             proj_section = self.mop_proj.get_section(dm)
             ctrl_section = self.mop_ctrl.get_section(dm)
+            proj_height  = 0
             mop_control_point_list = []            
             
             for point_ctrl in ctrl_section.point_list:
@@ -272,6 +315,7 @@ class MOPControl :
                     line = Line(point_proj_1,point_proj_2)
                     y = line.get_y(point_ctrl.distance)
                     DELTA = np.round(y-point_ctrl.height,3)
+                    proj_height = y
                     
                     new_row = np.array([
                         dm,
@@ -293,13 +337,14 @@ class MOPControl :
                 
                 mop_control_point = MOPControlPoint(
                     point_ctrl.distance,
+                    proj_height,
                     point_ctrl.height,
                     point_ctrl.descriptor,
                     DELTA
                 )
                 
                 mop_control_point_list.append(mop_control_point)
-                
+           
             self.control_section_list.append(MOPControlSection(dm,mop_control_point_list))
  
  
@@ -311,7 +356,10 @@ class MOPControl :
     def select_random_points(self):
         self.__control__()
         for sec in self.control_section_list:
-            sec.select_random_points()
+            rand_points = sec.select_random_points()
+            for p in rand_points:
+                print(p)
+            print()
         
 
 def main () :
@@ -334,8 +382,8 @@ def main () :
         '/home/jstvns/axis/eqc-input/control-mop/tramos.csv'
     )
  
-    #mop_control.write()
-    mop_control.select_random_points()
+    mop_control.write()
+    #mop_control.select_random_points()
 
 if __name__ == '__main__':
     main()

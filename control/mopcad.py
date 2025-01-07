@@ -90,7 +90,7 @@ class StackElement:
         self.ctrl_height_arr             = np.array([p.height   for p in self.sec_ctrl.point_list])
     
     
-    def project_ground_line (self, f):
+    def ground_line_proj (self, f):
         """Generates the surface points of the cross-section"""
         
         distance = utils.format_float_array(self.proj_dist_arr - self.minDist + self.x_figure);
@@ -101,7 +101,7 @@ class StackElement:
         f.write("\n")
     
     
-    def ctrl_ground_line (self, f):
+    def ground_line_ctrl (self, f):
         if self.sec_ctrl is None:
             return
         """Generates the surface points of the cross-section"""
@@ -113,7 +113,7 @@ class StackElement:
         f.write("\n")
     
     
-    def ctrl_height_line (self, f):
+    def height_line_ctrl (self, f):
         if self.sec_ctrl is None:
             return
         """Generates the set of lines from the base-line to the surface"""
@@ -187,7 +187,7 @@ class StackElement:
         np.savetxt(self.f, content ,fmt='%s')
     
     
-    def topo_dist_num (self,f):
+    def dist_num_proj (self,f):
         """Generates the distance numbers on the X-axis"""
         
         distance = utils.format_float_array(self.proj_dist_arr - self.minDist + self.x_figure);
@@ -198,7 +198,7 @@ class StackElement:
         np.savetxt(self.f, content ,fmt='%s')
     
     
-    def ctrl_dist_num (self,f):
+    def dist_num_ctrl (self,f):
         """Generates the distance numbers on the X-axis"""
         
         distance = utils.format_float_array(self.ctrl_dist_arr - self.minDist + self.x_figure);
@@ -209,7 +209,7 @@ class StackElement:
         np.savetxt(self.f, content ,fmt='%s')
     
     
-    def topo_height_num (self,f):
+    def height_num_proj (self,f):
         """Generates the height numbers on the X-axis"""
         
         distance = utils.format_float_array(self.proj_dist_arr - self.minDist + self.x_figure);
@@ -219,7 +219,7 @@ class StackElement:
             for d,l in zip(distance, labels)])
         np.savetxt(self.f, content ,fmt='%s')
     
-    def ctrl_height_num (self,f):
+    def height_num_ctrl (self,f):
         """Generates the height numbers on the X-axis"""
         
         distance = utils.format_float_array(self.ctrl_dist_arr - self.minDist + self.x_figure);
@@ -239,39 +239,39 @@ class StackElement:
         self.f.write(f'-TEXT M {x},{y} 0.45 0 Ref: {d}\n')
         
     
-    def kmLabel (self,f):
+    def dm_label (self,f):
         x = utils.formatFloat(self.x_km)
         y = utils.formatFloat(self.y_km)
         self.f.write(f'-TEXT M {x},{y} 0.85 0 DM: {self.sec_proj.dm}\n')
 
 
-    def topo_label (self, f):
+    def label_proj (self, f):
         x = utils.formatFloat(self.x_label_0)
         y = utils.formatFloat(self.y_topo_height_underline)
         self.f.write(f'-TEXT M {x},{y} 0.70 90 PROYECTO\n')
     
-    def ctrl_label (self, f):
+    def label_ctrl (self, f):
         x = utils.formatFloat(self.x_label_0)
         y = utils.formatFloat(self.y_ctrl_height_underline)
         self.f.write(f'-TEXT M {x},{y} 0.70 90 CONTROL\n')
     
     
-    def topo_dist_label (self,f) :
+    def dist_label_proj (self,f) :
         x = utils.formatFloat(self.x_labelText)
         y = utils.formatFloat(self.y_topo_dist_num)
         self.f.write(f'-TEXT M {x},{y} 0.70 90 DIST.\n')
     
-    def ctrl_dist_label (self,f) :
+    def dist_label_ctrl (self,f) :
         x = utils.formatFloat(self.x_labelText)
         y = utils.formatFloat(self.y_ctrl_dist_num)
         self.f.write(f'-TEXT M {x},{y} 0.70 90 DIST.\n')
     
-    def topo_height_label (self, f) :
+    def height_label_proj (self, f) :
         x = utils.formatFloat(self.x_labelText)
         y = utils.formatFloat(self.y_topo_height_num)
         self.f.write(f'-TEXT M {x},{y} 0.70 90 COTA\n')
     
-    def ctrl_height_label (self, f) :
+    def height_label_ctrl (self, f) :
         x = utils.formatFloat(self.x_labelText)
         y = utils.formatFloat(self.y_ctrl_height_num)
         self.f.write(f'-TEXT M {x},{y} 0.70 90 COTA\n') 
@@ -280,40 +280,40 @@ class StackElement:
         
         # Topographic Ground Line
         self.f.write("-LAYER N TIERRA_PROYECTO C 5 TIERRA_PROYECTO S TIERRA_PROYECTO L CONTINUOUS\n\n\n")
-        self.project_ground_line(self.f)
+        self.ground_line_proj(self.f)
         
         # Control Groud Line
         self.f.write("-LAYER N TIERRA_CONTROL C 1 TIERRA_CONTROL S TIERRA_CONTROL L DASHED\n\n\n")
-        self.ctrl_ground_line(self.f)
+        self.ground_line_ctrl(self.f)
         
         ##################
         # VERTICAL LINES #
         ##################
         self.f.write("-LAYER N ALTURA_CONTROL C 252 ALTURA_CONTROL S ALTURA_CONTROL L CONTINUOUS\n\n\n")
-        self.ctrl_height_line(self.f)
+        self.height_line_ctrl(self.f)
         
         self.f.write("-LAYER N CAJA C 1 CAJA S CAJA L CONTINUOUS\n\n\n")
         self.axisLines(self.f)
         
         self.f.write("-LAYER N DISTANCIAS C 1 DISTANCIAS S DISTANCIAS L CONTINUOUS\n\n\n")
-        self.topo_dist_num(self.f)
-        self.ctrl_dist_num(self.f)
+        self.dist_num_proj(self.f)
+        self.dist_num_ctrl(self.f)
      
         self.f.write("-LAYER N COTAS C 3 COTAS S COTAS L CONTINUOUS\n\n\n")
-        self.topo_height_num(self.f)
-        self.ctrl_height_num(self.f)
+        self.height_num_proj(self.f)
+        self.height_num_ctrl(self.f)
      
         self.f.write("-LAYER N REFERENCIAS C 7 REFERENCIAS S REFERENCIAS L CONTINUOUS\n\n\n")
         
         self.heightRef(self.f)
-        self.kmLabel(self.f)
+        self.dm_label(self.f)
         
-        self.topo_dist_label(self.f)
-        self.ctrl_dist_label(self.f)
-        self.topo_height_label(self.f)
-        self.ctrl_height_label(self.f)
-        self.ctrl_label(self.f)
-        self.topo_label(self.f)
+        self.dist_label_proj(self.f)
+        self.dist_label_ctrl(self.f)
+        self.height_label_proj(self.f)
+        self.height_label_ctrl(self.f)
+        self.label_ctrl(self.f)
+        self.label_proj(self.f)
         return self.x1
 
 
@@ -345,7 +345,7 @@ class Stack:
         
         self.currX += 85
         
-        for dm in self.dm_list:
+        for dm in self.dm_list[i:j+1]:
             proj_section = self.mop_proj.get_section(dm)
             ctrl_section = self.mop_ctrl.get_section(dm)
             stackElement = StackElement(proj_section,ctrl_section,f,x=self.currX, y=self.y0)

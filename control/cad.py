@@ -433,9 +433,9 @@ class CadScript:
 def main():
     print("Refactor CAD")
     
-    coor_topo = "/home/jstvns/eqc-input/auto-control/coor-topo.csv"
-    coor_ctrl = "/home/jstvns/eqc-input/auto-control/coor-ctrl.csv"
-    longitudinal = "/home/jstvns/eqc-input/auto-control/longitudinal.csv"
+    coor_topo = "/home/jstvns/axis/eqc-input/auto-control/coor-topo.csv"
+    coor_ctrl = "/home/jstvns/axis/eqc-input/auto-control/coor-ctrl.csv"
+    longitudinal = "/home/jstvns/axis/eqc-input/auto-control/longitudinal.csv"
     
     model1 = mdl.Model(
         filename1 = "", # DESCR
