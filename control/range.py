@@ -18,10 +18,15 @@ class ControlRangeList:
     
     def __init__ (self, filename):    
         matrix = utils.read_csv(filename)
+        #print(matrix)
         self.control_range_list = []
         self.__init_control_range_list__(matrix)  
  
     def __init_control_range_list__ (self, matrix):
+        if matrix.ndim == 1:
+            control_range = ControlRange(matrix[0], matrix[1], matrix[2])
+            self.control_range_list.append(control_range)
+            return
         for row in matrix:
             control_range = ControlRange(row[0],row[1],row[2])
             self.control_range_list.append(control_range)
@@ -50,6 +55,9 @@ class ControlRangeList:
 class ControlRange:
     
     def __init__ (self, dm0, dm1, name):
+        print(dm0)
+        print(dm1)
+        print(name)
         self.dm0    = np.round(float(dm0),3)
         self.dm1    = np.round(float(dm1),3)
         self.name   = name

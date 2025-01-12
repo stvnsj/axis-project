@@ -8,6 +8,13 @@ class AxisError(Exception):
         self.message = message
         super().__init__(self.message)
 
+def euc_dist (x1,y1,x2,y2) :
+    s1 = np.square(x1 - x2)
+    s2 = np.square(y1 - y2)
+    D = np.sqrt(s1 + s2)
+    return np.round(D,3)
+    
+
 
 def str_to_flt(s):
     try:

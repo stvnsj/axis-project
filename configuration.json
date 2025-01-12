@@ -1,12 +1,12 @@
 {
     "loaded-files": {
         "master-pr": "/home/jstvns/axis/axis/anexos/anteproyecto/anexo0.xlsx",
-        "cotas-pr": "/home/jstvns/axis/axis/documentos/COTASPR_ASTILLEROS.csv",
+        "cotas-pr": "",
         "trigonometrica": "",
-        "libreta": "/home/jstvns/axis/axis/documentos/LIBRETAcompleta.csv",
+        "libreta": "",
         "estacado-descriptor": "",
-        "estacado-coordenadas": "/home/jstvns/eqc-input/dbase-input/dat-et.csv",
-        "longitudinal": "/home/jstvns/eqc-input/dbase-input/longitudinal.csv",
+        "estacado-coordenadas": "/home/jstvns/axis/auto-control/E11_PT_AUTOCONTROL.csv",
+        "longitudinal": "/home/jstvns/axis/auto-control/E11_LONGI_TOPO.csv",
         "anexo-1": "/home/jstvns/axis/axis/anexos/anteproyecto/anexo1.xlsx",
         "anexo-10": "",
         "fotos": "",

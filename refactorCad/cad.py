@@ -170,7 +170,6 @@ class StackElement:
     
     def heightNum (self,f):
         """Generates the height numbers on the X-axis"""
-        
         distance = utils.format_float_array(self.section.distance[self.indexList] - self.minDist + self.x_figure);
         labels   = utils.format_float_array(self.section.adjustedHeight[self.indexList])
         content = np.array([

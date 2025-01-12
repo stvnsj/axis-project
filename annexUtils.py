@@ -10,6 +10,33 @@ OFFSET   = 38
 PAGEBREAKS = []
 
 
+def column_letter_to_number(column: str) -> int:
+    column = column.upper()
+    column_number = 0
+    for char in column:
+        column_number = column_number * 26 + (ord(char) - ord('A') + 1)
+    return column_number
+
+
+def column_number_to_letter(number: int) -> str:
+    if number < 1:
+        raise ValueError("Column number must be 1 or greater.")
+    column = ""
+    while number > 0:
+        number -= 1  # Adjust for 0-based index
+        column = chr(number % 26 + ord('A')) + column
+        number //= 26
+    return column
+
+
+def cell_of_coor (col : int, row : int) -> str :
+    col_letter = column_number_to_letter (col)
+    return f'{col_letter}{row}'
+
+def range_of_coor (col1 , row1, col2, row2):
+    cell1 = cell_of_coor(col1,row1)
+    cell2 = cell_of_coor(col2,row2)
+    return f'{cell1}:{cell2}'
 
 def letter_of_int (i) :
     return get_column_letter(i)
@@ -27,10 +54,17 @@ class Writer :
     
     def set_worksheet (self,ws):
         self.worksheet = ws
+        
+    
+    def cell (self, col, row, dat, *dicts):
+        cell = cell_of_coor(col,row)
+        self.write(cell, dat, *dicts)
+    
+    def range (self, col1, col2, row1, row2, dat, *dicts):
+        ran = range_of_coor(col1,row1,col2,row2)
+        self.merge(ran, dat, *dicts)
     
     def merge (self,ran,dat,*dic):
-        
-        
         CELL_FORMAT = {}
         for f in dic :
             CELL_FORMAT = CELL_FORMAT | f

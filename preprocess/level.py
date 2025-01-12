@@ -12,17 +12,29 @@ def guessHeight (dm,dm_array,line=None):
     print(f"No hay cambio de DM sugerido para {dm} en línea {line}\n")
 
 class Interval :
+    
     def __init__ (self, matrix):
         self.pr1 = matrix[0][1]
         self.pr2 = matrix[-1][3]
         self.matrix = matrix
         self.positive = True if utils.pr_number(self.pr1) < utils.pr_number(self.pr2) else False
-        
+    
     def test_order (self) :
         indices = np.where(self.matrix[:,2] != "")[0]
         for i in range(len(self.matrix[:,2][indices]) - 1):
-            dm0 = self.matrix[:,2][indices][i]
-            dm1 = self.matrix[:,2][indices][i+1]
+            
+            try:
+                dm0 = float(self.matrix[:,2][indices][i])
+            except:
+                dm0 = -1
+                
+                
+            try:
+                dm1 = float(self.matrix[:,2][indices][i+1])
+            except:
+                dm1 = -1
+                
+                
             negative = not self.positive
             if self.positive and float(dm0) < float(dm1):
                 continue
@@ -77,9 +89,11 @@ class MatrixLevelIterator:
 
 
 def main () :
-    data = utils.read_csv('/home/jstvns/EQC-files/NIVELACION_SOCAIRE_P2.csv')
-    dm     = utils.read_csv('/home/jstvns/EQC-files/dm.csv')
     
+    
+    
+    data = utils.read_csv('/home/jstvns/EQC-files/NIVELACION_SOCAIRE_P3.csv')
+    dm   = utils.read_csv('/home/jstvns/EQC-files/dm.csv')
     
     
     # Generate an enumeration column
@@ -89,8 +103,8 @@ def main () :
     data_num = np.hstack((row_numbers, data))
     
     for mat in  MatrixLevelIterator(data_num):
-        # Interval(mat).test_order()
-        Interval(mat).test_dm(dm)
+        Interval(mat).test_order()
+        #Interval(mat).test_dm(dm)
 
 if __name__ == "__main__" :
     main()

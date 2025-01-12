@@ -2,6 +2,7 @@ import numpy as np
 import utils
 from control.mop import MOP
 from control.range import ControlRangeList
+import sys
 import os
 
 DEFAULT_STACK_LENGTH = 5
@@ -12,6 +13,7 @@ class StackElement:
         
         self.sec_proj = sec_proj
         self.sec_ctrl = sec_ctrl
+        
         
         self.f = f # file
         
@@ -211,7 +213,6 @@ class StackElement:
     
     def height_num_proj (self,f):
         """Generates the height numbers on the X-axis"""
-        
         distance = utils.format_float_array(self.proj_dist_arr - self.minDist + self.x_figure);
         labels   = utils.format_float_array(self.proj_height_arr)
         content = np.array([
@@ -221,9 +222,8 @@ class StackElement:
     
     def height_num_ctrl (self,f):
         """Generates the height numbers on the X-axis"""
-        
         distance = utils.format_float_array(self.ctrl_dist_arr - self.minDist + self.x_figure);
-        labels   = utils.format_float_array(self.ctrl_dist_arr)
+        labels   = utils.format_float_array(self.ctrl_height_arr)
         content = np.array([
             "-TEXT M " + d + "," + utils.formatFloat(self.y_ctrl_height_num) + " 0.50 90 " + l
             for d,l in zip(distance, labels)])
@@ -365,15 +365,14 @@ class Stack:
 
 class CadScript:
     
-    def __init__ (self, filename_proj, filename_ctrl, filename_range ):
+    def __init__ (self, filename_proj, filename_ctrl):
         
         self.mop_proj = MOP(filename_proj)
         self.mop_ctrl = MOP(filename_ctrl)
-        self.control_range_list = ControlRangeList(filename_range)
-        print(self.control_range_list)
         
-        self.project_dm_list = self.control_range_list.filter_dm_list(self.mop_proj.get_dm_list())
+        self.project_dm_list = self.mop_proj.get_dm_list()
         self.control_dm_list = self.mop_ctrl.get_dm_list()
+        self.dm_list         = np.intersect1d(self.project_dm_list,self.control_dm_list)
     
     
     # i : Initial index of iteration
@@ -389,26 +388,21 @@ class CadScript:
             while True:
                 
                 if  i + stackSize - 1 < j :
-                    stack = Stack(self.mop_proj,self.mop_ctrl,self.project_dm_list, y0) #!!!!!
+                    stack = Stack(self.mop_proj,self.mop_ctrl,self.dm_list, y0) #!!!!!
                     y0 = stack.write(f, i, i + stackSize - 1)
                     i += stackSize;
                 
                 else:
-                    stack = Stack(self.mop_proj,self.mop_ctrl,self.project_dm_list, y0)
+                    stack = Stack(self.mop_proj,self.mop_ctrl,self.dm_list, y0)
                     stack.write(f, i, j)
                     break
 
-def main():
+def main(input1,input2,output):
     print("Refactor CAD")
-    
-    cad = CadScript(
-        '/home/jstvns/axis/eqc-input/control-mop/mop-proj.csv',
-        '/home/jstvns/axis/eqc-input/control-mop/mop-ctrl.csv',
-        '/home/jstvns/axis/eqc-input/control-mop/tramos.csv'
-    )
- 
-    #mop_control.write()
-    cad.write(filename='/home/jstvns/axis/eqc-input/control-mop/CAD.scr')
+    cad = CadScript(input1,input2)
+    cad.write(filename=output)
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1],# MOP TOPO
+         sys.argv[2],# MOP CTRL
+         sys.argv[3])# OUTPUT
