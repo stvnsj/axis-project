@@ -3,6 +3,7 @@ import openpyxl
 import numpy as np
 import model as mdl
 import utils
+from utils import str_to_flt
 import sys
 import reader as rd
 import re
@@ -11,6 +12,7 @@ from annexUtils import Format
 from annexUtils import Writer
 from annexUtils import Formatter
 from openpyxl   import load_workbook
+from control.mop import MOPControl
 import level
 
 ROW_DICT = {}
@@ -22,35 +24,60 @@ def generate (
     
     workbook   = xlsxwriter.Workbook(output_file)
     worksheet  = workbook.add_worksheet("SHEET1")
+    random_mop = MOPControl(input1,input2).select_random_points()
     
-    worksheet.hide_gridlines(2)
+    
+    # worksheet.hide_gridlines(2) 
+    # worksheet.set_portrait()
+    # worksheet.set_page_view(2)
+    # worksheet.set_paper(9)
+    # worksheet.set_margins(left=0.71, right=0.71, top=0.95, bottom=0.75)
+
+    worksheet.hide_gridlines(2)  # 2 hides both the printed and visible gridlines
     worksheet.set_portrait()
     worksheet.set_page_view(2)
-    worksheet.set_paper(9)
-    worksheet.set_margins(left=0.71, right=0.71, top=0.95, bottom=0.75)
+    worksheet.set_paper(5)
     
     writer = Writer(workbook,worksheet)
+
+    writer.range(2,19,2,6,"",Format.BORDER)
+    writer.range(20,49,2,4,"VERIFICACIÓN DE LÍNEA DE TIERRA",
+                 Format.SIZE(12),Format.BOLD, Format.BTOP,Format.BRIGHT, Format.CENTER, Format.VCENTER)
+    writer.range(20,49,5,6,"FORMULARIO N° 2.309.306.A",
+                 Format.SIZE(12),Format.BOLD, Format.BBOTTOM,Format.BRIGHT, Format.BOTTOM, Format.CENTER)
+
+    
+    
+    writer.range(1,1,8,11,"",Format.BRIGHT)
+    writer.range(50,50,8,11,"",Format.BLEFT)
+    writer.range(2,49,7,7,"",Format.BBOTTOM)
+    writer.range(2,49,12,12,"",Format.BTOP)
     
     writer.cell (2,8,"PROYECTO:",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.cell (2,9,"SECTOR:", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.cell (2,10,"TRAMO:", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.cell (2,11,"REALIZADO:",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.range(35,45,12,12,f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    writer.range(35,45,11,11,f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
     
-    writer.cell(10,8,"NOMBRE DEL PROYECTO")
-    writer.cell(10,9,"SECTOR DEL PROYECTO")
+    writer.cell(10,8, "NOMBRE DEL PROYECTO")
+    writer.cell(10,9, "SECTOR DEL PROYECTO")
     writer.cell(10,10,"TRAMO DEL PROYECTO")
     writer.cell(10,11,"REALIZADO POR EQC")
+    
 
-    # Project data
-    writer.range(2,6,14,14,"Tramo N°:"           ,Format.SIZE(9))
-    writer.range(7,11,14,14,"34"          ,Format.SIZE(9),Format.CENTER) #PROGRAM
-    writer.range(12,16,14,14,"Dm. Inicio:"        ,Format.SIZE(9))
-    writer.range(17,23,14,14,"322,520.00"    ,Format.SIZE(9),Format.CENTER) #PROGRAM
-    writer.range(24,27,14,14,"Dm. Fin:"           ,Format.SIZE(9))
-    writer.range(28,33,14,14,"123,321.23"  ,Format.SIZE(9),Format.CENTER) #PROGRAM
+    
+    writer.range(2,6,14,14,"Tramo N°:",Format.SIZE(9))
+    writer.range(7,11,14,14,"34",Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
+    writer.range(12,16,14,14,"Dm. Inicio:" ,Format.SIZE(9))
+    writer.range(17,23,14,14,random_mop.min_ctrl_dm ,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
+    writer.range(24,27,14,14,"Dm. Fin:" ,Format.SIZE(9))
+    writer.range(28,33,14,14,random_mop.max_ctrl_dm,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
     writer.range(34,42,14,14,"Longitud del Tramo:",Format.SIZE(9))
-    writer.range(43,49,14,14,"123,123.32"  ,Format.SIZE(9),Format.CENTER) #PROGRAM
+    writer.range(43,49,14,14,random_mop.ctrl_length(),Format.SIZE(9),Format.CENTER, Format.BORDER) #PROGRAM
+    
+    
+    writer.range(40,45,15,15,"% muestral:", Format.SIZE(9))
+    writer.range(46,49,15,15,"?",Format.SIZE(9),Format.BORDER)
     
     index = 20
     
@@ -58,11 +85,11 @@ def generate (
     
     index+=1
     writer.range(2,14,index,index, "N° puntos contrastados:")
-    writer.range(15,18,index,index, "344") #PROGRAM
-    writer.range(19, 30, index, index, "Puntos en Tolerancia:")
-    writer.range(31, 35, index, index, "239") #PROGRAM
-    writer.range(36,37, index, index, "%")
-    writer.range(38,42, index, index, "89.11") #PROGRAM
+    writer.range(15,18,index,index, random_mop.ctrl_number, Format.CENTER, Format.BBOTTOM) #PROGRAM
+    writer.range(23, 34, index, index, "Puntos en Tolerancia:")
+    writer.range(35, 39, index, index, random_mop.good_number, Format.CENTER, Format.BBOTTOM) #PROGRAM
+    writer.range(42,44, index, index, "%", Format.RIGHT)
+    writer.range(45,48, index, index, random_mop.good_percent, Format.CENTER, Format.BBOTTOM) #PROGRAM
     
     index+=5
     writer.range(2,5,index,index,  "Perfil N°",Format.SIZE(9))
@@ -86,22 +113,60 @@ def generate (
     writer.range(43,49,index,index, "Cumple (S/N)",Format.SIZE(9))
     
     index += 2
-    writer.range(2,5,index,index,   "", Format.SIZE(9), Format.BORDER)
-    writer.range(6,9,index,index,   "", Format.SIZE(9), Format.BORDER)
-    writer.range(10,13,index,index, "", Format.SIZE(9), Format.BORDER)
-    writer.range(14,18,index,index, "", Format.SIZE(9), Format.BORDER)
-    writer.range(19,23,index,index, "", Format.SIZE(9), Format.BORDER)
-    writer.range(24,28,index,index, "", Format.SIZE(9), Format.BORDER)
-    writer.range(29,33,index,index, "", Format.SIZE(9), Format.BORDER)
-    writer.range(34,38,index,index, "", Format.SIZE(9), Format.BORDER)
-    writer.range(39,42,index,index, "", Format.SIZE(9), Format.BORDER)
-    writer.range(43,49,index,index, "", Format.SIZE(9), Format.BORDER)
-    writer.cell (50,index,"",Format.BLEFT)
+    section_number = 1
+    
+    for section in random_mop.section_list :
+        
+        initial_index = index
+        
+        pos_points = section.pos_points
+        neg_points = section.neg_points
+        
+        writer.range(2,5,index,index,   section_number, Format.SIZE(9), Format.BORDER)
+        writer.range(6,9,index,index,   str_to_flt (section.dm), Format.SIZE(9), Format.BORDER, Format.NUM)
+        
+        writer.range(10,13,
+                     index ,
+                     index + len(neg_points)-1,
+                     "IZQ", Format.SIZE(9), Format.BORDER, Format.CENTER, Format.VCENTER)
+        
+        writer.range(10,13,
+                     index + len(neg_points),
+                     index + len(neg_points) + len(pos_points) - 1,
+                     "DER", Format.SIZE(9), Format.BORDER, Format.CENTER, Format.VCENTER)
 
+        
+        for point in neg_points:
+            writer.range(14,18,index,index,str_to_flt (point.distance), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(19,23,index,index,str_to_flt (point.ctrl_height), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(24,28,index,index,str_to_flt (point.proj_height), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(29,33,index,index,str_to_flt (point.type), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(34,38,index,index,str_to_flt (point.tol), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(39,42,index,index,str_to_flt (point.dif), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(43,49,index,index, "SI" if point.good == "True" else "NO", Format.SIZE(9), Format.BORDER)
+            writer.cell (50,index,"",Format.BLEFT)
+            index += 1
+        
+        for point in pos_points:
+            writer.range(14,18,index,index,str_to_flt( point.distance), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(19,23,index,index,str_to_flt( point.ctrl_height), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(24,28,index,index,str_to_flt( point.proj_height), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(29,33,index,index,str_to_flt( point.type), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(34,38,index,index,str_to_flt( point.tol), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(39,42,index,index,str_to_flt( point.dif), Format.SIZE(9), Format.BORDER, Format.NUM)
+            writer.range(43,49,index,index, "SI" if point.good == "True" else "NO", Format.SIZE(9), Format.BORDER)
+            writer.cell (50,index,"",Format.BLEFT)
+            index += 1
+        
+        
+        index = initial_index + len(neg_points) + len(pos_points) + 1
+        section_number += 1
+    
+    
     
     curr_row = 16
     
-    COL_WIDTH = [ 0.1 for i in range(0,50) ]
+    COL_WIDTH = [ 0.12 for i in range(0,50) ]
     
     annexUtils.set_column(worksheet,COL_WIDTH)
     annexUtils.set_row_dict(worksheet,ROW_DICT)
@@ -112,4 +177,4 @@ def generate (
 
 
 if __name__ == "__main__":
-    generate('','')
+    generate(sys.argv[1],sys.argv[2])

@@ -1,14 +1,14 @@
 """
 Los campos del control de línea de tierra transversal son:
-- dm               DONE
-- lado             DONE
-- distancia        DONE
-- cota control     DONE
-- cota estudio     DONE
-- tipo terreno     DONE 
-- tolerancia       DONE 
-- diferencia       DONE
-- cumple           DONE
+- dm               DONE   0
+- lado             DONE   1
+- distancia        DONE   2
+- cota control     DONE   3
+- cota estudio     DONE   4
+- tipo terreno     DONE   5
+- tolerancia       DONE   6
+- diferencia       DONE   7
+- cumple           DONE   8
 """
 
 import numpy as np
@@ -71,6 +71,7 @@ class RandomMatrixIterator :
     
     def __next__ (self):
         
+        
         if self.index >= self.length :
             raise StopIteration
         
@@ -82,13 +83,14 @@ class RandomMatrixIterator :
             if i == self.length-1:
                 START = self.index
                 END = i
-                return self.matrix[START:END]
+                self.index = i + 1
+                return self.matrix[START:END+1]
             
             if self.matrix[i][0] != self.matrix[i+1][0]:
                 START = self.index
                 END   = i
                 self.index = i + 1
-                return self.matrix[START : END]
+                return self.matrix[START : END+1]
 
 
 class MopMatrixIterator :
@@ -191,7 +193,6 @@ class MOPSection:
         return self.point_list[index]
     
     def __str__(self):
-        print(f'SECTION: {self.dm}')
         #for p in self.point_list:
         #    print(p)
         return ''
@@ -356,15 +357,15 @@ class MOPControl :
         self.control_dm_list = self.mop_ctrl.get_dm_list()
         self.dm_list         = np.intersect1d(self.project_dm_list,self.control_dm_list)
         
-        # min_ctrl_point   = np.min(self.dm_list.astype(float))
-        # max_ctrl_point   = np.max(self.dm_list.astype(float))
-        # self.ctrl_length = max_ctrl_point - min_ctrl_point
+        self.min_ctrl_dm   = np.round(np.min(np.array(self.dm_list).astype(float)),3)
+        self.max_ctrl_dm   = np.round(np.max(np.array(self.dm_list).astype(float)),3)
+        self.ctrl_length   = self.max_ctrl_dm - self.min_ctrl_dm
         
-        # min_proj_point   = np.min(self.project_dm_list.astype(float))
-        # max_proj_point   = np.max(self.project_dm_list.astype(float))
-        # self.proj_length = max_proj_point - min_proj_point
+        min_proj_dm   = np.round(np.min(np.array(self.project_dm_list).astype(float)),3)
+        max_proj_dm   = np.round(np.max(np.array(self.project_dm_list).astype(float)),3)
+        self.proj_length = max_proj_dm - min_proj_dm
         
-        # self.ctrl_dm_number = len(self.dm_list)
+        self.ctrl_dm_number = len(self.dm_list)
         
         self.control_section_list = []
         self.TOTAL                = 0
@@ -395,7 +396,7 @@ class MOPControl :
                     point_proj_2 = proj_section.get_point(pair[1])
                     line = Line(point_proj_1,point_proj_2)
                     y = line.get_y(point_ctrl.distance)
-                    DELTA = np.round(y-point_ctrl.height,3)
+                    DELTA = np.round(np.abs(y-point_ctrl.height),3)
                     proj_height = y
                     
                     new_row = np.array([
@@ -406,7 +407,7 @@ class MOPControl :
                         utils.format_float(y),
                         str(point_ctrl.get_ground_type()),
                         utils.format_float(tolerance.get(point_ctrl.get_ground_type(),0.000)),
-                        utils.format_float(DELTA),
+                        utils.format_float(np.abs(DELTA)),
                         "Cumple" if point_ctrl.in_tolerance(DELTA) else "No cumple"
                     ])
                     
@@ -444,7 +445,7 @@ class MOPControl :
         self.__control__()
         utils.write_csv(outputfile, self.control_matrix)
     
-    def select_random_points(self, seed=42, outputfile=""):
+    def select_random_points(self, outputfile="", seed=42):
         
         np.random.seed(seed)
         
@@ -475,56 +476,97 @@ class MOPControl :
                 random_table = np.vstack((random_table,row))
         
         PERCENT = np.round(100 * OK_POINTS / TOTAL_POINTS, 1)
-        print(f"Porcentaje de Puntos dentro de Tolerancia: {PERCENT}%")
-        utils.write_csv(outputfile, random_table)
+        # print(f"Porcentaje de Puntos dentro de Tolerancia: {PERCENT}%")
+        # utils.write_csv(outputfile, random_table)
+        return RandomMop(random_table,self.min_ctrl_dm,self.max_ctrl_dm,self.proj_length,TOTAL_POINTS,OK_POINTS, PERCENT)
 
 
 """
 This class models the random selection of
 points from the control of mop.
+It includes:
+ - Length of project axis
+ - Length of control axis
+ - Percentage of controlled length 
+ - Percentage of points within tolerance
 """
 class RandomMop :
     
-    def __init__(self, matrix) :
-        self.section_list = []
-        for mat in RandomMatrixIterator(matrix):
-            
+    def __init__(self, matrix, min_ctrl_dm, max_ctrl_dm, proj_length, ctrl_number, good_number, good_percent) :
         
+        
+        self.section_list = []
+        self.min_ctrl_dm  = min_ctrl_dm
+        self.max_ctrl_dm  = max_ctrl_dm
+        self.proj_length  = proj_length
+        self.ctrl_number  = ctrl_number
+        self.good_number  = good_number
+        self.good_percent = good_percent
+        
+        for mat in RandomMatrixIterator(matrix):
+            m = RandomMopSection(mat)
+            self.section_list.append(m)
+        self.section_list.sort()
+        
+    def coverage_percent (self):
+        COVERAGE = np.round(self.max_ctrl_dm - self.min_ctrl_dm,3)
+        PERCENT = (100 * COVERAGE) / self.proj_length
+        return np.round(PERCENT,3)    
+    
+    def ctrl_length (self) :
+        return np.round(self.max_ctrl_dm - self.min_ctrl_dm,3)
 
 class RandomMopSection :
     
-    def __init__ (self) :
-        self.dm = dm
+    def __init__ (self, matrix) :
+        self.dm = matrix[0][0]
         self.pos_points = []
         self.neg_points = []
         
+        for row in matrix:
+            point = RandomMopPoint (
+                row[2],
+                row[3],
+                row[4],
+                row[5],
+                row[6],
+                row[7],
+                row[8],
+            )
+            if float(row[2]) > 0 :
+                self.pos_points.append(point)
+            else:
+                self.neg_points.append(point)
+    
+    
+    def __lt__ (self, section) :
+        return float(self.dm) < float(section.dm)
+    def __le__ (self, section) :
+        return float(self.dm) <= float(section.dm)
+    def __str__ (self, section) :
+        return f'Random MOP Section {self.dm}'
+
 
 class RandomMopPoint :
     
-    def __init__ (self, distance, ctrl_height, proj_height, tipo, tol, dif) :
+    def __init__ (self, distance, ctrl_height, proj_height, tipo, tol, dif, good) :
         self.distance     = distance
         self.ctrl_height  = ctrl_height
         self.proj_height  = proj_height
-        self.tipo         = tipo
+        self.type         = tipo
         self.tol          = tol
         self.dif          = dif
+        self.good         = good
+        
+    
+    def __str__ (self):
+        return f'point\ndist={self.distance}\nctrl={self.ctrl_height}\nproj={self.proj_height}\nTip={self.tipo}\nTOL={self.tol}\ndif={self.dif}\nok={self.good}\n'
 
 
 def main (input1,input2,output,option=0) :
-    #mop = MOP('/home/jstvns/axis/eqc-input/control-mop/mop-proj.csv')
-    # for s in mop.section_list:
-    #     point = MOPPoint("2.000","238.239","x")
-    #     pair = s.get_neighbor_indices(point)
-    #    
-    #     print("search point" , point)
-    #     print("indices : " , pair)
-    #     if pair is not None:
-    #         print(s.get_point(pair[0]))
-    #         print(s.get_point(pair[1]))
-    #    
-    #     input("CONTINUE")
-
+    
     mop_control = MOPControl( input1, input2 )
+    
     if option == "0" :
         mop_control.write(output)
         return 
