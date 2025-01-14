@@ -105,6 +105,9 @@ class Format :
     def SIZE(n):
         return {"font_size":n}
     
+    def INDENT(n):
+        return {'indent':n}
+    
     # Variables
     BOLD   = {"bold":True}
     ITALIC = {"italic":True}

@@ -95,4 +95,3 @@ if __name__ == "__main__":
     
     generate("/home/jstvns/eje-estaca.csv")
     
-

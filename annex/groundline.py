@@ -13,6 +13,7 @@ from annexUtils import Writer
 from annexUtils import Formatter
 from openpyxl   import load_workbook
 from control.mop import MOPControl
+from control.level import LevelControl
 import level
 
 ROW_DICT = {}
@@ -25,6 +26,18 @@ def generate (
     workbook   = xlsxwriter.Workbook(output_file)
     worksheet  = workbook.add_worksheet("SHEET1")
     random_mop = MOPControl(input1,input2).select_random_points()
+
+    file_proj = '/home/jstvns/axis/eqc-input/control-level/longi-proj.csv'
+    file_ctrl = '/home/jstvns/axis/eqc-input/control-level/longi-ctrl.csv'
+    
+    
+    
+    
+    file1 = '/home/jstvns/axis/eqc-input/control-level/longi-proj.csv'
+    file2 = '/home/jstvns/axis/eqc-input/control-level/longi-ctrl.csv'
+    
+    level_control = LevelControl(file1,file2)
+
     
     
     # worksheet.hide_gridlines(2) 
@@ -57,7 +70,7 @@ def generate (
     writer.cell (2,9,"SECTOR:", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.cell (2,10,"TRAMO:", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.cell (2,11,"REALIZADO:",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
-    writer.range(35,45,11,11,f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+    writer.range(36,49,11,11,f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
     
     writer.cell(10,8, "NOMBRE DEL PROYECTO")
     writer.cell(10,9, "SECTOR DEL PROYECTO")
@@ -79,40 +92,89 @@ def generate (
     writer.range(40,45,15,15,"% muestral:", Format.SIZE(9))
     writer.range(46,49,15,15,"?",Format.SIZE(9),Format.BORDER)
     
-    index = 20
+    writer.range(2,40,16,16,"Características del Tramo:",Format.SIZE(9))
+    writer.range(2,49,17,19,"",Format.SIZE(9),Format.BORDER)
+    
+    index += 1
+    
+    writer.range(2,15,20,20,"N° Numero")
+    
+    index = 23
+    writer.range(2,17,index,index, "Línea de Tierra Longitudinal", Format.BOLD, Format.SIZE(10))
+    index+=1
+    writer.range(10,19,index,index,"Cota Estacado",Format.BBOTTOM,Format.SIZE(9),Format.CENTER)
+    writer.range(25,33,index,index,"Tolerancia (m):",Format.SIZE(9),Format.RIGHT)
+    writer.range(34,36,index,index,"0.010",Format.BORDER,Format.SIZE(9))
+    index+=1
+    
+    writer.range(2,4,index,index, "N°",Format.CENTER,Format.SIZE(9))
+    writer.range(5,9,index,index, "Dm.", Format.SIZE(9),Format.CENTER)
+    writer.range(10,15,index,index,"Estudio",Format.SIZE(9),Format.CENTER)
+    writer.range(16,19,index,index,"Control",Format.SIZE(9),Format.CENTER)
+    writer.range(20,23,index,index,"Dif. (m)",Format.SIZE(9),Format.CENTER)
+    writer.range(25,29,index,index,"Cumple (S/N)",Format.SIZE(9),Format.CENTER)
+    writer.range(31,49,index,index,"Observaciones",Format.SIZE(9),Format.CENTER)
+    
+ 
+    
+    
+    index += 1
+    level_point_number = 1
+    for p in level_control.point_list:
+        writer.range(2,4,index,index,level_point_number,Format.SIZE(9),Format.BORDER,Format.CENTER)
+        writer.range(5,9,index,index,str_to_flt(p.dm),Format.SIZE(9),Format.BORDER,Format.NUM,Format.CENTER)
+        writer.range(10,15,index,index,str_to_flt(p.proj_height),Format.SIZE(9),Format.BORDER, Format.NUM,Format.CENTER)
+        writer.range(16,19,index,index,str_to_flt(p.ctrl_height),Format.SIZE(9),Format.BORDER, Format.NUM,Format.CENTER)
+        writer.range(20,23,index,index,str_to_flt(p.delta),Format.SIZE(9),Format.BORDER, Format.NUM,Format.CENTER)
+        writer.range(25,29,index,index,p.good,Format.SIZE(9),Format.BORDER,Format.CENTER)
+        writer.range(31,49,index,index,"",Format.SIZE(9),Format.BORDER,Format.CENTER)
+        
+        level_point_number +=1
+        index += 1
+        
+    
+    index+=1
+    
+    writer.range(2,49,index,index,"Observaciones generales:",Format.SIZE(9))
+    
+    index+=1
+    
+    writer.range(2,49,index,index+1,"",Format.SIZE(9),Format.BORDER)
+    
+    index += 4
     
     writer.range(2,17,index,index, "Línea de Tierra Transversal", Format.BOLD, Format.SIZE(10))
     
     index+=1
-    writer.range(2,14,index,index, "N° puntos contrastados:")
-    writer.range(15,18,index,index, random_mop.ctrl_number, Format.CENTER, Format.BBOTTOM) #PROGRAM
-    writer.range(23, 34, index, index, "Puntos en Tolerancia:")
-    writer.range(35, 39, index, index, random_mop.good_number, Format.CENTER, Format.BBOTTOM) #PROGRAM
-    writer.range(42,44, index, index, "%", Format.RIGHT)
-    writer.range(45,48, index, index, random_mop.good_percent, Format.CENTER, Format.BBOTTOM) #PROGRAM
+    writer.range(2,14,index,index, "N° puntos contrastados:", Format.SIZE(10))
+    writer.range(15,18,index,index, random_mop.ctrl_number, Format.CENTER, Format.BBOTTOM, Format.SIZE(10)) #PROGRAM
+    writer.range(23, 34, index, index, "Puntos en Tolerancia:", Format.SIZE(10))
+    writer.range(35, 39, index, index, random_mop.good_number, Format.CENTER, Format.BBOTTOM, Format.SIZE(10)) #PROGRAM
+    writer.range(42,44, index, index, "%", Format.RIGHT, Format.SIZE(10))
+    writer.range(45,48, index, index, random_mop.good_percent, Format.CENTER, Format.BBOTTOM, Format.SIZE(10)) #PROGRAM
     
-    index+=5
-    writer.range(2,5,index,index,  "Perfil N°",Format.SIZE(9))
-    writer.range(6,9,index,index,  "Dm.",Format.SIZE(9))
-    writer.range(10,13,index,index,"Lado",Format.SIZE(9))
+    index+=3
+    writer.range(2,5,index,index,  "Perfil N°",Format.SIZE(9),Format.INDENT(1))
+    writer.range(6,9,index,index,  "Dm.",Format.SIZE(9),Format.INDENT(1))
+    writer.range(10,13,index,index,"Lado",Format.SIZE(9),Format.INDENT(1))
     
-    writer.range(14,18,index-1,index-1,"Dist.",Format.SIZE(9))
-    writer.range(14,18,index,index,"al Eje",Format.SIZE(9))
+    writer.range(14,18,index-1,index-1,"Dist.",Format.SIZE(9), Format.INDENT(1))
+    writer.range(14,18,index,index,"al Eje",Format.SIZE(9), Format.INDENT(1))
     
-    writer.range(19,23,index-1,index-1,"Cota",Format.SIZE(9))
-    writer.range(19,23,index,index, "Control",Format.SIZE(9))
+    writer.range(19,23,index-1,index-1,"Cota",Format.SIZE(9), Format.INDENT(1))
+    writer.range(19,23,index,index, "Control",Format.SIZE(9), Format.INDENT(1))
     
-    writer.range(24,28,index-1,index-1,"Cota",Format.SIZE(9))
-    writer.range(24,28,index,index,"Estudio",Format.SIZE(9))
+    writer.range(24,28,index-1,index-1,"Cota",Format.SIZE(9), Format.INDENT(1))
+    writer.range(24,28,index,index,"Estudio",Format.SIZE(9), Format.INDENT(1))
     
-    writer.range(29,33,index-1,index-1,"Tipo",Format.SIZE(9))
-    writer.range(29,33,index,index,"Sup. (1-4)",Format.SIZE(9))
+    writer.range(29,33,index-1,index-1,"Tipo",Format.SIZE(9), Format.INDENT(1))
+    writer.range(29,33,index,index,"Sup. (1-4)",Format.SIZE(9), Format.INDENT(1))
     
-    writer.range(34,38,index,index, "Tol. (m)",Format.SIZE(9))
-    writer.range(39,42,index,index, "Dif. (m)",Format.SIZE(9))
-    writer.range(43,49,index,index, "Cumple (S/N)",Format.SIZE(9))
+    writer.range(34,38,index,index, "Tol. (m)",    Format.SIZE(9), Format.INDENT(1))
+    writer.range(39,42,index,index, "Dif. (m)",    Format.SIZE(9), Format.INDENT(1))
+    writer.range(43,49,index,index, "Cumple (S/N)",Format.SIZE(9), Format.INDENT(1))
     
-    index += 2
+    index += 1
     section_number = 1
     
     for section in random_mop.section_list :
@@ -143,7 +205,7 @@ def generate (
             writer.range(29,33,index,index,str_to_flt (point.type), Format.SIZE(9), Format.BORDER, Format.NUM)
             writer.range(34,38,index,index,str_to_flt (point.tol), Format.SIZE(9), Format.BORDER, Format.NUM)
             writer.range(39,42,index,index,str_to_flt (point.dif), Format.SIZE(9), Format.BORDER, Format.NUM)
-            writer.range(43,49,index,index, "SI" if point.good == "True" else "NO", Format.SIZE(9), Format.BORDER)
+            writer.range(43,49,index,index, "SI" if point.good == "True" else "NO", Format.SIZE(9), Format.BORDER, Format.CENTER)
             writer.cell (50,index,"",Format.BLEFT)
             index += 1
         
@@ -154,7 +216,7 @@ def generate (
             writer.range(29,33,index,index,str_to_flt( point.type), Format.SIZE(9), Format.BORDER, Format.NUM)
             writer.range(34,38,index,index,str_to_flt( point.tol), Format.SIZE(9), Format.BORDER, Format.NUM)
             writer.range(39,42,index,index,str_to_flt( point.dif), Format.SIZE(9), Format.BORDER, Format.NUM)
-            writer.range(43,49,index,index, "SI" if point.good == "True" else "NO", Format.SIZE(9), Format.BORDER)
+            writer.range(43,49,index,index, "SI" if point.good == "True" else "NO", Format.SIZE(9), Format.BORDER,Format.CENTER)
             writer.cell (50,index,"",Format.BLEFT)
             index += 1
         

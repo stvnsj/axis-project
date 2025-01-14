@@ -12,7 +12,6 @@ def guessHeight (dm,dm_array,line=None):
     print(f"No hay cambio de DM sugerido para {dm} en línea {line}\n")
 
 class Interval :
-    
     def __init__ (self, matrix):
         self.pr1 = matrix[0][1]
         self.pr2 = matrix[-1][3]
