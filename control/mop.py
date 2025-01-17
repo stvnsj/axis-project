@@ -361,6 +361,8 @@ class MOPControl :
         self.max_ctrl_dm   = np.round(np.max(np.array(self.dm_list).astype(float)),3)
         self.ctrl_length   = self.max_ctrl_dm - self.min_ctrl_dm
         
+        
+        
         min_proj_dm   = np.round(np.min(np.array(self.project_dm_list).astype(float)),3)
         max_proj_dm   = np.round(np.max(np.array(self.project_dm_list).astype(float)),3)
         self.proj_length = max_proj_dm - min_proj_dm
@@ -515,6 +517,16 @@ class RandomMop :
     
     def ctrl_length (self) :
         return np.round(self.max_ctrl_dm - self.min_ctrl_dm,3)
+    
+    def sections_per_km (self) :
+        np.round(1000 * self.ctrl_number / self.proj_length)
+        
+    def required_sections_per_km (self) :
+        return np.ceil(25 * self.proj_length / 1000)
+    
+    def sufficient_points (self) :
+        return self.ctrl_number >= self.required_sections_per_km()
+    
 
 class RandomMopSection :
     

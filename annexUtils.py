@@ -10,6 +10,35 @@ OFFSET   = 38
 PAGEBREAKS = []
 
 
+"""
+Implement a class that retains the offset, so that
+each succesive call starts from the previous range
+end.
+"""
+class HorizontalRange :
+    
+    def __init__ (self) :
+        self.__offset__ = 0
+    
+    def get_range (self, col1, col2, row1, row2):
+        ran = (col1 + self.__offset__ , col2 + self.__offset__, row1, row2)
+        self.__offset__ += col2
+        return ran
+    
+    def get_cell (self, col, row) :
+        ran = (col + self.__offset__ , row + self.__offset__)
+        self.__offset__ += col
+        return ran
+    
+    def reset (self):
+        self.__offset__ = 0
+
+
+def offset_range (col1, col2, pair):
+    return (col1 + pair[1], col2 + pair[1])
+    
+
+
 def column_letter_to_number(column: str) -> int:
     column = column.upper()
     column_number = 0
@@ -109,10 +138,12 @@ class Format :
         return {'indent':n}
     
     # Variables
+    DOT    = {'border':3}
     BOLD   = {"bold":True}
     ITALIC = {"italic":True}
     DEC    = {'num_format': '#,##0.0000000000'}
     NUM    = {'num_format': '#,##0.000'}
+    NUM1   = {'num_format': '#,##0.0'}
     NUM2   = {'num_format': '#,##0.00'}
     TOP    = {"top" :1}
     BTOP   = {"top" :1}

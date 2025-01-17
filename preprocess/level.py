@@ -7,9 +7,9 @@ def guessHeight (dm,dm_array,line=None):
     for i in range(0,10):
         dm3 = dm2 + f'{i}'
         if dm3 in dm_array:
-            print(f"Cambio de DM sugerido en línea {line}: {dm} --> {dm3}\n")
+            print(f"Cambio de DM sugerido en línea {int (line)+894}: {dm} --> {dm3}\n")
             return
-    print(f"No hay cambio de DM sugerido para {dm} en línea {line}\n")
+    print(f"No hay cambio de DM sugerido para {dm} en línea {int (line)+894}\n")
 
 class Interval :
     def __init__ (self, matrix):
@@ -91,8 +91,8 @@ def main () :
     
     
     
-    data = utils.read_csv('/home/jstvns/EQC-files/NIVELACION_SOCAIRE_P3.csv')
-    dm   = utils.read_csv('/home/jstvns/EQC-files/dm.csv')
+    data = utils.read_csv('/home/jstvns/NIVELACION/MariaElena.csv')
+    dm   = utils.read_csv('/home/jstvns/NIVELACION/dm.csv')
     
     
     # Generate an enumeration column
@@ -102,8 +102,8 @@ def main () :
     data_num = np.hstack((row_numbers, data))
     
     for mat in  MatrixLevelIterator(data_num):
-        Interval(mat).test_order()
-        #Interval(mat).test_dm(dm)
+        #Interval(mat).test_order()
+        Interval(mat).test_dm(dm)
 
 if __name__ == "__main__" :
     main()

@@ -52,7 +52,6 @@ class Reporter :
     
     def __init__ (self, filename):
         self.path = self.__init_file_path__(filename)
-        self.write_report_header(filename)
     
     def __init_file_path__ (self, filename) :
         

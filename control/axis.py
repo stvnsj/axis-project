@@ -36,6 +36,28 @@ class Axis :
 
 
 
+class AxisControlPoint :
+    
+    def __init__ (self, dm, x_proj, y_proj, x_ctrl, y_ctrl, distance, good) :
+        
+        self.dm = dm
+        
+        self.x_proj = x_proj
+        self.y_proj = y_proj
+        
+        self.x_ctrl = x_ctrl
+        self.y_ctrl = y_ctrl
+        
+        self.distance = distance
+        
+        self.good = good
+    
+    
+    def __str__ (self) :
+        return f'dm={self.dm}'
+
+
+
 class AxisControl :
     
     def __init__ (self, filename_proj, filename_ctrl) :
@@ -50,8 +72,22 @@ class AxisControl :
         self.control_dm_list = self.axis_ctrl.get_dm_list()
         self.dm_list         = np.intersect1d(self.project_dm_list,self.control_dm_list)
         self.tolerance       = 0.10
+        
+        min_proj_dm = utils.str_to_flt(min(self.project_dm_list,key=float))
+        max_proj_dm = utils.str_to_flt(max(self.project_dm_list,key=float))
+        self.total_length = np.round(max_proj_dm-min_proj_dm,3)
+        
+        self.min_ctrl_dm = utils.str_to_flt(min(self.dm_list, key=float))
+        self.max_ctrl_dm = utils.str_to_flt(max(self.dm_list, key=float))
+        
+        self.ctrl_length = np.round(self.max_ctrl_dm - self.min_ctrl_dm,3)
+        
+        
+        self.point_list = []
+        self.control()
+    
  
-    def control (self,output_filename) :
+    def control (self,output_filename="") :
         output = np.empty((0,7))
         for dm in self.dm_list:
             
@@ -71,12 +107,21 @@ class AxisControl :
                 xc,
                 yc,
                 utils.format_float(delta),
-                "Cumple" if delta <= TOLERANCE else "No Cumple"
+                "SI" if delta <= TOLERANCE else "NO"
             ])
             
             output = np.vstack((output, row))
+            
+            point = AxisControlPoint(
+                dm, xp, yp, xc, yc,
+                utils.format_float(delta),
+                'SI' if delta <= TOLERANCE else 'NO'
+            )
+            
+            self.point_list.append(point)
         
-        utils.write_csv(output_filename, output)
+        # utils.write_csv(output_filename, output)
+        # return output
 
 
 
@@ -94,5 +139,5 @@ if __name__ == '__main__':
     main(
         sys.argv[1],
         sys.argv[2],
-        sys.argv[3],
+        sys.argv[3]
     )

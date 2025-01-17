@@ -1,9 +1,9 @@
 {
     "loaded-files": {
         "master-pr": "/home/jstvns/axis/axis/anexos/anteproyecto/anexo0.xlsx",
-        "cotas-pr": "",
+        "cotas-pr": "/home/jstvns/SOCAIRE/COTASPRSOCAIRE.csv",
         "trigonometrica": "",
-        "libreta": "",
+        "libreta": "/home/jstvns/SOCAIRE/LIBRETASOCAIRE.csv",
         "estacado-descriptor": "",
         "estacado-coordenadas": "/home/jstvns/axis/auto-control/E11_PT_AUTOCONTROL.csv",
         "longitudinal": "/home/jstvns/axis/auto-control/E11_LONGI_TOPO.csv",

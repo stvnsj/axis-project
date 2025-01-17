@@ -34,39 +34,19 @@ def choose_random_array (choices, weights=None, size=1) :
 
 
 
-def mop_ctrl_file (mop_file, ranges_file, output_proj_file, output_ctrl_file) :
+def mop_ctrl_file (mop_file,  output_ctrl_file) :
     """Returns a randomly modified version of the provided eje-estaca file."""
     
     matrix = utils.read_csv(mop_file)
-
-    proj_matrix = np.empty((0,4))
-    ctrl_matrix = np.empty((0,4))
-
-    # List of dm indices
-    mask   = matrix[:,0] != ''
+    mu, sigma = 0, 0.5 # mean and standard deviation
     
-    # List of dm's to be controlled
-    control_dm_list = ControlRangeList(ranges_file).filter_dm_list(matrix[mask,0])
+    for row in matrix:
+        s = np.random.normal(mu, sigma, 1)[0]
+        row[2] = utils.format_float(
+            float(row[2]) + s
+        )
     
-    for section in MopMatrixIterator(matrix):
-        section_dm = section[0][0]
-        
-        if not (section_dm in control_dm_list):
-            proj_matrix = np.vstack((proj_matrix, section))
-            continue
-        
-        
-        proj_matrix = np.vstack((proj_matrix, section[0]))
-        ctrl_matrix = np.vstack((ctrl_matrix, section[0]))
-        
-        for row in section[1:]:
-            if binary_choice() :
-                proj_matrix = np.vstack((proj_matrix, row))
-            else:
-                ctrl_matrix = np.vstack((ctrl_matrix, row)) 
- 
-    utils.write_csv(output_proj_file, proj_matrix)
-    utils.write_csv(output_ctrl_file, ctrl_matrix)
+    utils.write_csv(output_ctrl_file, matrix)
 
 
 
@@ -109,8 +89,6 @@ def main1 (filename, output_filename) :
 
 if __name__ == '__main__':
     mop_ctrl_file(
-        "/home/jstvns/axis/eqc-input/control-mop/mop.csv",
-        "/home/jstvns/axis/eqc-input/control-mop/tramos.csv",
-        "/home/jstvns/axis/eqc-input/control-mop/mop-proj.csv",
-        "/home/jstvns/axis/eqc-input/control-mop/mop-ctrl.csv"
+        "/home/jstvns/axis/eqc-input/control-mdt/mop.csv",
+        "/home/jstvns/axis/eqc-input/control-mdt/mop-ctrl.csv",
     )
