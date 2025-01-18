@@ -49,6 +49,8 @@ class LevelControl:
         self.point_list      = []
         self.__control__()
         
+        self.point_list.sort()
+        
         
 
     def __control__ (self) :
@@ -76,8 +78,17 @@ class LevelControlPoint :
         self.ctrl_height = ctrl_height
         self.delta = delta
         self.good  = good
+        
+    
+    def __lt__ (self, point) :
+        return float(self.dm) < float(point.dm)
     
     
+    def __le__ (self, point) :
+        return float(self.dm) <= float(point.dm)
+    
+    def __eq__ (self, point) :
+        return self.dm == point.dm
 
 
 

@@ -52,9 +52,14 @@ class AxisControlPoint :
         
         self.good = good
     
-    
     def __str__ (self) :
         return f'dm={self.dm}'
+    
+    def __lt__ (self, point) :
+        return float(self.dm) < float(point.dm)
+    
+    def __le__ (self, point) :
+        return float(self.dm) <= float(point.dm)
 
 
 
@@ -85,6 +90,7 @@ class AxisControl :
         
         self.point_list = []
         self.control()
+        self.point_list.sort()
     
  
     def control (self,output_filename="") :

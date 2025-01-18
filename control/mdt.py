@@ -169,6 +169,7 @@ class MDTControl :
         
         self.project_dm_list = self.mop_proj.get_dm_list()
         self.control_dm_list = self.mop_ctrl.get_dm_list()
+        
         self.dm_list         = np.intersect1d(self.project_dm_list,self.control_dm_list)
         
         self.min_ctrl_dm   = np.round(np.min(np.array(self.dm_list).astype(float)),3)
@@ -187,6 +188,7 @@ class MDTControl :
         
         self.section_list = []
         self.__control__()
+        self.section_list.sort()
     
     
     def __control__ (self) :
@@ -202,6 +204,15 @@ class MDTControl :
                 point_list.append(mdt_point)
             mdt_section = MDTControlSection(dm,point_list)
             self.section_list.append(mdt_section)
+    
+    def point_length (self) :
+        LENGTH = 0
+        for sec in self.section_list :
+            LENGTH += sec.point_length()
+        return LENGTH
+    
+    def section_length (self) :
+        return len(self.section_list)
 
 
 class MDTControlSection :
@@ -210,8 +221,21 @@ class MDTControlSection :
         self.dm         = dm
         self.point_list = point_list
     
+    
+    def point_length (self) :
+        return len(self.point_list)
+    
+    def __lt__ (self, point) :
+        return float(self.dm) < float(point.dm)
+    
+    def __le__ (self, point) :
+        return float(self.dm) <= float(point.dm)
+    
     def __str__ (self):
         return f'MDT Section dm = {self.dm}'
+    
+    def point_length (self) :
+        return len(self.point_list)
 
 
 """
@@ -253,10 +277,10 @@ class MDTControlPoint :
         return np.round(ctrl_z - proj_z, 3)
     
     def abs_delta (self) :
-        return np.abs(self.delta)
+        return np.abs(self.delta())
     
     def is_within_tolerance (self) :
-        DELTA 
+        return self.delta() <= TOLERANCE
     
     def get_side (self) :
         if self.distance == "0.000":

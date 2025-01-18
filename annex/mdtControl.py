@@ -30,6 +30,12 @@ def generate (
     worksheet  = workbook.add_worksheet("SHEET1")
     mdt_control = MDTControl(input1,input2)
     
+    POINT_NUMBER = 1
+    SEC_NUMBER = 1
+    
+    START_SECTION = SEC_NUMBER
+    
+    
     # worksheet.hide_gridlines(2) 
     # worksheet.set_portrait()
     # worksheet.set_page_view(2)
@@ -44,9 +50,9 @@ def generate (
     writer = Writer(workbook,worksheet)
 
     writer.range(2,19,2,6,"",Format.BORDER)
-    writer.range(20,49,2,4,"SOMETHING ELSE",
+    writer.range(20,49,2,4,"VERIFICACIÓN DE PRECISIONES DEL MDT",
                  Format.SIZE(12),Format.BOLD, Format.BTOP,Format.BRIGHT, Format.CENTER, Format.VCENTER)
-    writer.range(20,49,5,6,"FORMULARIO N ####",
+    writer.range(20,49,5,6,"FORMULARIO N° 2.309.307.A",
                  Format.SIZE(12),Format.BOLD, Format.BBOTTOM,Format.BRIGHT, Format.BOTTOM, Format.CENTER)
 
     
@@ -69,25 +75,7 @@ def generate (
     
     
     
-    
-    
-    # writer.range(2,6,14,14,"Tramo N°:",Format.SIZE(9))
-    # writer.range(7,11,14,14,tramo,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
-    # writer.range(13,17,14,14,"Dm. Inicio:" ,Format.SIZE(9))
-    # writer.range(18,23,14,14,axis_ctrl.min_ctrl_dm ,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
-    # writer.range(25,28,14,14,"Dm. Fin:" ,Format.SIZE(9))
-    # writer.range(29,33,14,14,axis_ctrl.max_ctrl_dm,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
-    # #writer.range(35,42,14,14,"Longitud del Tramo:",Format.SIZE(9))
-    # #writer.range(43,49,14,14,axis_ctrl.ctrl_length,Format.SIZE(9),Format.CENTER, Format.BORDER) #PROGRAM
-    
-    
-    # writer.range(40,45,14,14,"% muestral:", Format.SIZE(9))
-    # writer.range(46,49,14,14,np.round(100*axis_ctrl.ctrl_length/total_length,1),Format.SIZE(9),Format.BORDER,Format.NUM1,Format.CENTER)
-
-    # writer.range(34,45,16,16,"Tolerancia (m): ", Format.RIGHT,Format.SIZE(10))
-    # writer.range(46,49,16,16,"0,10 m", Format.CENTER,Format.SIZE(10),Format.BORDER,Format.CENTER, Format.BORDER)
-    
-    index = 17
+    index = 25
     ROW  = (index,index)
     
     
@@ -118,75 +106,61 @@ def generate (
     writer.range(*hp_range,index,index+1,'Cota\nEstudio', *HEAD_FORMAT)
     writer.range(*dif_range,index,index+1,'Dif. (m)', *HEAD_FORMAT)
     writer.range(*absdif_range,index,index+1,'Dif. (m)\nValor Abs.', *HEAD_FORMAT)
-    writer.range(*good_range,index,index+1,'Cumplr\n(S/N)', *HEAD_FORMAT)
-    
-    # writer.range(dif_range[0],good_range[1],index,index, 'Comparación',*HEAD_FORMAT)
-    # writer.range(*dif_range,index+1,index+1,'Dif. Posición', *HEAD_FORMAT)
-    # writer.range(*good_range,index+1,index+1,'Cumple (S/N)', *HEAD_FORMAT)
-    
-    # index+=2
-    # DATA_FORMAT = (Format.CENTER,Format.SIZE(10),Format.BORDER,Format.CENTER, Format.BORDER,Format.NUM)
+    writer.range(*good_range,index,index+1,'Cumple\n(S/N)', *HEAD_FORMAT)
     
     
-    # for point in axis_ctrl.point_list:
-    #     COL = (index,index)
-    #     writer.range(*dm_range,*COL,utils.str_to_flt(point.dm),*DATA_FORMAT)
-    #     writer.range(*np_range,*COL,utils.str_to_flt(point.x_proj),*DATA_FORMAT)
-    #     writer.range(*ep_range,*COL,utils.str_to_flt(point.y_proj),*DATA_FORMAT)
-    #     writer.range(*nc_range,*COL,utils.str_to_flt(point.x_ctrl),*DATA_FORMAT)
-    #     writer.range(*ec_range,*COL,utils.str_to_flt(point.y_ctrl),*DATA_FORMAT)
-    #     writer.range(*dif_range,*COL,utils.str_to_flt(point.distance),*DATA_FORMAT)
-    #     writer.range(*good_range,*COL,point.good,*DATA_FORMAT)
-    #     index+=1
-    
-    # index += 2
-    
-    # writer.range(2,49,index,index,
-    #              "Observaciones respecto de las mediciones",
-    #              Format.SIZE(10),
-    #              Format.BOLD)
-    # index+=1
-    # writer.range(2,49,index,index+1,"",
-    #              Format.CENTER,Format.BORDER,Format.SIZE(10))
+    index+=2
+    DATA_FORMAT = (Format.CENTER,Format.SIZE(10),Format.BORDER,Format.NUM)
 
-    # index+=3
-
-    # writer.range(2,49,index,index,
-    #              "Fotografías representativas de la materialización del estacado:",
-    #              Format.SIZE(10),
-    #              Format.BOLD,
-    #              Format.CENTER)
     
-    # index += 1
-    # COLS = (index, index+8)
+    for sec in mdt_control.section_list:
+        writer.range(*dm_range, index, index + sec.get_length()-1, f'{SEC_NUMBER} ({sec.dm})' ,
+                     Format.CENTER, Format.SIZE(10), Format.BORDER, Format.NUM, Format.VCENTER)
+        SEC_NUMBER += 1
+        for point in sec.point_list:
+            COL = (index,index)
+            
+            writer.range(*n_range,    *COL, POINT_NUMBER, *DATA_FORMAT)
+            writer.range(*side_range, *COL, point.get_side(), *DATA_FORMAT)
+            writer.range(*dist_range, *COL, point.distance, *DATA_FORMAT)
+            writer.range(*hc_range,   *COL, point.ctrl_height, *DATA_FORMAT)
+            writer.range(*hp_range,   *COL, point.proj_height, *DATA_FORMAT)
+            writer.range(*dif_range,  *COL, point.delta(), *DATA_FORMAT)
+            writer.range(*absdif_range, *COL, point.abs_delta(), *DATA_FORMAT)
+            writer.range(*good_range, *COL, "SI" if point.is_within_tolerance() else "NO", *DATA_FORMAT)
+            index+=1
+            POINT_NUMBER += 1
+            
+        
+    writer.range(2,49,15,15,f'PERFIL {START_SECTION} AL PERFIL {SEC_NUMBER}',
+                 Format.CENTER,Format.BOLD)
     
-    # pic1_range = (2,16)
-    # pic2_range = offset_range(2,17,pic1_range)
-    # pic3_range = offset_range(2,16,pic2_range)
+    ran1 = (2,15)
+    ran2 = offset_range(3,5,ran1)
+    ran3 = offset_range(5,19,ran2)
+    ran4 = offset_range(3,5,ran3)
     
-    # writer.range(*pic1_range,*COLS,"",Format.BORDER)
-    # writer.range(*pic2_range,*COLS,"",Format.BORDER)
-    # writer.range(*pic3_range,*COLS,"",Format.BORDER)
+    FIELD_FORMAT = (Format.CENTER, Format.BBOTTOM, Format.SIZE(10))
     
-    # index += 9
-    # writer.range(
-    #     2,49,index,index,
-    #     "Descripción general y observaciones respecto de la materialización del estacado:",
-    #     Format.SIZE(10),
-    #     Format.BOLD
-    # )
-
-    # index += 1
-    # writer.range(
-    #     2,49,index,index+3,
-    #     "",Format.CENTER,Format.BORDER,Format.SIZE(10)
-    # )
-
-    # writer.cell(2,index+4,"",Format.BTOP)
+    writer.range(ran1[0],ran2[1],17,17,'ANTECEDENTES GENERALES', Format.BOLD, Format.CENTER)
+    writer.range(*ran1,18,18,'N° de Perfiles Contratados')
+    writer.range(*ran1,19,19,'N° Total de Perfiles Levantados')
+    writer.range(*ran1,20,20,'Cumple (S/N)')
     
+    writer.range(*ran2,18,18,'*',*FIELD_FORMAT)
+    writer.range(*ran2,19,19,'*',*FIELD_FORMAT)
+    writer.range(*ran2,20,20,'*',*FIELD_FORMAT)
     
+    writer.range(ran3[0],ran4[1],17,17,'RESULTADOS DE AUTOCONTROL', Format.BOLD, Format.CENTER)
+    writer.range(*ran3,18,18,'Tolerancia en Cota')
+    writer.range(*ran3,19,19,'N° Puntos Controlados')
+    writer.range(*ran3,20,20,'N° Puntos en Tolerancia')
+    writer.range(*ran3,21,21,'% Puntos de Tolerancia')
     
-    
+    writer.range(*ran4,18,18,'*',*FIELD_FORMAT)
+    writer.range(*ran4,19,19,'*',*FIELD_FORMAT)
+    writer.range(*ran4,20,20,'*',*FIELD_FORMAT)
+    writer.range(*ran4,21,21,'*',*FIELD_FORMAT)
     
     
     COL_WIDTH = [ 0.12 for i in range(0,50) ]
