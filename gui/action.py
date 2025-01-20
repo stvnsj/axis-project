@@ -3,6 +3,16 @@ import spreadsheet
 import plotter
 import reader as rd
 
+# CONTROL
+import control.mdt     as cmdt
+import control.axis    as caxis
+import control.level   as clevel
+import control.mop     as cmop
+import control.mopcad  as cmopcad
+import annex.groundline as groundline
+import annex.axisControl as annex_axis_control
+import annex.mdtControl  as annex_mdt_control
+
 # ANNEX
 import annex.annex2    as annex2
 import annex.annex4    as annex4
@@ -517,4 +527,141 @@ def generate_annex_11 ():
         pr_level_file.get(),
         SAVE_FILENAME['fullname']
     )
+
+########################################################
+#   _____ ____  _   _ _______ _____   ____  _          #
+#  / ____/ __ \| \ | |__   __|  __ \ / __ \| |         #
+# | |   | |  | |  \| |  | |  | |__) | |  | | |         #
+# | |   | |  | | . ` |  | |  |  _  /| |  | | |         #
+# | |___| |__| | |\  |  | |  | | \ \| |__| | |____     #
+#  \_____\____/|_| \_|  |_|  |_|  \_\\____/|______|    #
+########################################################
+
+
+@save_action_factory("Text", "csv")
+@notify_action
+def generate_level_control ():
+    
+    clevel.LevelControl(
+        level_proj_file.get(),
+        level_ctrl_file.get()
+    ).write(SAVE_FILENAME['fullname'])
+
+@save_action_factory("Text", "csv")
+@notify_action
+def generate_mop_control_full () :
+    cmop.MOPControl(
+        mop_proj_file.get(),
+        mop_ctrl_file.get(),
+    ).write(SAVE_FILENAME['fullname'])
+
+
+
+
+
+
+@save_action_factory("Text", "csv")
+@notify_action
+def generate_mop_control_random () :
+    
+    try:
+        random_seed = int(random_seed_input.get())
+        print("Semilla de aleatoriedad: " , random_seed_input.get())
+    except:
+        print(f'Semilla de aleatoriedad {random_seed_input.get()} inválida. Usando 42')
+        random_seed = 42
+    
+    
+    cmop.MOPControl(
+        mop_proj_file.get(),
+        mop_ctrl_file.get()
+    ).select_random_points(
+        seed        = random_seed,
+    ).write(SAVE_FILENAME['fullname'])
+
+
+@save_action_factory("Text", "scr")
+@notify_action
+def generate_mop_cad_control () :
+    cmopcad.CadScript(
+        mop_proj_file.get(),
+        mop_ctrl_file.get()
+    ).write(
+        filename=SAVE_FILENAME['fullname']
+    )
+
+@save_action_factory("Excel", "xlsx")
+@notify_action
+
+    
+def generate_groundline_control () :
+    
+    try:
+        random_seed = int(random_seed_input.get())
+        print("Semilla de aleatoriedad: " , random_seed_input.get())
+    except:
+        print(f'Semilla de aleatoriedad {random_seed_input.get()} inválida. Usando 42')
+        random_seed = 42
+    
+    try:
+        project_length = np.round(float(project_length_input),3)
+    except:
+        project_length = 1000
+        print('Longitud de proyecto inválida. Usando 1000.000 m')
+        
+    groundline.generate(
+        f1_mop = mop_proj_file.get(),
+        f2_mop = mop_ctrl_file.get(),
+        f1_long = level_proj_file.get(),
+        f2_long = level_ctrl_file.get(),
+        output_file = SAVE_FILENAME['fullname'],
+        dm_interval = dm_interval_input.get(),
+        seed = random_seed,
+        total_length = project_length
+    )
+
+@save_action_factory("Text", "csv")
+@notify_action
+def generate_axis_control_csv () :
+    caxis.AxisControl(
+        axis_proj_file.get(),
+        axis_ctrl_file.get()
+    ).write(SAVE_FILENAME['fullname'])
+
+@save_action_factory("Excel" , "xlsx")
+@notify_action
+def generate_axis_control_annex () :
+    try:
+        project_length = np.round(float(project_length_input),3)
+    except:
+        project_length = 1000
+        print('Longitud de proyecto inválida. Usando 1000.000 m')
+        
+    annex_axis_control.generate(
+        input1 = axis_proj_file.get(),
+        input2 = axis_ctrl_file.get(),
+        output_file = SAVE_FILENAME['fullname'],
+        dm_interval = dm_interval_input.get(),
+        total_length = project_length
+    )
+
+@save_action_factory("Text" , "csv")
+@notify_action
+def generate_mdt_control_csv () :
+    cmdt.MDTControl(
+        mdt_proj_file.get(),
+        mdt_ctrl_file.get(),
+    ).write(SAVE_FILENAME['fullname'])
+
+
+@save_action_factory("Excel" , "xlsx")
+@notify_action
+def generate_mdt_control_annex () :
+    annex_mdt_control.generate(
+        mdt_proj_file.get(),
+        mdt_ctrl_file.get(),
+        SAVE_FILENAME['fullname']
+    )
+
+
 

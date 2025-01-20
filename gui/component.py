@@ -102,7 +102,7 @@ class LoadFileFrame(tk.Frame):
 
 class InputFrame(tk.Frame):
     
-    def __init__ (self, parent , title="Input Frame", entry_params = [], command=lambda x:print("HELLO WORLD"),side="top"):
+    def __init__ (self, parent , title="Input Frame", entry_params = [], command=lambda x:print("HELLO WORLD"),side="top",button=True):
         
         super().__init__(parent,pady=3,padx=3,bd=3,relief="groove")
         self.row = 0
@@ -115,13 +115,13 @@ class InputFrame(tk.Frame):
         for param in entry_params:
             self.inputs.append(self.insert_entry(param["label"],param["var"]))
             self.row += 1
-        
-        self.insert_button(command=command) 
+        if button:
+            self.insert_button(command=command) 
  
     def insert_entry(self,label,var):
         
         entry_box   = tk.Entry(self.frame_grid, textvariable = var)
-        entry_label = tk.Label(self.frame_grid, text = label, width=15, anchor="w")
+        entry_label = tk.Label(self.frame_grid, text = label, width=23, anchor="w")
         
         entry_box.grid(row=self.row,column = 0)
         entry_label.grid(row=self.row,column=1)
@@ -140,6 +140,47 @@ class InputFrame(tk.Frame):
     
     def get_input(self,i):
         return self.inputs[i]
+
+
+
+
+class ScrollableFrame(tk.Frame):
+
+    # Container would be tab 7
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+        
+        # Create a canvas
+        self.canvas = tk.Canvas(self)
+        self.canvas.pack(side="left", fill="both", expand=True)
+        
+        # Add a scrollbar to the canvas
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        
+        # Configure canvas to work with the scrollbar
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        
+        # Create a frame inside the canvas
+        self.inner_frame = tk.Frame(self.canvas)
+        self.inner_frame.bind("<Configure>", self._on_frame_configure)
+        
+        # Add the frame to the canvas
+        #self.canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
+    
+    def _on_frame_configure(self, event):
+        """Adjust the scroll region to fit the inner frame."""
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def get_inner_frame (self) :
+        return self.inner_frame
+
+
+# # Create the scrollable frame
+# scrollable_frame = ScrollableFrame(root)
+# scrollable_frame.pack(fill="both", expand=True)
+
+
 
 
 

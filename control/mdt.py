@@ -170,7 +170,10 @@ class MDTControl :
         self.project_dm_list = self.mop_proj.get_dm_list()
         self.control_dm_list = self.mop_ctrl.get_dm_list()
         
-        self.dm_list         = np.intersect1d(self.project_dm_list,self.control_dm_list)
+        self.dm_list        = sorted(
+            np.intersect1d(self.project_dm_list,self.control_dm_list),
+            key = float
+        )
         
         self.min_ctrl_dm   = np.round(np.min(np.array(self.dm_list).astype(float)),3)
         self.max_ctrl_dm   = np.round(np.max(np.array(self.dm_list).astype(float)),3)
@@ -183,12 +186,14 @@ class MDTControl :
         self.ctrl_dm_number = len(self.dm_list)
         
         self.control_section_list = []
-        self.TOTAL                = 0
+        self.TOTAL_POINTS         = 0
+        self.GOOD_POINTS          = 0
         self.control_matrix       = np.empty((0,9))
         
         self.section_list = []
         self.__control__()
         self.section_list.sort()
+        
     
     
     def __control__ (self) :
@@ -201,6 +206,9 @@ class MDTControl :
                 ctrl_point = sec_proj.dist_point.get(dist)
                 proj_point = sec_ctrl.dist_point.get(dist)
                 mdt_point = MDTControlPoint(dist, proj_point.height, ctrl_point.height)
+                if mdt_point.is_within_tolerance():
+                    self.GOOD_POINTS += 1
+                self.TOTAL_POINTS += 1
                 point_list.append(mdt_point)
             mdt_section = MDTControlSection(dm,point_list)
             self.section_list.append(mdt_section)
@@ -213,6 +221,30 @@ class MDTControl :
     
     def section_length (self) :
         return len(self.section_list)
+    
+    def get_total_points (self) :
+        return self.TOTAL_POINTS
+    
+    def get_good_points (self) :
+        return self.GOOD_POINTS
+    
+    def get_good_percent (self) :
+        PERCENT = np.round(100 * self.get_good_points() / self.get_total_points(), 1)
+        return PERCENT
+    
+    def write( self, output_filename):
+        output_matrix = np.empty((0,6))
+        for sec in self.section_list:
+            for point in sec.point_list:
+                row = np.array([
+                    sec.dm,
+                    point.dist,
+                    point.ctrl_height,
+                    point.proj_height,
+                    utils.format_float(point.abs_delta),
+                    str(point.is_within_tolerance()),
+                ])
+        utils.write_csv(output_filename,output_matrix)
 
 
 class MDTControlSection :

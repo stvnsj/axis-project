@@ -92,7 +92,7 @@ def compute_sign (v1, v2):
  
     prod = x1 * y2 - y1 * x2
     
-    if prod >= 0:
+    if prod > 0:
         return -1
     else:
         return 1
@@ -102,8 +102,10 @@ compute_sign_array = np.vectorize(compute_sign,signature='(n),(n)->()')
 
 
 def parseLabel(label):
+    
     if label.endswith("i") or label.endswith("I"):
         return -1
+    
     else:
         return 1
 

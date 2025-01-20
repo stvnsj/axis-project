@@ -19,71 +19,74 @@ import level
 ROW_DICT = {}
 
 def generate (
-        input1 = "",
-        input2 = "",
-        output_file = "/home/jstvns/axis/Anexos Formulas/groundline.xlsx",
-        tramo = "*",
+        f1_mop = "",
+        f2_mop = "",
+        f1_long = '',
+        f2_long = '',
+        output_file = "",
+        dm_interval = "*",
         total_length = 1000,
+        seed = 42
 ) :
     
+    if f1_mop == "":
+        print("Error: Archivo MOP de proyecto no cargado")
+        return
+    if f2_mop == "":
+        print("Error: Archivo MOP de control no cargado")
+        return
+    if f1_long == "":
+        print("Error: Archivo longitudinal de proyecto no cargado")
+        return
+    if f2_long == "":
+        print("Error: Archivo longitudinal de control no cargado")
+        return
+    
+    
+    
     workbook   = xlsxwriter.Workbook(output_file)
-    worksheet  = workbook.add_worksheet("SHEET1")
-    random_mop = MOPControl(input1,input2).select_random_points()
-
-    file_proj = '/home/jstvns/axis/eqc-input/control-level/longi-proj.csv'
-    file_ctrl = '/home/jstvns/axis/eqc-input/control-level/longi-ctrl.csv'
+    worksheet  = workbook.add_worksheet("autocontrol")
+    
+    level_control = LevelControl(f1_long,f2_long)
+    random_mop = MOPControl(f1_mop,f2_mop).select_random_points(seed=seed)
     
     
-    
-    
-    file1 = '/home/jstvns/axis/eqc-input/control-level/longi-proj.csv'
-    file2 = '/home/jstvns/axis/eqc-input/control-level/longi-ctrl.csv'
-    
-    level_control = LevelControl(file1,file2)
-
-    
-    
-    # worksheet.hide_gridlines(2) 
-    # worksheet.set_portrait()
-    # worksheet.set_page_view(2)
-    # worksheet.set_paper(9)
-    # worksheet.set_margins(left=0.71, right=0.71, top=0.95, bottom=0.75)
-
     worksheet.hide_gridlines(2)  # 2 hides both the printed and visible gridlines
     worksheet.set_portrait()
     worksheet.set_page_view(2)
     worksheet.set_paper(5)
     
     writer = Writer(workbook,worksheet)
-
+ 
+    
     writer.range(2,19,2,6,"",Format.BORDER)
     writer.range(20,49,2,4,"VERIFICACIÓN DE LÍNEA DE TIERRA",
                  Format.SIZE(12),Format.BOLD, Format.BTOP,Format.BRIGHT, Format.CENTER, Format.VCENTER)
     writer.range(20,49,5,6,"FORMULARIO N° 2.309.306.A",
                  Format.SIZE(12),Format.BOLD, Format.BBOTTOM,Format.BRIGHT, Format.BOTTOM, Format.CENTER)
-
-    
+ 
     
     writer.range(1,1,8,11,"",Format.BRIGHT)
     writer.range(50,50,8,11,"",Format.BLEFT)
     writer.range(2,49,7,7,"",Format.BBOTTOM)
     writer.range(2,49,12,12,"",Format.BTOP)
     
+    
     writer.cell (2,8,"PROYECTO:",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.cell (2,9,"SECTOR:", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.cell (2,10,"TRAMO:", Format.SIZE(10),Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.cell (2,11,"REALIZADO:",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.range(36,49,11,11,f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
+ 
     
-    writer.cell(10,8, "NOMBRE DEL PROYECTO")
-    writer.cell(10,9, "SECTOR DEL PROYECTO")
-    writer.cell(10,10,"TRAMO DEL PROYECTO")
-    writer.cell(10,11,"REALIZADO POR EQC")
-    
-
+    writer.cell(10,8, ": *")
+    writer.cell(10,9, ": *")
+    writer.cell(10,10,": *")
+    writer.cell(10,11,": AUTOCONTROL TOPOGRÁFICO")
+ 
     
     writer.range(2,6,14,14,"Tramo N°:",Format.SIZE(9))
-    writer.range(7,11,14,14,tramo,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
+    writer.range(7,11,14,14,dm_interval,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
     writer.range(13,17,14,14,"Dm. Inicio:" ,Format.SIZE(9))
     writer.range(18,23,14,14,random_mop.min_ctrl_dm ,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
     writer.range(25,28,14,14,"Dm. Fin:" ,Format.SIZE(9))
@@ -136,10 +139,9 @@ def generate (
         writer.range(20,23,index,index,str_to_flt(p.delta),Format.SIZE(9),Format.BORDER, Format.NUM,Format.CENTER)
         writer.range(25,29,index,index,p.good,Format.SIZE(9),Format.BORDER,Format.CENTER)
         writer.range(31,49,index,index,"",Format.SIZE(9),Format.BORDER,Format.CENTER)
-        
         level_point_number +=1
         index += 1
-        
+    
     
     index+=1
     
@@ -227,22 +229,17 @@ def generate (
             writer.range(44,49,index,index, "SI" if point.good == "True" else "NO", Format.SIZE(9), Format.BORDER,Format.CENTER)
             writer.cell (50,index,"",Format.BLEFT)
             index += 1
-        
-        
+            
         index = initial_index + len(neg_points) + len(pos_points) + 1
         section_number += 1
     
+    writer.cell(29,index-1,"",Format.BTOP)
     
-    
-    curr_row = 16
     
     COL_WIDTH = [ 0.12 for i in range(0,50) ]
-    
     annexUtils.set_column(worksheet,COL_WIDTH)
     annexUtils.set_row_dict(worksheet,ROW_DICT)
-    
-    workbook.close()
-    
+    workbook.close()    
 
 
 

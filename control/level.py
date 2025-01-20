@@ -45,7 +45,11 @@ class LevelControl:
         # Project and Control dm lists
         self.project_dm_list = self.longitudinal_proj.get_dm_list()
         self.control_dm_list = self.longitudinal_ctrl.get_dm_list()
-        self.dm_list         = np.intersect1d(self.project_dm_list,self.control_dm_list)
+        self.dm_list         = sorted(
+            np.intersect1d(self.project_dm_list,self.control_dm_list),
+            key=float
+            
+        )
         self.point_list      = []
         self.__control__()
         
@@ -69,6 +73,13 @@ class LevelControl:
                 good
             )
             self.point_list.append(point)
+ 
+    def write (self , output_filename) :
+        output_matrix = np.empty((0,5))
+        for point in self.point_list :
+            row = np.array([point.dm,point.proj_height,point.ctrl_height,point.delta, point.good])
+            output_matrix = np.vstack((output_matrix, row))
+        utils.write_csv(output_filename, output_matrix)
 
 
 class LevelControlPoint :
@@ -90,6 +101,8 @@ class LevelControlPoint :
     def __eq__ (self, point) :
         return self.dm == point.dm
 
+    def __str__ (self) :
+        return f'dm = {self.dm}'
 
 
 def main () :
@@ -97,9 +110,7 @@ def main () :
     file_proj = '/home/jstvns/axis/eqc-input/control-level/longi-proj.csv'
     file_ctrl = '/home/jstvns/axis/eqc-input/control-level/longi-ctrl.csv'
     
-    level_control = LevelControl(file_proj,file_ctrl)
-
-    
+    level_control = LevelControl(file_proj,file_ctrl).write('hello')
 
 
 if __name__ == '__main__' :

@@ -132,11 +132,30 @@ class Model :
     
     
     def guessHeight (self,km):
-        dm2 = km[:-1]
-        for i in range(0,10):
-            dm3 = dm2 + f'{i}'
-            if dm3 in self.heights:
-                print(f"Cambio de DM sugerido:\n{km} --> {dm3}\n")
+        try:
+            dm_float = np.round(float(km),3)
+        except:
+            print (f'No hay cambio sugerido para {dm}')
+            
+        for dm0 in self.heights:
+            try:
+                dm0_float = np.round(float(dm0),3)
+            except:
+                continue
+            
+            if np.abs(dm_float - dm0_float) <= 0.01:
+                print(f'Cambio sugerido {int(line)}: {dm} --> {dm0}')
+                return
+            
+        print (f'No hay cambio sugerido para {dm}')
+        return
+    
+    # FORMER IMPLEMENTATION 
+    # dm2 = km[:-1]
+    # for i in range(0,10):
+    #     dm3 = dm2 + f'{i}'
+    #     if dm3 in self.heights:
+    #         print(f"Cambio de DM sugerido:\n{km} --> {dm3}\n")
     
     
     

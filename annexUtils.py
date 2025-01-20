@@ -142,6 +142,7 @@ class Format :
     BOLD   = {"bold":True}
     ITALIC = {"italic":True}
     DEC    = {'num_format': '#,##0.0000000000'}
+    INT    = {'num_format': '#,##0'}
     NUM    = {'num_format': '#,##0.000'}
     NUM1   = {'num_format': '#,##0.0'}
     NUM2   = {'num_format': '#,##0.00'}

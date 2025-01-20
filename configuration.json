@@ -11,6 +11,14 @@
         "anexo-10": "",
         "fotos": "",
         "georef": "",
-        "eje-estaca": "/home/jstvns/eje-estaca.csv"
+        "eje-estaca": "/home/jstvns/eje-estaca.csv",
+        "mop-proj": "/home/jstvns/axis/auto-control/E4_PT_TOPOGRAFIA_MOP.CSV",
+        "mop-ctrl": "/home/jstvns/axis/auto-control/E4_MOP.csv",
+        "level-proj": "/home/jstvns/axis/eqc-input/control-level/longi-proj.csv",
+        "level-ctrl": "/home/jstvns/axis/eqc-input/control-level/longi-ctrl.csv",
+        "axis-proj": "",
+        "axis-ctrl": "",
+        "mdt-proj": "",
+        "mdt-ctrl": ""
     }
 }

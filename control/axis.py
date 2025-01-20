@@ -75,7 +75,10 @@ class AxisControl :
         # Project and Control dm lists
         self.project_dm_list = self.axis_proj.get_dm_list()
         self.control_dm_list = self.axis_ctrl.get_dm_list()
-        self.dm_list         = np.intersect1d(self.project_dm_list,self.control_dm_list)
+        self.dm_list         = sorted(
+            np.intersect1d(self.project_dm_list,self.control_dm_list),
+            key = float
+        )
         self.tolerance       = 0.10
         
         min_proj_dm = utils.str_to_flt(min(self.project_dm_list,key=float))
@@ -128,6 +131,23 @@ class AxisControl :
         
         # utils.write_csv(output_filename, output)
         # return output
+    
+    def write (self,output_filename='') :
+        output_matrix = np.empty((0,7))
+        for point in self.point_list:
+            row = np.array([
+                point.dm,
+                point.x_proj,
+                point.y_proj,
+                point.x_ctrl,
+                point.y_ctrl,
+                point.distance,
+                point.good,
+            ])
+            output_matrix = np.vstack ((output_matrix, row))
+            
+        utils.write_csv(output_filename, output_matrix)
+
 
 
 
@@ -138,7 +158,7 @@ def main (input1, input2, output) :
     file_ctrl = input2
     
     level_control = AxisControl(file_proj,file_ctrl)
-    level_control.control(output)
+    level_control.write(output)
 
 if __name__ == '__main__':
     

@@ -53,12 +53,6 @@ class Line :
         return f'x0={self.x0}  \t x1={self.x1}\ny0={self.y0}  \ty1={self.y1}'
 
 
-
-class ControlMatrixIterator :
-    def __init__(self,matrix):
-        pass
-
-
 class RandomMatrixIterator :
     
     def __init__ (self,matrix):
@@ -123,10 +117,11 @@ class MopMatrixIterator :
 
 class MOPPoint :
     
-    def __init__ (self, distance, height, descr):
+    def __init__ (self, distance, height, descr, axis = False):
         self.distance   = utils.str_to_flt (distance)
         self.height     = utils.str_to_flt (height)
         self.descriptor = descr
+        self.axis       = axis
     
     def get_ground_type(self):
         match = re.search(r'\d+', self.descriptor)
@@ -153,10 +148,13 @@ class MOPSection:
     def __init__ (self, matrix):
         
         self.dm = matrix[0][0]
+        
         self.point_list = []
+        
         for row in matrix :
-            point = MOPPoint(row[1],row[2],row[3])
+            point = MOPPoint(row[1],row[2],row[3], axis = True if float(row[1]) == 0 else False)
             self.point_list.append(point)
+        
         self.size = len(matrix)
         self.point_list.sort()
         
@@ -164,7 +162,7 @@ class MOPSection:
         self.__max_dist__   = max(self.point_list)
         self.__min_height__ = min(self.point_list, key=lambda point: point.height)
         self.__max_height__ = max(self.point_list, key=lambda point: point.height)
-        
+    
     def get_size(self):
         return self.size
     
@@ -355,7 +353,10 @@ class MOPControl :
         
         self.project_dm_list = self.mop_proj.get_dm_list()
         self.control_dm_list = self.mop_ctrl.get_dm_list()
-        self.dm_list         = np.intersect1d(self.project_dm_list,self.control_dm_list)
+        self.dm_list         = sorted(
+            np.intersect1d(self.project_dm_list,self.control_dm_list),
+            key = float
+        )
         
         self.min_ctrl_dm   = np.round(np.min(np.array(self.dm_list).astype(float)),3)
         self.max_ctrl_dm   = np.round(np.max(np.array(self.dm_list).astype(float)),3)
@@ -369,15 +370,15 @@ class MOPControl :
         
         self.ctrl_dm_number = len(self.dm_list)
         
+        # List of control sections.
         self.control_section_list = []
         self.TOTAL                = 0
+        
+        # Matrix for the CSV control file. (Not Random)
         self.control_matrix       = np.empty((0,9))
+        self.__control__()
         #self.print_control_stats()
     
-    # def print_control_stats (self):
-    #     print(f"Longitud de Proyecto: {self.proj_length} m")
-    #     print(f"Longitud de tramo de Control: {self.ctrl_length} m")
-    #     print(f"Perfiles controlados por KM: {1000 * self.ctrl_dm_number / self.ctrl_length} perfil/km")
     
     def __control__ (self) :
         # iterate over project dm's 
@@ -392,7 +393,7 @@ class MOPControl :
                 
                 pair = proj_section.get_neighbor_indices(point_ctrl)
                 
-                if pair is not None:
+                if pair is not None and not point_ctrl.axis:
                     
                     point_proj_1 = proj_section.get_point(pair[0])
                     point_proj_2 = proj_section.get_point(pair[1])
@@ -414,44 +415,26 @@ class MOPControl :
                     ])
                     
                     self.control_matrix = np.vstack((self.control_matrix,new_row))
-                else:
-                    DELTA = None
-                    new_row = np.array([
-                        dm,
-                        "i" if point_ctrl.distance < 0 else "d",                        
-                        utils.format_float(point_ctrl.distance),
-                        utils.format_float(point_ctrl.height),
-                        "0.000",
-                        str(point_ctrl.get_ground_type()),
-                        str(tolerance.get(point_ctrl.get_ground_type(),0.000)),
-                        "null",
-                        "null",
-                    ])
-                    self.control_matrix = np.vstack((self.control_matrix,new_row))
-                
-                mop_control_point = MOPControlPoint(
-                    point_ctrl.distance,
-                    proj_height,
-                    point_ctrl.height,
-                    point_ctrl.descriptor,
-                    DELTA
-                )
-                
-                mop_control_point_list.append(mop_control_point)
-           
+                    
+                    mop_control_point = MOPControlPoint(
+                        point_ctrl.distance,
+                        proj_height,
+                        point_ctrl.height,
+                        point_ctrl.descriptor,
+                        DELTA
+                    )
+                    
+                    mop_control_point_list.append(mop_control_point)
+            
             self.control_section_list.append(MOPControlSection(dm,mop_control_point_list))
  
  
     def write(self, outputfile=""):
-        print("write full table")
-        self.__control__()
         utils.write_csv(outputfile, self.control_matrix)
     
-    def select_random_points(self, outputfile="", seed=42):
+    def select_random_points(self, seed=42):
         
         np.random.seed(seed)
-        
-        self.__control__()
         random_table = np.empty((0,9))
         TOTAL_POINTS = 0
         OK_POINTS    = 0
@@ -527,6 +510,45 @@ class RandomMop :
     def sufficient_points (self) :
         return self.ctrl_number >= self.required_sections_per_km()
     
+    
+    def write(self, output_filename) :
+        
+        output_matrix = np.empty((0,8))
+        
+        for sec in self.section_list:
+            
+            for point in sec.pos_points:
+                row = np.array([
+                    sec.dm,
+                    point.distance,
+                    point.ctrl_height,
+                    point.proj_height,
+                    point.type,
+                    point.tol,
+                    point.dif,
+                    point.good
+                ])
+                
+                output_matrix = np.vstack((output_matrix, row))
+                
+            for point in sec.neg_points:
+                
+                row = np.array([
+                    sec.dm,
+                    point.distance,
+                    point.ctrl_height,
+                    point.proj_height,
+                    point.type,
+                    point.tol,
+                    point.dif,
+                    point.good
+                ])
+                
+                output_matrix = np.vstack((output_matrix, row))
+        
+        utils.write_csv(output_filename, output_matrix)
+
+
 
 class RandomMopSection :
     
@@ -572,23 +594,17 @@ class RandomMopPoint :
         
     
     def __str__ (self):
-        return f'point\ndist={self.distance}\nctrl={self.ctrl_height}\nproj={self.proj_height}\nTip={self.tipo}\nTOL={self.tol}\ndif={self.dif}\nok={self.good}\n'
+        return f'point\ndist={self.distance}\nctrl={self.ctrl_height}\nproj={self.proj_height}\nTip={self.type}\nTOL={self.tol}\ndif={self.dif}\nok={self.good}\n'
 
 
-def main (input1,input2,output,option=0) :
-    
+def main (input1,input2,output) :    
     mop_control = MOPControl( input1, input2 )
-    
-    if option == "0" :
-        mop_control.write(output)
-        return 
-    if option == "1" :
-        mop_control.select_random_points(output)
-        return
+    mop_control.write(output)
+    mop_random_control = mop_control.select_random_points().write(output)
 
 if __name__ == '__main__':
     main(
         sys.argv[1],
         sys.argv[2],
-        sys.argv[3],
-        sys.argv[4])
+        sys.argv[3]
+    )

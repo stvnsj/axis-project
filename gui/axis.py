@@ -76,13 +76,26 @@ img_dir1_param = {"label":"Imagenes (Pan. Det.)"   , "stringvar": img_dir1 , "ty
 img_dir2_param = {"label":"Imagenes (Geo.)"        , "stringvar": img_dir2 , "type":"dir", "field":'georef'}
 eje_estaca_file_param = {"label":"Eje Estaca", "stringvar": eje_estaca_file, "type":"file", "field":'eje-estaca'}
 
+mop_proj_file_param = {"label": "MOP Proyecto",    "stringvar": mop_proj_file , "type":"file", "field":"mop-proj"}
+mop_ctrl_file_param = {"label": "MOP Autocontrol", "stringvar": mop_ctrl_file , "type":"file", "field":"mop-ctrl"}
+
+level_proj_file_param = {"label": "Nivelación Proyecto",     "stringvar": level_proj_file, "type":"file", "field":"level-proj"}
+level_ctrl_file_param = {"label": "Nivelación Autocontrol" , "stringvar": level_ctrl_file, "type":"file", "field":"level-ctrl"}
+
+axis_proj_file_param  = {"label": "Eje Estacado de Proyecto",    "stringvar":axis_proj_file, "type":"file", "field":"axis-proj"}
+axis_ctrl_file_param  = {"label": "Eje Estacado de Autocontrol", "stringvar":axis_ctrl_file, "type":"file", "field":"axis-ctrl"}
+
+mdt_proj_file_param = {"label": "MDT Proyecto",    "stringvar":mdt_proj_file, "type":"file", "field":"mdt-proj"}
+mdt_ctrl_file_param = {"label": "MDT Autocontrol", "stringvar":mdt_ctrl_file, "type":"file", "field":"mdt-ctrl"}
+
+
+
 
 ################
 # ############ #
 # # CAD TAB1 # #
 # ############ #
 ################
-
 button_params = [
     descriptor_file_param,
     coordinate_file_param,
@@ -238,12 +251,14 @@ button_params = [
     coordinate_file_param,
     libreta_file_param,
     trigonometric_file_param,
-]  
+]
+
 component.LoadFileFrame(tab5, title='Carga de Archivos', button_params=button_params)
 
 button_params = [
     {"label":"Analisis DM", "command":ax_com.get_dm_analysis},
 ]
+
 component.ButtonFrame(tab5, title="Análisis", button_params=button_params)
 
 
@@ -329,12 +344,141 @@ canvas.get_tk_widget().pack(fill='both' , expand=True)
 toolbar.pack()
 canvasFrame.pack(fill='both',expand=True)
 
+
+
+
+#         _    _ _______ ____   _____ ____  _   _ _______ _____   ____  _       
+#    /\  | |  | |__   __/ __ \ / ____/ __ \| \ | |__   __|  __ \ / __ \| |      
+#   /  \ | |  | |  | | | |  | | |   | |  | |  \| |  | |  | |__) | |  | | |      
+#  / /\ \| |  | |  | | | |  | | |   | |  | | . ` |  | |  |  _  /| |  | | |      
+# / ____ \ |__| |  | | | |__| | |___| |__| | |\  |  | |  | | \ \| |__| | |____  
+#/_/    \_\____/   |_|  \____/ \_____\____/|_| \_|  |_|  |_|  \_\\____/|______| 
+
+
+canvas = tk.Canvas(tab7)
+canvas.pack(side = 'left', fill='both', expand=True)
+
+
+
+
+scrollbar = tk.Scrollbar(tab7, orient='vertical', command=canvas.yview)
+scrollbar.pack(side = 'right', fill='y')
+
+canvas.configure(yscrollcommand=scrollbar.set)
+
+
+
+
+
+
+
+control_frame = tk.Frame(tab7,padx=40, pady=28,width = 1100)
+canvas.create_window(
+    (5,0),
+    window=control_frame,
+    anchor='n'
+)
+
+control_parameter_frame = tk.Frame(control_frame,padx=3, pady=3, bd=3, relief="raised",width = 1000)
+control_parameter_frame.pack()
+
+control_parameter_frame_title = tk.Label(control_parameter_frame, text="Parametros Globales", font=("Arial", 14, "bold"))
+control_parameter_frame_title.pack(anchor="n")
+
+entry_params = [
+    {"label":"Semilla de Aleatoriedad" ,    "var" : random_seed_input},
+    {"label":"Longitud Total de Proyecto" , "var" : project_length_input},
+    {"label":"Tramo"                      , "var" : dm_interval_input}
+]
+
+component.InputFrame(control_parameter_frame,entry_params=entry_params, button= False ,title="Parametros")
+
+
+
+mop_frame = tk.Frame(control_frame,padx=3, pady=3, bd=3, relief="raised")
+mop_frame.pack()
+
+mop_frame_title = tk.Label(mop_frame, text="Autocontrol Longitudinal y Transversal", font=("Arial", 14, "bold"))
+mop_frame_title.pack(anchor="n")
+
+button_params = [
+    mop_proj_file_param,
+    mop_ctrl_file_param,
+    level_proj_file_param,
+    level_ctrl_file_param,
+]
+component.LoadFileFrame(mop_frame, title='Carga de Archivos', button_params=button_params)
+
+button_params = [
+    {"label":"Autocontrol Longitudinal (CSV)", "command":ax_com.generate_level_control},
+    {"label":"Autocontrol Transversal Completo (CSV)", "command":ax_com.generate_mop_control_full},
+    {"label":"Autocontrol Transversal Aleatorio (CSV)", "command":ax_com.generate_mop_control_random},
+    {"label":"CAD de Autocontrol Transversal (SCR)", "command":ax_com.generate_mop_cad_control},
+    {"label":"Autcontrol de Línea de Tierra (XLSX)", "command":ax_com.generate_groundline_control},
+    
+]
+component.ButtonFrame(mop_frame, title="Generación de Archivos", button_params=button_params)
+
+
+axis_frame = tk.Frame(control_frame,padx=4, pady=20, bd=3, relief="raised")
+axis_frame.pack()
+axis_frame_title = tk.Label(axis_frame, text="Autocontrol de Eje Estacado", font=("Arial", 14, "bold"))
+axis_frame_title.pack(anchor="n")
+button_params = [
+    axis_proj_file_param,
+    axis_ctrl_file_param
+]
+component.LoadFileFrame(axis_frame, title='Carga de Archivos', button_params=button_params)
+button_params = [
+    {"label": "Autocontrol de Eje Estacado (CSV)", "command": ax_com.generate_axis_control_csv},
+    {"label": "Autocontrol de Eje Estacado (XLSX)", "command": ax_com.generate_axis_control_annex}
+]
+component.ButtonFrame(axis_frame, title="Generación de Archivos", button_params=button_params)
+
+mdt_frame = tk.Frame(control_frame,padx=3, pady=3, bd=3, relief="raised")
+mdt_frame.pack()
+mdt_frame_title = tk.Label(mdt_frame, text="Autocontrol de MDT", font=("Arial", 14, "bold"))
+mdt_frame_title.pack(anchor="n")
+button_params = [
+    mdt_proj_file_param,
+    mdt_ctrl_file_param,
+]
+component.LoadFileFrame(mdt_frame, title='Carga de Archivos', button_params=button_params)
+button_params = [
+    {"label": "Autocontrol de MDT (CSV)",  "command": ax_com.generate_mdt_control_csv},
+    {"label": "Autocontrol de MDT (XLSX)", "command": ax_com.generate_mdt_control_annex},    
+]
+component.ButtonFrame(mdt_frame, title="Generación de Archivos", button_params=button_params)
+
+
+
+
+
+
+
+
+
+
+def update_scroll_region(event) :
+    canvas.configure(scrollregion=canvas.bbox('all'))
+control_frame.bind("<Configure>", update_scroll_region)
+
+
+
+
+
 def on_closing():
     plt.close("all")  # Close all Matplotlib figures
     root.quit()       # Quit the Tkinter main loop
     root.destroy()    # Destroy the Tkinter root window
 
 root.protocol("WM_DELETE_WINDOW", on_closing)  # Bind the close button to `on_closing`
+
+
+
+
+
+
 
 # Main loop
 root.mainloop()

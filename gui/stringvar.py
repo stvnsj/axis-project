@@ -18,6 +18,29 @@ trigonometric_file = tk.StringVar()
 master_pr_file = tk.StringVar()
 
 
+# ******** CONTROL FIELDS *********
+mop_proj_file = tk.StringVar()
+mop_ctrl_file = tk.StringVar()
+
+level_proj_file = tk.StringVar()
+level_ctrl_file = tk.StringVar()
+
+mdt_proj_file = tk.StringVar()
+mdt_ctrl_file = tk.StringVar()
+
+axis_proj_file = tk.StringVar()
+axis_ctrl_file = tk.StringVar()
+
+random_seed_input   = tk.StringVar()
+random_seed_input.set("42")
+
+
+project_length_input = tk.StringVar()
+dm_interval_input = tk.StringVar()
+# *********************************
+
+
+
 meter0 = tk.StringVar()
 meter1 = tk.StringVar()
 chunkSize = tk.StringVar()

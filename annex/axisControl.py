@@ -24,34 +24,26 @@ def generate (
         input1 = "",
         input2 = "",
         output_file = "/home/jstvns/axis/Anexos Formulas/axiscontrol.xlsx",
-        tramo = "*",
+        dm_interval = "*",
         total_length = 1000,
 ) :
     
     workbook   = xlsxwriter.Workbook(output_file)
     worksheet  = workbook.add_worksheet("SHEET1")
-    axis_ctrl = AxisControl(input1,input2)
+    axis_ctrl  = AxisControl(input1,input2)
     
-    # worksheet.hide_gridlines(2) 
-    # worksheet.set_portrait()
-    # worksheet.set_page_view(2)
-    # worksheet.set_paper(9)
-    # worksheet.set_margins(left=0.71, right=0.71, top=0.95, bottom=0.75)
-
     worksheet.hide_gridlines(2)  # 2 hides both the printed and visible gridlines
     worksheet.set_portrait()
     worksheet.set_page_view(2)
     worksheet.set_paper(5)
     
     writer = Writer(workbook,worksheet)
-
+    
     writer.range(2,19,2,6,"",Format.BORDER)
     writer.range(20,49,2,4,"VERIFICACIÓN DE ESTACADO DEL EJE",
                  Format.SIZE(12),Format.BOLD, Format.BTOP,Format.BRIGHT, Format.CENTER, Format.VCENTER)
     writer.range(20,49,5,6,"FORMULARIO N° 2.309.305.A",
                  Format.SIZE(12),Format.BOLD, Format.BBOTTOM,Format.BRIGHT, Format.BOTTOM, Format.CENTER)
-
-    
     
     writer.range(1,1,8,11,"",Format.BRIGHT)
     writer.range(50,50,8,11,"",Format.BLEFT)
@@ -64,26 +56,23 @@ def generate (
     writer.cell (2,11,"REALIZADO:",Format.SIZE(10), Format.BOLD, Format.LEFT, Format.VCENTER)
     writer.range(36,49,11,11,f"FECHA: {annexUtils.curr_date()}",Format.SIZE(10),Format.RIGHT,Format.VCENTER)
     
-    writer.cell(10,8, "NOMBRE DEL PROYECTO")
-    writer.cell(10,9, "SECTOR DEL PROYECTO")
-    writer.cell(10,10,"TRAMO DEL PROYECTO")
-    writer.cell(10,11,"REALIZADO POR EQC")
+    writer.cell(10,8, ": *")
+    writer.cell(10,9, ": *")
+    writer.cell(10,10,": *")
+    writer.cell(10,11,": AUTOCONTROL TOPOGRÁFICO")
     
-
+    
     
     writer.range(2,6,14,14,"Tramo N°:",Format.SIZE(9))
-    writer.range(7,11,14,14,tramo,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
+    writer.range(7,11,14,14,dm_interval,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
     writer.range(13,17,14,14,"Dm. Inicio:" ,Format.SIZE(9))
     writer.range(18,23,14,14,axis_ctrl.min_ctrl_dm ,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
     writer.range(25,28,14,14,"Dm. Fin:" ,Format.SIZE(9))
     writer.range(29,33,14,14,axis_ctrl.max_ctrl_dm,Format.SIZE(9),Format.CENTER, Format.BBOTTOM) #PROGRAM
-    #writer.range(35,42,14,14,"Longitud del Tramo:",Format.SIZE(9))
-    #writer.range(43,49,14,14,axis_ctrl.ctrl_length,Format.SIZE(9),Format.CENTER, Format.BORDER) #PROGRAM
-    
     
     writer.range(40,45,14,14,"% muestral:", Format.SIZE(9))
     writer.range(46,49,14,14,np.round(100*axis_ctrl.ctrl_length/total_length,1),Format.SIZE(9),Format.BORDER,Format.NUM1,Format.CENTER)
-
+    
     writer.range(34,45,16,16,"Tolerancia (m): ", Format.RIGHT,Format.SIZE(10))
     writer.range(46,49,16,16,"0,10 m", Format.CENTER,Format.SIZE(10),Format.BORDER,Format.CENTER, Format.BORDER)
     

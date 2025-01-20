@@ -3,13 +3,23 @@ import utils
 
 
 def guessHeight (dm,dm_array,line=None):
-    dm2 = dm[:-1]
-    for i in range(0,10):
-        dm3 = dm2 + f'{i}'
-        if dm3 in dm_array:
-            print(f"Cambio de DM sugerido en línea {int (line)+894}: {dm} --> {dm3}\n")
+    try:
+        dm_float = np.round(float(dm),3)
+    except:
+        print (f'Linea {int(line)}: No hay cambio sugerido para {dm}')
+    
+    for dm0 in dm_array:
+        try:
+            dm0_float = np.round(float(dm0),3)
+        except:
+            continue
+        
+        if np.abs(dm_float - dm0_float) <= 0.01:
+            print(f'Linea {int(line)}: {dm} --> {dm0}')
             return
-    print(f"No hay cambio de DM sugerido para {dm} en línea {int (line)+894}\n")
+    
+    print (f'Linea {int(line)}: No hay cambio sugerido para {dm}')
+    return
 
 class Interval :
     def __init__ (self, matrix):
@@ -91,7 +101,7 @@ def main () :
     
     
     
-    data = utils.read_csv('/home/jstvns/NIVELACION/MariaElena.csv')
+    data = utils.read_csv('/home/jstvns/NIVELACION/mariaelena.csv')
     dm   = utils.read_csv('/home/jstvns/NIVELACION/dm.csv')
     
     
